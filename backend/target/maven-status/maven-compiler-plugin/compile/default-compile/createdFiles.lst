@@ -1,0 +1,6 @@
+com/datapig/controller/ConfigurationController.class
+com/datapig/controller/FileUploadController.class
+com/datapig/MainApplication.class
+com/datapig/config/WebConfig.class
+com/datapig/controller/LicenseKeyController.class
+com/datapig/controller/DashboardController.class
