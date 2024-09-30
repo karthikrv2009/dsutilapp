@@ -1,0 +1,21 @@
+# Node modules
+/frontend/node_modules
+/frontend/build
+
+# Logs
+*.log
+/logs
+
+# Compiled class files
+**/target/
+
+# IntelliJ project files
+*.idea/
+*.iml
+
+# Maven target folder
+/target
+
+# Spring Boot properties
+/src/main/resources/application.properties
+
