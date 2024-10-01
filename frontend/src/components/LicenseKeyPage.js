@@ -7,9 +7,23 @@ function LicenseKeyPage() {
   const navigate = useNavigate();
 
   const handleValidate = () => {
-    if (licenseKey) {
-      navigate("/configuration");
-    }
+    fetch("http://localhost:8080/api/license/validate", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: new URLSearchParams({ licenseKey }), // Pass licenseKey as request parameter
+    })
+      .then((response) => response.text())
+      .then((data) => {
+        if (data === "License key validated successfully!") {
+          // Navigate to Configuration page on success
+          navigate("/configuration");
+        } else {
+          alert("Invalid License Key");
+        }
+      })
+      .catch((error) => console.error("Error:", error));
   };
 
   return (

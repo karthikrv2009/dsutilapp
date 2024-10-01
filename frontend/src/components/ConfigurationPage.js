@@ -16,8 +16,35 @@ function ConfigurationPage() {
   const [dataLakePath, setDataLakePath] = useState("");
   const navigate = useNavigate();
 
-  const handleFileUpload = (e) => {
-    setFile(e.target.files[0]);
+  const handleFileUpload = (file) => {
+    // Check if a file is selected
+    if (!file) {
+      alert("No file selected!");
+      return;
+    }
+
+    alert("File selected: " + file.name);
+
+    const formData = new FormData();
+    formData.append("file", file); // 'file' should match the backend's expected parameter
+
+    fetch("http://localhost:8080/api/configuration/uploadModel", {
+      method: "POST",
+      body: formData, // The FormData object automatically sets the multipart/form-data header
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("File upload failed");
+        }
+        return response.text();
+      })
+      .then((data) => {
+        alert("Success: " + data); // Show success message
+      })
+      .catch((error) => {
+        alert("Error: " + error.message); // Show error message
+        console.error("Error uploading file:", error);
+      });
   };
 
   const handleValidate = () => {
@@ -27,9 +54,23 @@ function ConfigurationPage() {
   };
 
   const handleSubmit = () => {
-    if (dataLakePath) {
-      navigate("/dashboard");
-    }
+    fetch("http://localhost:8080/api/configuration/setDataLakePath", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: new URLSearchParams({ dataLakePath }), // Pass dataLakePath as request parameter
+    })
+      .then((response) => response.text())
+      .then((data) => {
+        if (data === "Data lake path saved successfully!") {
+          // Navigate to the dashboard page
+          navigate("/dashboard");
+        } else {
+          alert("Error saving data lake path");
+        }
+      })
+      .catch((error) => console.error("Error:", error));
   };
 
   return (
@@ -40,7 +81,10 @@ function ConfigurationPage() {
 
       <Button variant="contained" component="label">
         Upload Model JSON
-        <input type="file" hidden onChange={handleFileUpload} />
+        <input
+          type="file"
+          onChange={(e) => handleFileUpload(e.target.files[0])}
+        />
       </Button>
       {file && (
         <Typography variant="body1" style={{ marginTop: "10px" }}>
