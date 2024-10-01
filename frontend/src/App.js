@@ -4,6 +4,9 @@ import { ThemeProvider, createTheme } from "@mui/material/styles";
 import LicenseKeyPage from "./components/LicenseKeyPage"; // Ensure these are correctly imported
 import ConfigurationPage from "./components/ConfigurationPage";
 import DashboardPage from "./components/DashboardPage";
+import Header from "./components/Header"; // Import Header
+import Footer from "./components/Footer"; // Import Footer
+import { Container } from "@mui/material"; // For consistent layout
 
 // Define a global theme using Material-UI's createTheme function
 const theme = createTheme({
@@ -19,16 +22,20 @@ const theme = createTheme({
 
 function App() {
   return (
-    <ThemeProvider theme={theme}>
-      <Router>
+    <Router>
+      <Header /> {/* The header will be shown on every page */}
+      <Container style={{ minHeight: "80vh" }}>
+        {" "}
+        {/* Adjust height if needed */}
         <Routes>
           <Route path="/license" element={<LicenseKeyPage />} />
           <Route path="/configuration" element={<ConfigurationPage />} />
           <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/" element={<LicenseKeyPage />} />
         </Routes>
-      </Router>
-    </ThemeProvider>
+      </Container>
+      <Footer /> {/* The footer will be shown on every page */}
+    </Router>
   );
 }
 
