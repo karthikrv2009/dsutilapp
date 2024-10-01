@@ -7,35 +7,59 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.datapig.service.dto.ModelRoot;
 import com.datapig.service.dto.ModelEntity;
 import com.datapig.service.dto.ModelAttribute;
 import com.datapig.service.dto.ModelTrait;
 import com.datapig.service.dto.ModelTraitArgument;
+import com.datapig.service.dto.ModelTable;
+import org.springframework.stereotype.Service;
+
+@Service
 public class ParseModelJson {
 
-    public void parseModelJson(String modelJson) {
+     private static final Logger logger = LoggerFactory.getLogger(ParseModelJson.class);
+
+    public List<ModelTable> parseModelJson(String modelJson) {
         String json = "{ \"name\": \"cdm\", \"description\": \"cdm\", \"version\": \"1.0\", \"entities\": [...] }"; // Use the complete JSON string here
 
         Gson gson = new Gson();
         ModelRoot root = gson.fromJson(modelJson, ModelRoot.class);
 
+        List<ModelTable> resultTable = new ArrayList<>();
+        for (ModelEntity entity : root.getEntities()) {
+            for (ModelAttribute attribute : entity.getAttributes()) {
+                ModelTable table = new ModelTable();
+                table.setTableName(entity.getName());
+                table.setAttributeName(attribute.getName());
+                table.setDataType(attribute.getDataType());
+                resultTable.add(table);
+            }
+        }
+
+
+
+
         // Output some parsed data
-        System.out.println("Name: " + root.getName());
-        System.out.println("Description: " + root.getDescription());
-        System.out.println("Version: " + root.getVersion());
+        logger.info("Name: " + root.getName());
+        logger.info("Description: " + root.getDescription());
+        logger.info("Version: " + root.getVersion());
 
         Map<String, String> sqlTypeMap = createSqlTypeMap(root);
         Set<String> entry = sqlTypeMap.keySet();
         // Print the SQL type map
         for (String iter : entry) {
-            System.out.println("Entity: " + iter + " -> SQL Types: " + sqlTypeMap.get(iter));
+            logger.info("Entity: " + iter + " -> SQL Types: " + sqlTypeMap.get(iter));
         }
+
+        return resultTable;
     }
 
     // Function to create a map from entity names to their SQL Server data types
-    private static Map<String, String> createSqlTypeMap(ModelRoot root) {
+    private Map<String, String> createSqlTypeMap(ModelRoot root) {
         Map<String, String> sqlTypeMap = new HashMap<>();
 
         for (ModelEntity entity : root.getEntities()) {
@@ -56,7 +80,7 @@ public class ParseModelJson {
     }
 
     // Function to convert Python data types to SQL Server data types
-    private static String convertToSqlType(ModelAttribute attribute) {
+    private String convertToSqlType(ModelAttribute attribute) {
         switch (attribute.getDataType().toLowerCase()) {
             case "guid":
                 return "UNIQUEIDENTIFIER";

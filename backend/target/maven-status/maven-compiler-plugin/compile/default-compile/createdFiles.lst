@@ -1,6 +1,7 @@
 com/datapig/controller/ConfigurationController.class
 com/datapig/controller/FileUploadController.class
 com/datapig/service/dto/ModelAttribute.class
+com/datapig/service/dto/ModelTable.class
 com/datapig/service/dto/ModelTraitArgument.class
 com/datapig/config/WebConfig.class
 com/datapig/controller/LicenseKeyController.class

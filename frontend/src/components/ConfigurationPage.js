@@ -8,6 +8,8 @@ import {
   TableBody,
   TableCell,
   TableRow,
+  TableHead,
+  Checkbox,
 } from "@mui/material"; // Import Material-UI components
 import { useNavigate } from "react-router-dom"; // For navigation
 
@@ -15,6 +17,8 @@ function ConfigurationPage() {
   const [file, setFile] = useState(null);
   const [dataLakePath, setDataLakePath] = useState("");
   const navigate = useNavigate();
+  const [modelData, setModelData] = useState([]);
+  const [selectedTables, setSelectedTables] = useState([]);
 
   const handleFileUpload = (file) => {
     // Check if a file is selected
@@ -36,16 +40,76 @@ function ConfigurationPage() {
         if (!response.ok) {
           throw new Error("File upload failed");
         }
-        return response.text();
+        return response.json();
       })
       .then((data) => {
-        alert("Success: " + data); // Show success message
+        // Set the parsed table data in the state
+        setModelData(data);
       })
       .catch((error) => {
         alert("Error: " + error.message); // Show error message
         console.error("Error uploading file:", error);
       });
   };
+
+  // Handle selecting and deselecting tables
+  const handleSelectTable = (tableName) => {
+    setSelectedTables((prevSelected) => {
+      if (prevSelected.includes(tableName)) {
+        return prevSelected.filter((name) => name !== tableName); // Deselect
+      } else {
+        return [...prevSelected, tableName]; // Select
+      }
+    });
+  };
+
+  return (
+    <div>
+      {/* File input for uploading JSON file */}
+      <input
+        type="file"
+        onChange={(e) => handleFileUpload(e.target.files[0])}
+      />
+
+      {/* Heading for total parsed tables */}
+      {modelData.length > 0 && (
+        <>
+          <Typography variant="h6" gutterBottom>
+            Total Parsed Tables: {modelData.length}
+          </Typography>
+
+          {/* Displaying the parsed data as a table */}
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell>Checkbox</TableCell>
+                <TableCell>Table Name</TableCell>
+                <TableCell>Fields (AttributeName:DataType)</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {modelData.map((row, index) => (
+                <TableRow key={index}>
+                  <TableCell>
+                    <Checkbox
+                      checked={selectedTables.includes(row.tableName)}
+                      onChange={() => handleSelectTable(row.tableName)}
+                    />
+                  </TableCell>
+                  <TableCell>{row.tableName}</TableCell>
+                  <TableCell>
+                    {row.attributes
+                      .map((attr) => `${attr.name}:${attr.dataType}`)
+                      .join(", ")}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </>
+      )}
+    </div>
+  );
 
   const handleValidate = () => {
     if (file) {
