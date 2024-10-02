@@ -2,6 +2,7 @@ com/datapig/controller/ConfigurationController.class
 com/datapig/controller/FileUploadController.class
 com/datapig/service/dto/ModelAttribute.class
 com/datapig/service/dto/ModelTable.class
+com/datapig/dto/DashboardData.class
 com/datapig/service/dto/ModelTraitArgument.class
 com/datapig/config/WebConfig.class
 com/datapig/service/dto/ModelTableAttributes.class
@@ -12,4 +13,5 @@ com/datapig/MainApplication.class
 com/datapig/service/dto/ModelTrait.class
 com/datapig/service/dto/ModelEntity.class
 com/datapig/service/ParseModelJson.class
+com/datapig/dto/TableData.class
 com/datapig/controller/DashboardController.class
