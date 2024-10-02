@@ -1,7 +1,7 @@
 package com.datapig.controller;
 
-import com.datapig.dto.DashboardData;
-import com.datapig.dto.TableData;
+import com.datapig.service.dto.DashboardData;
+import com.datapig.service.dto.TableData;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;

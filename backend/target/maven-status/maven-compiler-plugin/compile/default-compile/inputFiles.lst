@@ -4,6 +4,7 @@
 /Users/karthik/Documents/datapig/dsutilapp/backend/src/main/java/com/datapig/service/ParseModelJson.java
 /Users/karthik/Documents/datapig/dsutilapp/backend/src/main/java/com/datapig/service/dto/TableData.java
 /Users/karthik/Documents/datapig/dsutilapp/backend/src/main/java/com/datapig/service/dto/ModelEntity.java
+/Users/karthik/Documents/datapig/dsutilapp/backend/src/main/java/com/datapig/service/dto/ConfigurationRequest.java
 /Users/karthik/Documents/datapig/dsutilapp/backend/src/main/java/com/datapig/controller/FileUploadController.java
 /Users/karthik/Documents/datapig/dsutilapp/backend/src/main/java/com/datapig/service/dto/ModelAttribute.java
 /Users/karthik/Documents/datapig/dsutilapp/backend/src/main/java/com/datapig/service/dto/ModelTable.java

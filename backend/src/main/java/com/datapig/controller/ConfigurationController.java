@@ -5,6 +5,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import com.datapig.service.dto.ConfigurationRequest;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 
 @RestController
 @RequestMapping("/api/configuration")
@@ -12,15 +17,22 @@ public class ConfigurationController {
 
     private static final Logger logger = LoggerFactory.getLogger(ConfigurationController.class);
 
-    @PostMapping("/setDataLakePath")
-    public ResponseEntity<String> setDataLakePath(@RequestParam String dataLakePath) {
-        // Log the received data lake path
-        logger.info("Received Data Lake Path: {}", dataLakePath);
+   @PostMapping("/saveConfiguration")
+    public ResponseEntity< Map<String, String>> saveConfiguration(@RequestBody ConfigurationRequest configRequest) {
+        String dataLakePath = configRequest.getDataLakePath();
+        List<String> selectedTables = configRequest.getSelectedTables();
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "Configuration saved successfully!");
 
-        // Validate and save the data lake path (dummy logic for now)
-        if (dataLakePath == null || dataLakePath.isEmpty()) {
-            return ResponseEntity.status(400).body("Invalid data lake path!");
-        }
-        return ResponseEntity.ok("Data lake path saved successfully!");
+        // Here you would handle saving the configuration (e.g., saving to a database)
+        // Example:
+        // configurationService.saveDataLakePath(dataLakePath);
+        // configurationService.saveSelectedTables(selectedTables);
+
+        System.out.println("Data Lake Path: " + dataLakePath);
+        System.out.println("Selected Tables: " + selectedTables);
+        System.out.println("Configuration saved successfully!");
+
+        return ResponseEntity.ok(response);
     }
 }

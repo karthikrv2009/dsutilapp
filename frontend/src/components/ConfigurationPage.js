@@ -1,17 +1,33 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
+  Button,
   Table,
   TableBody,
   TableCell,
   TableHead,
   TableRow,
-  Checkbox,
   Typography,
+  Paper,
+  Grid,
+  Box,
+  Checkbox,
+  TextField,
 } from "@mui/material";
+import { styled } from "@mui/system";
+import { useNavigate } from "react-router-dom"; // Import useNavigate for redirection
 
-function ConfigurationPage() {
+const ScrollableTableContainer = styled(Box)({
+  maxHeight: "400px",
+  overflowY: "auto",
+});
+
+const ConfigurationPage = () => {
   const [modelData, setModelData] = useState([]);
   const [selectedTables, setSelectedTables] = useState([]);
+  const [selectAll, setSelectAll] = useState(false);
+  const [fileUploaded, setFileUploaded] = useState(false);
+  const [dataLakePath, setDataLakePath] = useState("");
+  const navigate = useNavigate(); // useNavigate for redirection
 
   const handleFileUpload = (file) => {
     if (!file) {
@@ -22,7 +38,7 @@ function ConfigurationPage() {
     const formData = new FormData();
     formData.append("file", file);
 
-    fetch("http://localhost:8080/api/configuration/uploadModel", {
+    fetch("http://localhost:8080/api/fileupload/uploadModel", {
       method: "POST",
       body: formData,
     })
@@ -33,105 +49,161 @@ function ConfigurationPage() {
         return response.json();
       })
       .then((data) => {
-        // Group the attributes for each table by table name
-        const groupedData = data.reduce((acc, curr) => {
-          const existingTable = acc.find(
-            (table) => table.tableName === curr.tableName
-          );
-          if (existingTable) {
-            // If the table already exists, initialize attributes if necessary and concatenate them
-            existingTable.attributes = existingTable.attributes || [];
-            existingTable.attributes = [
-              ...existingTable.attributes,
-              ...(curr.attributes || []), // Safely append attributes
-            ];
-          } else {
-            // Otherwise, add a new table entry
-            acc.push({
-              tableName: curr.tableName,
-              attributes: curr.attributes || [], // Ensure attributes is always an array
-            });
-          }
-          return acc;
-        }, []);
-        // Log the grouped data to check if attributes are populated correctly
-        console.log("Grouped Data:", groupedData);
-        // Set the grouped table data in the state
-        setModelData(groupedData);
+        setModelData(data);
+        setFileUploaded(true); // Hide upload section once upload is complete
       })
       .catch((error) => {
         console.error("Error uploading file:", error);
       });
   };
 
-  // Handle selecting and deselecting tables
   const handleSelectTable = (tableName) => {
-    setSelectedTables((prevSelected) => {
-      if (prevSelected.includes(tableName)) {
-        return prevSelected.filter((name) => name !== tableName); // Deselect
-      } else {
-        return [...prevSelected, tableName]; // Select
-      }
-    });
+    if (selectedTables.includes(tableName)) {
+      setSelectedTables(selectedTables.filter((name) => name !== tableName)); // Deselect
+    } else {
+      setSelectedTables([...selectedTables, tableName]); // Select
+    }
   };
 
-  useEffect(() => {
-    // Log model data whenever it updates
-    console.log("Model Data:", modelData);
-  }, [modelData]);
+  const handleSelectAll = () => {
+    if (selectAll) {
+      setSelectedTables([]); // Deselect all
+    } else {
+      setSelectedTables(modelData.map((row) => row.tableName)); // Select all
+    }
+    setSelectAll(!selectAll);
+  };
+
+  const handleSubmitConfiguration = () => {
+    const configData = {
+      dataLakePath: dataLakePath,
+      selectedTables: selectedTables,
+    };
+
+    fetch("http://localhost:8080/api/configuration/saveConfiguration", {
+      method: "POST",
+      body: JSON.stringify(configData),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log("Configuration saved:", data);
+        // Redirect to dashboard after successful submission
+        window.location.href = "/dashboard";
+      })
+      .catch((error) => {
+        console.error("Error saving configuration:", error);
+      });
+  };
 
   return (
     <div>
-      {/* File input for uploading JSON file */}
-      <input
-        type="file"
-        onChange={(e) => handleFileUpload(e.target.files[0])}
-      />
+      {!fileUploaded && (
+        <Grid
+          container
+          justifyContent="center"
+          alignItems="center"
+          style={{ marginTop: "20px" }}
+        >
+          <Grid item>
+            <input
+              type="file"
+              id="fileUpload"
+              style={{ display: "none" }}
+              onChange={(e) => handleFileUpload(e.target.files[0])}
+            />
+            <label htmlFor="fileUpload">
+              <Button
+                variant="contained"
+                color="primary"
+                component="span"
+                style={{ padding: "10px 20px", fontSize: "16px" }}
+              >
+                Upload JSON File
+              </Button>
+            </label>
+          </Grid>
+        </Grid>
+      )}
 
-      {/* Heading for total parsed tables */}
-      {modelData.length > 0 && (
-        <>
+      {fileUploaded && modelData.length > 0 && (
+        <div style={{ marginTop: "20px" }}>
           <Typography variant="h6" gutterBottom>
             Total Parsed Tables: {modelData.length}
           </Typography>
 
-          {/* Displaying the parsed data as a table */}
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>Checkbox</TableCell>
-                <TableCell>Table Name</TableCell>
-                <TableCell>Fields (AttributeName:DataType)</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {modelData.map((row, index) => (
-                <TableRow key={index}>
-                  <TableCell>
-                    <Checkbox
-                      checked={selectedTables.includes(row.tableName)}
-                      onChange={() => handleSelectTable(row.tableName)}
-                    />
-                  </TableCell>
-                  <TableCell>{row.tableName}</TableCell>
-                  <TableCell>
-                    {/* Join all attributes into a comma-separated string */}
-                    {row.attributes && row.attributes.length > 0
-                      ? row.attributes
-                          .map(
-                            (attr) => `${attr.attributeName}:${attr.dataType}`
-                          )
-                          .join(", ")
-                      : "No Attributes"}
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </>
+          {/* Scrollable Table with Checkboxes */}
+          <Paper elevation={3} style={{ padding: "20px" }}>
+            <Button
+              onClick={handleSelectAll}
+              variant="contained"
+              color="secondary"
+              style={{ marginBottom: "10px" }}
+            >
+              {selectAll ? "Deselect All" : "Select All"}
+            </Button>
+            <ScrollableTableContainer>
+              <Table stickyHeader>
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Select</TableCell>
+                    <TableCell>Table Name</TableCell>
+                    <TableCell>Fields (AttributeName:DataType)</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {modelData.map((row, index) => (
+                    <TableRow key={index}>
+                      <TableCell>
+                        <Checkbox
+                          checked={selectedTables.includes(row.tableName)}
+                          onChange={() => handleSelectTable(row.tableName)}
+                        />
+                      </TableCell>
+                      <TableCell>{row.tableName}</TableCell>
+                      <TableCell>
+                        {row.attributes && row.attributes.length > 0
+                          ? row.attributes
+                              .map(
+                                (attr) =>
+                                  `${attr.attributeName}:${attr.dataType}`
+                              )
+                              .join(", ")
+                          : "No Attributes"}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </ScrollableTableContainer>
+          </Paper>
+
+          {/* Data Lake Path Input */}
+          <div style={{ marginTop: "20px" }}>
+            <TextField
+              label="Enter Data Lake Path"
+              variant="outlined"
+              fullWidth
+              value={dataLakePath}
+              onChange={(e) => setDataLakePath(e.target.value)}
+            />
+          </div>
+
+          {/* Submit Button for both Table Monitoring and Data Lake Path */}
+          <Button
+            onClick={handleSubmitConfiguration}
+            variant="contained"
+            color="primary"
+            style={{ marginTop: "20px", padding: "10px 20px" }}
+          >
+            Submit Configuration
+          </Button>
+        </div>
       )}
     </div>
   );
-}
+};
 
 export default ConfigurationPage;

@@ -1,4 +1,4 @@
-package com.datapig.dto;
+package com.datapig.service.dto;
 
 public class TableData {
     private String tableName;
