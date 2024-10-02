@@ -1,26 +1,25 @@
 package com.datapig.service.dto; 
+import com.datapig.service.dto.ModelTableAttributes;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ModelTable {
    
     private String tableName;
-    private String attributeName;
-    private String dataType;
+    private List<ModelTableAttributes> attributes;
+
     public String getTableName() {
         return tableName;
     }
     public void setTableName(String tableName) {
         this.tableName = tableName;
     }
-    public String getAttributeName() {
-        return attributeName;
+    public List<ModelTableAttributes> getAttributes() {
+        return attributes;
     }
-    public void setAttributeName(String attributeName) {
-        this.attributeName = attributeName;
+    public void setAttributes(List<ModelTableAttributes> attributes) {
+        this.attributes = attributes;
     }
-    public String getDataType() {
-        return dataType;
-    }
-    public void setDataType(String dataType) {
-        this.dataType = dataType;
-    }
+
+    
 }

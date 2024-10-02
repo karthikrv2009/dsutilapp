@@ -4,6 +4,7 @@ com/datapig/service/dto/ModelAttribute.class
 com/datapig/service/dto/ModelTable.class
 com/datapig/service/dto/ModelTraitArgument.class
 com/datapig/config/WebConfig.class
+com/datapig/service/dto/ModelTableAttributes.class
 com/datapig/controller/LicenseKeyController.class
 com/datapig/service/dto/ModelRoot.class
 com/datapig/service/dto/ModelAnnotation.class

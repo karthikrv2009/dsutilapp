@@ -16,6 +16,7 @@ import com.datapig.service.dto.ModelAttribute;
 import com.datapig.service.dto.ModelTrait;
 import com.datapig.service.dto.ModelTraitArgument;
 import com.datapig.service.dto.ModelTable;
+import com.datapig.service.dto.ModelTableAttributes;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -30,13 +31,34 @@ public class ParseModelJson {
         ModelRoot root = gson.fromJson(modelJson, ModelRoot.class);
 
         List<ModelTable> resultTable = new ArrayList<>();
+        ModelTable iter=null;
         for (ModelEntity entity : root.getEntities()) {
             for (ModelAttribute attribute : entity.getAttributes()) {
+                for(ModelTable tbl : resultTable){
+                    if(tbl.getTableName().equals(entity.getName())){
+                        iter=tbl;
+                    }
+                }
+                if(attribute.getName()!=null){
+                 if(iter!=null){
+                List<ModelTableAttributes> attributes  = iter.getAttributes();
+                ModelTableAttributes attr=new ModelTableAttributes();
+                attr.setAttributeName(attribute.getName());
+                attr.setDataType(attribute.getDataType());
+                attributes.add(attr);
+                }else{
                 ModelTable table = new ModelTable();
                 table.setTableName(entity.getName());
-                table.setAttributeName(attribute.getName());
-                table.setDataType(attribute.getDataType());
+                List<ModelTableAttributes> attributes  = new ArrayList<ModelTableAttributes>();
+                ModelTableAttributes attr=new ModelTableAttributes();
+                attr.setAttributeName(attribute.getName());
+                attr.setDataType(attribute.getDataType());
+                attributes.add(attr);
+                table.setAttributes(attributes);
                 resultTable.add(table);
+                }
+                }
+                iter=null;
             }
         }
 
@@ -50,10 +72,7 @@ public class ParseModelJson {
 
         Map<String, String> sqlTypeMap = createSqlTypeMap(root);
         Set<String> entry = sqlTypeMap.keySet();
-        // Print the SQL type map
-        for (String iter : entry) {
-            logger.info("Entity: " + iter + " -> SQL Types: " + sqlTypeMap.get(iter));
-        }
+      
 
         return resultTable;
     }
