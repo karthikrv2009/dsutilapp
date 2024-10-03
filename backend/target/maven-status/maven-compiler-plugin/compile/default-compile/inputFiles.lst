@@ -5,6 +5,7 @@
 /Users/karthik/Documents/datapig/dsutilapp/backend/src/main/java/com/datapig/service/dto/TableData.java
 /Users/karthik/Documents/datapig/dsutilapp/backend/src/main/java/com/datapig/service/dto/ModelEntity.java
 /Users/karthik/Documents/datapig/dsutilapp/backend/src/main/java/com/datapig/service/dto/ConfigurationRequest.java
+/Users/karthik/Documents/datapig/dsutilapp/backend/src/main/java/com/datapig/repository/ConfigurationRepository.java
 /Users/karthik/Documents/datapig/dsutilapp/backend/src/main/java/com/datapig/controller/FileUploadController.java
 /Users/karthik/Documents/datapig/dsutilapp/backend/src/main/java/com/datapig/service/dto/ModelAttribute.java
 /Users/karthik/Documents/datapig/dsutilapp/backend/src/main/java/com/datapig/service/dto/ModelTable.java
@@ -13,6 +14,7 @@
 /Users/karthik/Documents/datapig/dsutilapp/backend/src/main/java/com/datapig/controller/DashboardController.java
 /Users/karthik/Documents/datapig/dsutilapp/backend/src/main/java/com/datapig/MainApplication.java
 /Users/karthik/Documents/datapig/dsutilapp/backend/src/main/java/com/datapig/controller/ConfigurationController.java
+/Users/karthik/Documents/datapig/dsutilapp/backend/src/main/java/com/datapig/entity/ConfigurationEntity.java
 /Users/karthik/Documents/datapig/dsutilapp/backend/src/main/java/com/datapig/service/dto/ModelRoot.java
 /Users/karthik/Documents/datapig/dsutilapp/backend/src/main/java/com/datapig/service/dto/ModelAnnotation.java
 /Users/karthik/Documents/datapig/dsutilapp/backend/src/main/java/com/datapig/config/WebConfig.java
