@@ -1,12 +1,12 @@
 package com.datapig.entity; 
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import java.util.List;
-import javax.persistence.Table;
-
+import jakarta.persistence.Table;
+import jakarta.persistence.Column;
 
 @Entity
 @Table(name = "configuration")
@@ -20,6 +20,7 @@ public class ConfigurationEntity {
     private String dataLakePath;
     
     // Store selected tables as comma-separated values
+    @Column(length = 100000)
     private String selectedTables;
 
     // Constructors, getters, and setters

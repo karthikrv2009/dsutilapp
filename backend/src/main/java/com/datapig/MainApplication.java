@@ -15,14 +15,10 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
 
-
-
 @SpringBootApplication
-@Configuration
-@ComponentScan
-@EntityScan(basePackages = "com.datapig.entity")  // Ensure this is correct
-@EnableJpaRepositories("com.datapig.repository")
-
+@EntityScan(basePackages = "com.datapig.entity") // Adjust this if needed
+@EnableJpaRepositories(basePackages = "com.datapig.repository") // Adjust if needed
+@ComponentScan({"com.datapig.*"})
 public class MainApplication {
 
     public static void main(String[] args) {

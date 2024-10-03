@@ -10,7 +10,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.0.0</version> <!-- Use the latest version -->
+        <version>3.1.0</version> <!-- Use the latest version -->
         <relativePath/> <!-- Lookup parent from repository -->
     </parent>
 
@@ -56,25 +56,7 @@
             <artifactId>mysql-connector-java</artifactId>
             <version>8.0.30</version>
         </dependency>
-        <!-- JPA API for javax.persistence package -->
-        <dependency>
-            <groupId>javax.persistence</groupId>
-            <artifactId>javax.persistence-api</artifactId>
-            <version>2.2</version> <!-- Version compatible with older Spring Boot and Hibernate -->
-        </dependency>
-
-        <!-- Hibernate Validator (optional, for validating entities) -->
-        <dependency>
-            <groupId>org.hibernate.validator</groupId>
-            <artifactId>hibernate-validator</artifactId>
-        </dependency>
-            <!-- JPA API Dependency (javax.persistence) -->
-        <dependency>
-            <groupId>jakarta.persistence</groupId>
-            <artifactId>jakarta.persistence-api</artifactId>
-            <version>3.1.0</version> <!-- Ensure it's a compatible version -->
-        </dependency>
-
+      
 
 
         <dependency>
