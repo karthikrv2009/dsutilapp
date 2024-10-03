@@ -12,6 +12,8 @@ import java.util.Map;
 import java.util.HashMap;
 import com.datapig.entity.ConfigurationEntity;
 import com.datapig.repository.ConfigurationRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+
 
 @RestController
 @RequestMapping("/api/configuration")
