@@ -5,8 +5,11 @@ import javax.persistence.Id;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import java.util.List;
+import javax.persistence.Table;
+
 
 @Entity
+@Table(name = "configuration")
 public class ConfigurationEntity {
     
     @Id

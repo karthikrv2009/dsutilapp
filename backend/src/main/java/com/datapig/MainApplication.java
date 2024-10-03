@@ -16,13 +16,13 @@ import org.springframework.context.annotation.Configuration;
 
 
 
-@Configuration
-@ComponentScan
-@EnableAutoConfiguration
-@EntityScan(basePackages = "com.datapig.entity")  // Ensure this is correct
-@EnableJpaRepositories(basePackages = "com.datapig.repository")  // Ensure this is correct
 
 @SpringBootApplication
+@Configuration
+@ComponentScan
+@EntityScan(basePackages = "com.datapig.entity")  // Ensure this is correct
+@EnableJpaRepositories("com.datapig.repository")
+
 public class MainApplication {
 
     public static void main(String[] args) {
