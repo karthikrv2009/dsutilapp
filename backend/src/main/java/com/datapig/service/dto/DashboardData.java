@@ -1,6 +1,7 @@
 package com.datapig.service.dto; 
 
 import java.util.List;
+import com.datapig.service.dto.TableData;
 
 public class DashboardData {
     private String lastSuccessfulRuntime;

@@ -8,10 +8,12 @@ import com.datapig.service.dto.TableData;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import com.datapig.service.dto.TableData;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
+import com.datapig.service.dto.TableData;
 @RestController
 @RequestMapping("/api/dashboard")
 public class DashboardController {
@@ -30,18 +32,20 @@ public class DashboardController {
         String lastSuccessfulRuntime = "2024-01-01 12:00:00";
         int totalTablesImpacted = 5;
         int totalRecordsImpacted = 50000;
+        List<TableData> tableData = null;
 
         if(configuration!=null){
 
              // Create table data from configuration's selected tables
         List<String> tableNames = Arrays.asList(configuration.getSelectedTables().split(","));
-        List<DashboardData.TableData> tableData = tableNames.stream()
-            .map(tableName -> new DashboardData.TableData(tableName, lastSuccessfulRuntime, 1000)) // Example record count
-            .toList();
-
+        tableData= new ArrayList<TableData>();
+        for(String iter : tableNames){
+           TableData i= new TableData(iter,lastSuccessfulRuntime,1000);
+           tableData.add(i);
+        }
         }else{
         // Example table data - replace with real logic
-        List<TableData> tableData = Arrays.asList(
+        tableData = Arrays.asList(
             new TableData("table1", "2024-01-01 12:00:00", 1500),
             new TableData("table2", "2024-01-01 11:45:00", 2000),
             new TableData("table3", "2024-01-01 11:30:00", 500),

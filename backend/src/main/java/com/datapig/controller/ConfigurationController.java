@@ -30,6 +30,7 @@ public class ConfigurationController {
         String dataLakePath = configRequest.getDataLakePath();
         String selectedTables = String.join(",",configRequest.getSelectedTables());
         Map<String, String> response = new HashMap<>();
+        String licenseKey="12345";
         response.put("message", "Configuration saved successfully!");
 
         // Here you would handle saving the configuration (e.g., saving to a database)
