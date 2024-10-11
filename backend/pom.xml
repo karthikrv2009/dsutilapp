@@ -16,6 +16,17 @@
 
     <properties>
         <java.version>17</java.version> <!-- Set the correct Java version for your environment -->
+        <maven.compiler.source>1.8</maven.compiler.source>
+		<maven.compiler.target>1.8</maven.compiler.target>
+		<azure.storage.blob.version>12.18.0</azure.storage.blob.version> <!--
+		Update to latest version -->
+		<gson.version>2.10.1</gson.version> <!-- Use the latest stable version -->
+		<mssql-jdbc.version>11.2.0.jre8</mssql-jdbc.version> <!-- Adjust version
+		as needed -->
+		<slf4j.version>1.7.30</slf4j.version> <!-- Update to latest version -->
+
+
+
     </properties>
 
     <dependencies>
@@ -56,14 +67,38 @@
             <artifactId>mysql-connector-java</artifactId>
             <version>8.0.30</version>
         </dependency>
-      
-
 
         <dependency>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-web</artifactId>
-    </dependency>
+			<groupId>com.azure</groupId>
+			<artifactId>azure-storage-blob</artifactId>
+			<version>${azure.storage.blob.version}</version>
+		</dependency>
+
+        <dependency>
+			<groupId>com.microsoft.sqlserver</groupId>
+			<artifactId>mssql-jdbc</artifactId>
+			<version>${mssql-jdbc.version}</version>
+		</dependency>
+
+        <dependency>
+			<groupId>commons-daemon</groupId>
+			<artifactId>commons-daemon</artifactId>
+			<version>1.2.0</version> <!-- Check for the latest version -->
+		</dependency>
+
+		<dependency>
+			<groupId>com.azure</groupId>
+			<artifactId>azure-storage-queue</artifactId>
+			<version>12.11.0</version> <!-- Check for the latest version -->
+		</dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
     <dependency>
+
+    
     <groupId>javax.servlet</groupId>
     <artifactId>javax.servlet-api</artifactId>
     <version>4.0.1</version> <!-- You can adjust the version if needed -->
