@@ -13,7 +13,8 @@ import java.util.HashMap;
 import com.datapig.entity.ConfigurationEntity;
 import com.datapig.repository.ConfigurationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-
+import org.springframework.beans.factory.annotation.Autowired;
+import com.datapig.service.PropertiesService;
 
 @RestController
 @RequestMapping("/api/configuration")
@@ -23,6 +24,9 @@ public class ConfigurationController {
 
     @Autowired
     private ConfigurationRepository configurationRepository;
+
+    @Autowired
+    private PropertiesService propertiesService;
 
 
    @PostMapping("/saveConfiguration")
@@ -48,4 +52,39 @@ public class ConfigurationController {
 
         return ResponseEntity.ok(response);
     }
+
+
+    @PostMapping("/saveProperties")
+    public ResponseEntity<String> saveProperties(@RequestBody Map<String, String> properties) {
+        propertiesService.saveProperties(properties);
+        return ResponseEntity.ok("Properties saved successfully");
+    }
+
+     @GetMapping("/getProperties")
+    public ResponseEntity<Map<String, String>> getProperties() {
+        // Logic to fetch properties from DB or config
+       Map<String, String> properties = propertiesService.getAllProperties();
+       Map<String, String> defaultProperties = new HashMap<>();
+       if (properties.isEmpty()) {
+        // If no properties are found, return the default properties
+        defaultProperties.put("QUEUE_NAME", " ");
+        defaultProperties.put("Queue_SAS_TOKEN", " ");
+        defaultProperties.put("SAS_QUEUE_URL", " ");
+        defaultProperties.put("DATA_SOURCE", " ");
+        defaultProperties.put("STRORAGE_ACCOUNT_URL", " ");
+        defaultProperties.put("Storage_SAS_TOKEN", " ");
+        defaultProperties.put("BLOB_NAME", " ");
+        defaultProperties.put("LOCAL_CHANGE_LOG", " ");
+        defaultProperties.put("LOCAL_MOLDEL_JSON", " ");
+        defaultProperties.put("ENVIRONMENT", " ");
+        defaultProperties.put("STRING_OFFSET", " ");
+        defaultProperties.put("STRING_MAXLENGTH", " ");
+        defaultProperties.put("STRING_OUTLIER_PATH", " ");
+        defaultProperties.put("STORAGE_ACCOUNT", " ");
+        return ResponseEntity.ok(defaultProperties);
+    }else {
+        return ResponseEntity.ok(properties);
+    }   
+    }
+
 }

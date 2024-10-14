@@ -4,6 +4,7 @@ import { ThemeProvider, createTheme } from "@mui/material/styles";
 import LicenseKeyPage from "./components/LicenseKeyPage"; // Ensure these are correctly imported
 import ConfigurationPage from "./components/ConfigurationPage";
 import DashboardPage from "./components/DashboardPage";
+import PropertiesPage from "./components/PropertiesPage";
 import Header from "./components/Header"; // Import Header
 import Footer from "./components/Footer"; // Import Footer
 import { Container } from "@mui/material"; // For consistent layout
@@ -31,6 +32,7 @@ function App() {
           <Route path="/license" element={<LicenseKeyPage />} />
           <Route path="/configuration" element={<ConfigurationPage />} />
           <Route path="/dashboard" element={<DashboardPage />} />
+          <Route path="/properties" element={<PropertiesPage />} />
           <Route path="/" element={<LicenseKeyPage />} />
         </Routes>
       </Container>
