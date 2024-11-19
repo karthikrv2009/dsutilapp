@@ -1,61 +1,61 @@
 package com.datapig.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.stereotype.Service;
+
+import com.datapig.entity.FolderSyncStatus;
+import com.datapig.entity.MetaDataCatlog;
+import com.datapig.entity.MetaDataPointer;
 
 import java.sql.SQLException;
-import java.sql.Timestamp;
-import java.util.HashMap;
-import java.util.Map;
+import java.time.LocalDateTime;
 
 public class PolybaseThreadService implements Runnable {
 
-    private final String tableName;
-    private final String folder;
+    private final MetaDataCatlog metaDataCatlog;
+    private  final FolderSyncStatus folderSyncStatus;
+    private  final MetaDataPointer metaDataPointer;
+    private  final JdbcTemplate jdbcTemplate;
+    private  final MetaDataCatlogService metaDataCatlogService;
+    private  final FolderSyncStatusService folderSyncStatusService;
 
 
-
-
-
-    @Autowired
-    private JdbcTemplate jdbcTemplate;
-
-    @Autowired
-    private PropertiesService propertyService;
-
-    public PolybaseThreadService(String tableName, String folder) {
-        this.tableName = tableName;
-        this.folder = folder;
-    }
-
-     public void runTask(String tableName, String folder) {
+     public  PolybaseThreadService(MetaDataCatlog metaDataCatlog, FolderSyncStatus folderSyncStatus,MetaDataPointer metaDataPointer,JdbcTemplate jdbcTemplate,MetaDataCatlogService metaDataCatlogService,FolderSyncStatusService folderSyncStatusService) {
         // Your processing logic here, using tableName and folder
-        run(); // or other methods to process
+        this.metaDataCatlog=metaDataCatlog;
+        this.folderSyncStatus=folderSyncStatus;
+        this.metaDataPointer=metaDataPointer;
+        this.jdbcTemplate=jdbcTemplate;
+        this.folderSyncStatusService=folderSyncStatusService;
+        this.metaDataCatlogService=metaDataCatlogService;
+        //run(); // or other methods to process
     }
 
     @Override
     public void run() {
-        Map<String, String> schemaString = getMetaDataCatlog(tableName);
-        String dataFrame = schemaString.get("dataFrame");
-        String selectColumn = schemaString.get("selectColumn");
-        String columnNames = schemaString.get("columnNames");
+        String tableName=folderSyncStatus.getTableName();
+        String folder=folderSyncStatus.getFolder();
+        String dataFrame = metaDataCatlog.getDataFrame();
+        String selectColumn = metaDataCatlog.getSelectColumn();
+        String columnNames = metaDataCatlog.getColumnNames();
+        String data_source=metaDataPointer.getStorageAccount();
 
         int errorFlag = 0;
         createStagingTable(tableName, dataFrame);
-        stageDataFromADLS(propertyService.getPropertyValue("DATA_SOURCE"), folder, tableName, dataFrame, selectColumn);
+        
         try {
+            stageDataFromADLS(data_source, folder, tableName, dataFrame, selectColumn);
+            System.out.println("+++++++++++++++Before Delete Operation++++");
+            cleanupSourceTableForLatest(tableName);
             createMergeSql(tableName, columnNames);
-            postMergeAction(tableName, folder);
-        } catch (SQLException e) {
+            postMergeAction(metaDataCatlog,folderSyncStatus);
+        } catch (Exception e) {
             errorFlag++;
             if (errorFlag < 2) {
                 try {
-                    cleanupSourceTableForLatest(tableName);
                     createMergeSql(tableName, columnNames);
-                    postMergeAction(tableName, folder);
-                } catch (SQLException e1) {
-                    postMergeActionOnFail(tableName, folder);
+                    postMergeAction(metaDataCatlog, folderSyncStatus);
+                } catch (Exception e1) {
+                    postMergeActionOnFail(metaDataCatlog, folderSyncStatus);
                     e1.printStackTrace();
                 }
             }
@@ -63,17 +63,6 @@ public class PolybaseThreadService implements Runnable {
         }
     }
 
-    private Map<String, String> getMetaDataCatlog(String tableName) {
-        String query = "SELECT TableName, DataFrame, SelectColumn, ColumnNames FROM MetaDataCatlog WHERE TableName = ?";
-        return jdbcTemplate.queryForObject(query, new Object[]{tableName}, (rs, rowNum) -> {
-            Map<String, String> metaDataCatlog = new HashMap<>();
-            metaDataCatlog.put("tName", rs.getString("TableName"));
-            metaDataCatlog.put("dataFrame", rs.getString("DataFrame"));
-            metaDataCatlog.put("selectColumn", rs.getString("SelectColumn"));
-            metaDataCatlog.put("columnNames", rs.getString("ColumnNames"));
-            return metaDataCatlog;
-        });
-    }
 
     private void stageDataFromADLS(String dataSource, String folder, String tableName, String dataFrame, String selectColumn) {
         String query = "INSERT INTO dbo._staging_" + tableName +
@@ -111,14 +100,22 @@ public class PolybaseThreadService implements Runnable {
     }
 
     private void cleanupSourceTableForLatest(String tableName) {
-        String query = "SELECT Id, MAX(versionnumber) AS versionnumber FROM dbo." + tableName +
-                " WHERE IsDelete NOT IN ('1','True') GROUP BY Id HAVING COUNT(Id) > 1";
-        jdbcTemplate.query(query, (rs) -> {
-            String Id = rs.getString("Id");
-            String versionnumber = rs.getString("versionnumber");
-            String deleteQuery = "DELETE FROM dbo." + tableName + " WHERE Id = ? AND versionnumber < ?";
-            jdbcTemplate.update(deleteQuery, Id, versionnumber);
-        });
+        System.out.println("+++In clean up function +++++++++++++"+tableName);
+        String query = "DELETE FROM _staging_"+tableName+"\r\n" + //
+                        "WHERE NOT EXISTS (\r\n" + //
+                        "    SELECT 1\r\n" + //
+                        "    FROM (\r\n" + //
+                        "        SELECT id, versionnumber, MAX(sinkmodifiedon) AS latest_modifieddate\r\n" + //
+                        "        FROM _staging_"+tableName+"\r\n" + //
+                        "        GROUP BY id, versionnumber\r\n" + //
+                        "    ) subquery\r\n" + //
+                        "    WHERE subquery.id = _staging_"+tableName+".id\r\n" + //
+                        "      AND subquery.versionnumber = _staging_"+tableName+".versionnumber\r\n" + //
+                        "      AND subquery.latest_modifieddate = _staging_"+tableName+".sinkmodifiedon\r\n" + //
+                        ") AND  _staging_"+tableName+".IsDelete NOT in ('1','True')\r\n" + //
+                        "";
+        int rowsDeleted=jdbcTemplate.update(query);
+        System.out.println("Rows Deleted:"+rowsDeleted);
     }
 
     private void createStagingTable(String tableName, String dataFrame) {
@@ -131,25 +128,38 @@ public class PolybaseThreadService implements Runnable {
         jdbcTemplate.execute(createTableSQL);
     }
 
-    private void postMergeAction(String tableName, String folder) {
+    private void postMergeAction(MetaDataCatlog metaDataCatlog,FolderSyncStatus folderSyncStatus) {
+        String tableName=metaDataCatlog.getTableName();
         String dropTableSQL = "DROP TABLE IF EXISTS dbo._staging_" + tableName;
         jdbcTemplate.execute(dropTableSQL);
 
-        String updateSQL = "UPDATE MetaDataCatlog SET LastEndCopyDate = ?, LastCopyStatus = ?, LastUpdatedFolder = ? WHERE TableName = ?";
-        jdbcTemplate.update(updateSQL, new Timestamp(System.currentTimeMillis()), 2, folder, tableName);
+        Short metaCopyStatus=2;
+        metaDataCatlog.setLastCopyStatus(metaCopyStatus);
+        metaDataCatlog.setLastEndCopyDate(LocalDateTime.now());
+        metaDataCatlog.setLastUpdatedFolder(folderSyncStatus.getFolder());
+        metaDataCatlogService.save(metaDataCatlog);
 
-        String updateSyncStatusSQL = "UPDATE FolderSyncStatus SET copystatus = ? WHERE folder = ? AND tablename = ?";
-        jdbcTemplate.update(updateSyncStatusSQL, 1, folder, tableName);
+        Short copyStatus=1;
+        folderSyncStatus.setCopyStatus(copyStatus);
+        folderSyncStatusService.save(folderSyncStatus);
+    
     }
 
-    private void postMergeActionOnFail(String tableName, String folder) {
+    private void postMergeActionOnFail(MetaDataCatlog metaDataCatlog,FolderSyncStatus folderSyncStatus) {
+        String tableName=metaDataCatlog.getTableName();
+        
         String dropTableSQL = "DROP TABLE IF EXISTS dbo._staging_" + tableName;
         jdbcTemplate.execute(dropTableSQL);
 
-        String updateSQL = "UPDATE MetaDataCatlog SET LastEndCopyDate = ?, LastCopyStatus = ?, LastUpdatedFolder = ? WHERE TableName = ?";
-        jdbcTemplate.update(updateSQL, null, 3, folder, tableName);
+        Short metaCopyStatus=3;
+        metaDataCatlog.setLastCopyStatus(metaCopyStatus);
+        metaDataCatlog.setLastEndCopyDate(LocalDateTime.now());
+        metaDataCatlog.setLastUpdatedFolder(folderSyncStatus.getFolder());
+        metaDataCatlogService.save(metaDataCatlog);
 
-        String updateSyncStatusSQL = "UPDATE FolderSyncStatus SET copystatus = ? WHERE folder = ? AND tablename = ?";
-        jdbcTemplate.update(updateSyncStatusSQL, 2, folder, tableName);
+        Short copyStatus=2;
+        folderSyncStatus.setCopyStatus(copyStatus);
+        folderSyncStatusService.save(folderSyncStatus);
+
     }
 }

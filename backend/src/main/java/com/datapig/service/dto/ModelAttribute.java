@@ -1,7 +1,6 @@
 
 package com.datapig.service.dto; 
 
-import com.datapig.service.dto.ModelTrait;
 import com.google.gson.annotations.SerializedName;
 import java.util.List;
 

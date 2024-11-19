@@ -1,7 +1,5 @@
 package com.datapig.service.dto; 
 
-import com.datapig.service.dto.ModelEntity;
-
 import java.util.List;
 
 public class ModelRoot {

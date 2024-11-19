@@ -4,38 +4,58 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
-import java.sql.Timestamp;
-import java.util.LinkedHashSet;
-import java.util.Set;
+import com.datapig.entity.FolderSyncStatus;
+import com.datapig.entity.MetaDataCatlog;
+import com.datapig.entity.MetaDataPointer;
+import com.datapig.utility.JDBCTemplateUtiltiy;
+
+import java.time.LocalDateTime;
+import java.util.List; 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.ArrayList;
 
 @Service
 public class PolybaseService {
 
     @Autowired
+    private JDBCTemplateUtiltiy jdbcTemplateUtiltiy;
+
+    @Autowired
+    private MetaDataPointerService metaDataPointerService;
+
+    @Autowired
+    MetaDataCatlogService metaDataCatlogService;
+
+    @Autowired
+    private FolderSyncStatusService folderSyncStatusService;
+
+    @Autowired
     private JdbcTemplate jdbcTemplate;
-
-    private PolybaseThreadService polybaseThreadService;
-
-
+/* 
     // Replace the old instantiation like this:
-    public void startPolybaseProcess(String tableName, String folderName) {
+    public void startPolybaseProcess(MetaDataCatlog metaDataCatlog, FolderSyncStatus folderSyncStatus,MetaDataPointer metaDataPointer) {
     // Assuming your PolybaseThreadService requires certain parameters
-    polybaseThreadService.runTask(tableName, folderName);
+    polybaseThreadService.runTask(metaDataCatlog, folderSyncStatus,metaDataPointer);
     }
+*/
+    public void startSyncInFolder(MetaDataPointer metaDataPointer) {
 
-    public void startSyncInFolder(String folderName) {
-        Set<String> tablesInFolder = getTableNamesByFolder(folderName);
+        List<FolderSyncStatus> setfolderSyncStatus = folderSyncStatusService.getFolderSyncStatusByfolder(metaDataPointer.getFolderName());
 
+        List<FolderSyncStatus> folderNeedsToBeProcessed= new ArrayList<FolderSyncStatus>();
+        for(FolderSyncStatus folderSyncStatus1:setfolderSyncStatus){
+            if(folderSyncStatus1.getCopyStatus()==0){
+                folderNeedsToBeProcessed.add(folderSyncStatus1);
+            }
+        }
         // Create an ExecutorService with a fixed thread pool
-        ExecutorService executorService = Executors.newFixedThreadPool(tablesInFolder.size());
+        ExecutorService executorService = Executors.newFixedThreadPool(folderNeedsToBeProcessed.size());
 
-        for (String tableName : tablesInFolder) {
-            preMergeAction(tableName, folderName);
-            polybaseThreadService= new PolybaseThreadService(tableName, folderName);
-            startPolybaseProcess(tableName, folderName);
+        for (FolderSyncStatus folderSyncStatus : folderNeedsToBeProcessed) {
+            MetaDataCatlog metaDataCatlog=preMergeAction(folderSyncStatus);
+            PolybaseThreadService polybaseThreadService= new PolybaseThreadService(metaDataCatlog, folderSyncStatus, metaDataPointer,jdbcTemplate,metaDataCatlogService,folderSyncStatusService);
             executorService.submit(polybaseThreadService);
         }
 
@@ -50,25 +70,28 @@ public class PolybaseService {
             System.err.println("Thread was interrupted while waiting for tasks to complete.");
             executorService.shutdownNow();
         }
-
-        System.out.println("All data merge tasks completed for folder: " + folderName);
+        postMergeAction(metaDataPointer);
+        System.out.println("All data merge tasks completed for folder: " + metaDataPointer.getFolderName());
     }
 
-    private void preMergeAction(String tableName, String folder) {
-        String dropTableSQL = "IF EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = '_staging_" + tableName + "') " +
-                "BEGIN " +
-                "DROP TABLE dbo._staging_" + tableName + " " +
-                "END";
-
-        jdbcTemplate.execute(dropTableSQL);
-
-        String updateSQL = "UPDATE MetaDataCatlog SET LastStartCopyDate = ?, LastCopyStatus = ?, LastUpdatedFolder = ? WHERE TableName = ?";
-        jdbcTemplate.update(updateSQL, new Timestamp(System.currentTimeMillis()), 1, folder, tableName);
+    private void postMergeAction(MetaDataPointer metaDataPointer){
+        Short copyStatus=2;
+        metaDataPointer.setStageStatus(copyStatus);
+        metaDataPointer.setStageTime(LocalDateTime.now());
+        metaDataPointerService.save(metaDataPointer);
     }
 
-    private Set<String> getTableNamesByFolder(String folderName) {
-        String query = "SELECT tablename FROM FolderSyncStatus WHERE folder = ? AND copystatus = 0";
-        return new LinkedHashSet<>(jdbcTemplate.query(query, new Object[]{folderName}, (rs, rowNum) -> rs.getString("tablename")));
-    }
+    private MetaDataCatlog preMergeAction(FolderSyncStatus folderSyncStatus) {
+        jdbcTemplateUtiltiy.dropStagingTable(folderSyncStatus.getTableName());
+        Short copyStatus=2;
+        String tableName=folderSyncStatus.getTableName();
+        MetaDataCatlog metaDataCatlog= metaDataCatlogService.getmetaDataCatlogServiceBytableName(tableName);
+        metaDataCatlog.setLastCopyStatus(copyStatus);
+        metaDataCatlog.setLastStartCopyDate(LocalDateTime.now());
+        metaDataCatlog.setLastUpdatedFolder(folderSyncStatus.getFolder());
+        metaDataCatlog=metaDataCatlogService.save(metaDataCatlog);
+        return metaDataCatlog;
+   }
+
 }
 

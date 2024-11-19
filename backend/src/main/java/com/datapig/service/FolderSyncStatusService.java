@@ -1,28 +1,15 @@
 package com.datapig.service;
 
-import com.google.gson.Gson;
-import com.google.gson.annotations.SerializedName;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import com.datapig.service.dto.ModelRoot;
-import com.datapig.service.dto.ModelEntity;
-import com.datapig.service.dto.ModelAttribute;
-import com.datapig.service.dto.ModelTrait;
-import com.datapig.service.dto.ModelTraitArgument;
-import com.datapig.service.dto.ModelTable;
-import com.datapig.service.dto.ModelTableAttributes;
 import org.springframework.stereotype.Service;
 
 import com.datapig.repository.FolderSyncStatusRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import com.datapig.entity.FolderSyncStatus;
+
+import java.util.Optional;
 
 @Service
 public class FolderSyncStatusService {
@@ -37,5 +24,21 @@ public class FolderSyncStatusService {
     public FolderSyncStatus save(FolderSyncStatus folderSyncStatus) {
         return folderSyncStatusRepository.save(folderSyncStatus);
     }
+
+    public FolderSyncStatus getFolderSyncStatusById(Long id) {
+        Optional<FolderSyncStatus> entityOptional = folderSyncStatusRepository.findById(id);
+        return entityOptional.orElse(null); // Return the entity or null if not found
+    }
+
+    public List<FolderSyncStatus> getFolderSyncStatusBycopyStatus(Short copyStatus) {
+        List<FolderSyncStatus> entityOptional = folderSyncStatusRepository.findBycopyStatus(copyStatus);
+        return entityOptional; 
+    }
+
+    public List<FolderSyncStatus> getFolderSyncStatusByfolder(String folder) {
+        List<FolderSyncStatus> entityOptional = folderSyncStatusRepository.findByfolder(folder);
+        return entityOptional; 
+    }
+
 }
 

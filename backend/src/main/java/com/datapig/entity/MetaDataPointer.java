@@ -1,0 +1,81 @@
+package com.datapig.entity;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+
+import java.time.LocalDateTime;
+
+@Entity
+@Table(name = "MetaDataPointer")
+public class MetaDataPointer {
+
+    @Id
+    @Column(name = "foldername", length = 50, nullable = false)
+    private String folderName;
+
+    @Column(name = "adlscreationtimestamp")
+    private LocalDateTime adlscreationtimestamp;
+
+    @Column(name = "stageStatus", nullable = false)
+    private Short stageStatus;
+
+    public String getEnvironment() {
+        return environment;
+    }
+
+    public void setEnvironment(String environment) {
+        this.environment = environment;
+    }
+
+    public String getStorageAccount() {
+        return storageAccount;
+    }
+
+    public void setStorageAccount(String storageAccount) {
+        this.storageAccount = storageAccount;
+    }
+
+    @Column(name = "Environment", length = 100)
+    private String environment;
+
+    @Column(name = "StorageAccount", length = 100)
+    private String storageAccount;
+    
+    public String getFolderName() {
+        return folderName;
+    }
+
+    public void setFolderName(String folderName) {
+        this.folderName = folderName;
+    }
+
+    public LocalDateTime getAdlscreationtimestamp() {
+        return adlscreationtimestamp;
+    }
+
+    public void setAdlscreationtimestamp(LocalDateTime adlscreationtimestamp) {
+        this.adlscreationtimestamp = adlscreationtimestamp;
+    }
+
+    public Short getStageStatus() {
+        return stageStatus;
+    }
+
+    public void setStageStatus(Short stageStatus) {
+        this.stageStatus = stageStatus;
+    }
+
+    public LocalDateTime getStageTime() {
+        return stageTime;
+    }
+
+    public void setStageTime(LocalDateTime stageTime) {
+        this.stageTime = stageTime;
+    }
+
+    @Column(name = "stagetime")
+    private LocalDateTime stageTime;
+
+}

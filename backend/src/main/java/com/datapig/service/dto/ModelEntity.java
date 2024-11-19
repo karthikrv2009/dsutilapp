@@ -2,8 +2,7 @@ package com.datapig.service.dto;
 
 import com.google.gson.annotations.SerializedName;
 import java.util.List;
-import com.datapig.service.dto.ModelAnnotation;
-import com.datapig.service.dto.ModelAttribute;
+
 public class ModelEntity {
 
     @SerializedName("$type")

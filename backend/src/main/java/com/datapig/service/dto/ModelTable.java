@@ -1,6 +1,5 @@
 package com.datapig.service.dto; 
-import com.datapig.service.dto.ModelTableAttributes;
-import java.util.ArrayList;
+
 import java.util.List;
 
 public class ModelTable {
