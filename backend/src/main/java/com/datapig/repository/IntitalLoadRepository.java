@@ -7,6 +7,6 @@ import com.datapig.entity.IntialLoad;
 
 
 @Repository
-public interface IntitalLoadRepository extends JpaRepository<IntialLoad, Long> {
+public interface IntitalLoadRepository extends JpaRepository<IntialLoad, String> {
 
 }

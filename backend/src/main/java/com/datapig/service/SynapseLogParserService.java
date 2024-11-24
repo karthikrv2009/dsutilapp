@@ -12,6 +12,7 @@ import com.datapig.component.EncryptedPropertyReader;
 import com.datapig.entity.FolderSyncStatus;
 import com.datapig.entity.MetaDataPointer;
 import com.datapig.utility.JDBCTemplateUtiltiy;
+import com.datapig.utility.ModelJsonDownloader;
 
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
@@ -22,6 +23,13 @@ import java.util.ArrayList;
 
 @Service
 public class SynapseLogParserService {
+
+    @Autowired
+    private ParseModelJson parseModelJson;
+
+    @Autowired
+    private ModelJsonDownloader modelJsonDownloader;
+
 
     @Autowired
     private EncryptedPropertyReader encryptedPropertyReader;
@@ -38,8 +46,12 @@ public class SynapseLogParserService {
     @Autowired
     private PolybaseService polybaseService;
 
+    @Autowired
+    private MetaDataCatlogService metaDataCatlogService;
+
     public void startParse(String folderName) {
 
+        Set<String> tableNamesInMetadataCatalogDB = metaDataCatlogService.getAllTableName();            
         String fileSystemName = encryptedPropertyReader.getProperty("STORAGE_ACCOUNT");
         String targetFileName = encryptedPropertyReader.getProperty("TARGET_FILENAME");
 
@@ -67,7 +79,13 @@ public class SynapseLogParserService {
                 List<String> tablesInDB=getTablesPerFolderInDB(metaDataPointer);
                 Set<String> tableNamesInAdls = jdbcTemplateUtiltiy
                         .getTableInFolder(metaDataPointer.getFolderName(), fileSystemName);
+                
                 for (String tableName : tableNamesInAdls) {
+                    if(!tableNamesInMetadataCatalogDB.contains(tableName)){
+                        if(modelJsonDownloader.downloadFile()){
+                            parseModelJson.parseModelJson();
+                        }
+                    }   
                     if(!tablesInDB.contains(tableName)){
                         loadFolderSyncStatus(metaDataPointer, tableName);
                     }

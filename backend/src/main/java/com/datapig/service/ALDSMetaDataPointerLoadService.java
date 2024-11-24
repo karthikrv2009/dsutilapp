@@ -11,17 +11,33 @@ import com.azure.storage.file.datalake.models.PathItem;
 import com.azure.storage.file.datalake.models.PathProperties;
 import com.datapig.component.EncryptedPropertyReader;
 import com.datapig.entity.FolderSyncStatus;
+import com.datapig.entity.IntialLoad;
 import com.datapig.entity.MetaDataPointer;
 import com.datapig.utility.JDBCTemplateUtiltiy;
+import com.datapig.utility.ModelJsonDownloader;
 
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
+import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
 
+
 @Service
 public class ALDSMetaDataPointerLoadService {
+    
+    private IntialLoad intialLoad;
+
+    @Autowired
+    private ParseModelJson parseModelJson;
+
+    @Autowired
+    private ModelJsonDownloader modelJsonDownloader;
+
+    
+    @Autowired
+    private MetaDataCatlogService metaDataCatlogService;
 
     @Autowired
     private final EncryptedPropertyReader encryptedPropertyReader;
@@ -43,7 +59,12 @@ public class ALDSMetaDataPointerLoadService {
         this.encryptedPropertyReader = encryptedPropertyReader;
     }
 
+    @Autowired
+    InitialLoadService initialLoadService;
+
     public void load() {
+
+
         // Define the filesystem name and directory to search
         String fileSystemName = encryptedPropertyReader.getProperty("STORAGE_ACCOUNT");
         String targetFileName = encryptedPropertyReader.getProperty("TARGET_FILENAME");
@@ -55,15 +76,20 @@ public class ALDSMetaDataPointerLoadService {
         // ADLS Gen2 endpoint with SAS token
         String endpointWithSAS = storageAccountUrl + "/" + fileSystemName + "/?" + saskey;
 
+        intialLoad=initialLoadService.getIntialLoad("DBSynctUtilInitalLoad");
+    if(intialLoad.getStatus()==0){
+            intialLoad.setStatus(1);
+            intialLoad.setStarttimestamp(LocalDateTime.now());
+            intialLoad.setStagestarttime(LocalDateTime.now());
+            intialLoad=initialLoadService.save(intialLoad);
         // Create a DataLakeFileSystemClient using SAS token
         DataLakeFileSystemClient fileSystemClient = new DataLakeFileSystemClientBuilder()
                 .endpoint(endpointWithSAS)
                 .fileSystemName(fileSystemName)
                 .buildClient();
-
-                    
-        // List first-level directories and check for the target file
+    // List first-level directories and check for the target file
         for (PathItem pathItem : fileSystemClient.listPaths()) {
+            Set<String> tableNamesInDB = metaDataCatlogService.getAllTableName();            
             if (pathItem.isDirectory()) {
                 String directoryName = pathItem.getName();
                 if (directoryName.startsWith("20")) {
@@ -93,23 +119,38 @@ public class ALDSMetaDataPointerLoadService {
                         if (doesFileExist(directoryClient, targetFileName)) {
                             Set<String> tableNames = jDBCTemplateUtiltiy
                                     .getTableInFolder(metaDataPointer.getFolderName(), fileSystemName);
-                            for (String tableName : tableNames) {
+                            
+
+                        for (String tableName : tableNames) {
+                            if(!tableNamesInDB.contains(tableName)){
+                                if(modelJsonDownloader.downloadFile()){
+                                    parseModelJson.parseModelJson();
+                                }
+                            }    
                                 loadFolderSyncStatus(metaDataPointer, tableName);
                             }
-                            System.out.println("File " + targetFileName + " found in directory: " + directoryName);
+                        System.out.println("File " + targetFileName + " found in directory: " + directoryName);
                         metaDataPointer=updateMetaDataPointerStageToInProgress(metaDataPointer);
                         }
                     }
-                    }
-
+                }
                 }
             }
+        intialLoad.setStageendtime(LocalDateTime.now());
+        intialLoad=initialLoadService.save(intialLoad);
         }
-        
+    }   
         Short pointerCopyStatus=1;
         TreeSet<MetaDataPointer> metaDataPointers=metaDataPointerService.getMetaDataPointerBystageStatus(pointerCopyStatus);
         for(MetaDataPointer metaDataPointer:metaDataPointers){
             startProcessing(metaDataPointer);
+        }
+        Short copyStatus=0;
+        List<FolderSyncStatus> pendingTablesInFolder=folderSyncStatusService.getFolderSyncStatusBycopyStatus(copyStatus);
+        if(pendingTablesInFolder.size() ==0){
+            intialLoad.setEndtimestamp(LocalDateTime.now());
+            intialLoad.setStagestatus(2);
+            initialLoadService.save(intialLoad);
         }
     }
 
@@ -183,5 +224,6 @@ public class ALDSMetaDataPointerLoadService {
 
     private void startProcessing(MetaDataPointer metaDataPointer){
         polybaseService.startSyncInFolder(metaDataPointer);
+
     }
 }

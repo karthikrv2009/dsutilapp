@@ -2,9 +2,12 @@ package com.datapig.service;
 
 import com.google.gson.Gson;
 
+import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.Properties;
 
 import java.util.ArrayList;
@@ -49,8 +52,25 @@ public class ParseModelJson {
 
     private static final Logger logger = LoggerFactory.getLogger(ParseModelJson.class);
 
-    public List<ModelTable> parseModelJson(String modelJson) {
+    public List<ModelTable> parseModelJson() {
+        String modelJSONPath=encryptedPropertyReader.getProperty("LOCAL_MOLDEL_JSON");
+        File file = new File(modelJSONPath);            
+        StringBuilder content = new StringBuilder(); // To accumulate the file content
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file)))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                content.append(line).append("\n"); // Append each line with a newline
+            }
+        } catch (IOException e) {
+            System.err.println("Error reading file: " + e.getMessage());
+        }
         
+        // Convert StringBuilder to a String
+        String modelJson = content.toString();
+        
+        // Print the file content as a single string
+        System.out.println(modelJson);
+    
         Gson gson = new Gson();
         ModelRoot root = gson.fromJson(modelJson, ModelRoot.class);
 

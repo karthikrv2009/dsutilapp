@@ -1,7 +1,8 @@
 package com.datapig.service;
 
+import java.util.HashSet;
 import java.util.List;
-
+import java.util.Set;
 import org.springframework.stereotype.Service;
 
 import com.datapig.repository.MetaDataCatlogRepository;
@@ -19,6 +20,15 @@ public class MetaDataCatlogService {
 
     public List<MetaDataCatlog> findAll() {
         return metaDataCatlogRepository.findAll();
+    }
+
+    public Set<String> getAllTableName(){
+        List<MetaDataCatlog> metaDataCatlogs=metaDataCatlogRepository.findAll();
+        Set<String> tableNames=new HashSet<String>();
+        for(MetaDataCatlog metaDataCatlog:metaDataCatlogs){
+            tableNames.add(metaDataCatlog.getTableName());
+        }
+        return tableNames;
     }
 
     public MetaDataCatlog save(MetaDataCatlog metaDataCatlog) {

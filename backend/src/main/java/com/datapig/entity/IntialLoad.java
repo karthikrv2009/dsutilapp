@@ -4,8 +4,6 @@ import java.time.LocalDateTime;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 
 import jakarta.persistence.Table;
 import jakarta.persistence.Column;
@@ -16,8 +14,8 @@ import jakarta.persistence.Column;
 public class IntialLoad {
     
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id; // Added ID to uniquely identify rows
+    @Column(name="name")
+    private String name;
 
     @Column(name = "starttimestamp")
     private LocalDateTime starttimestamp;
@@ -37,6 +35,7 @@ public class IntialLoad {
     @Column (name="stageendtime")
     private LocalDateTime stageendtime;
 
+    
     public LocalDateTime getStarttimestamp() {
         return starttimestamp;
     }
@@ -85,16 +84,27 @@ public class IntialLoad {
         this.stageendtime = stageendtime;
     }
 
-    public LocalDateTime getStagestatus() {
+
+    @Column (name="stagestatus")
+    private int stagestatus;
+
+
+    
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public int getStagestatus() {
         return stagestatus;
     }
 
-    public void setStagestatus(LocalDateTime stagestatus) {
+    public void setStagestatus(int stagestatus) {
         this.stagestatus = stagestatus;
     }
-
-    @Column (name="stagestatus")
-    private LocalDateTime stagestatus;
 
 
 

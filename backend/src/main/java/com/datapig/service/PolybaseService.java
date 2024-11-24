@@ -33,13 +33,6 @@ public class PolybaseService {
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
-/* 
-    // Replace the old instantiation like this:
-    public void startPolybaseProcess(MetaDataCatlog metaDataCatlog, FolderSyncStatus folderSyncStatus,MetaDataPointer metaDataPointer) {
-    // Assuming your PolybaseThreadService requires certain parameters
-    polybaseThreadService.runTask(metaDataCatlog, folderSyncStatus,metaDataPointer);
-    }
-*/
     public void startSyncInFolder(MetaDataPointer metaDataPointer) {
 
         List<FolderSyncStatus> setfolderSyncStatus = folderSyncStatusService.getFolderSyncStatusByfolder(metaDataPointer.getFolderName());
