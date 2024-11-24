@@ -77,7 +77,7 @@ public class PolybaseService {
     private void postMergeAction(MetaDataPointer metaDataPointer){
         Short copyStatus=2;
         metaDataPointer.setStageStatus(copyStatus);
-        metaDataPointer.setStageTime(LocalDateTime.now());
+        metaDataPointer.setStageEndTime(LocalDateTime.now());
         metaDataPointerService.save(metaDataPointer);
     }
 

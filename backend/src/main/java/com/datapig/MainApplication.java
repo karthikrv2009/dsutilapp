@@ -60,7 +60,9 @@ public class MainApplication implements CommandLineRunner {
         // Print the file content as a single string
         System.out.println(fileContent);
         parseModelJson.parseModelJson(fileContent);
+        
         //aldsMetaDataPointerLoadService.load();
+        
         azureQueueListenerService.startQueueListener();
     }
     public static void main(String[] args) {

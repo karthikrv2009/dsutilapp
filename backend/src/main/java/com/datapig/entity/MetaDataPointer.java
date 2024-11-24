@@ -67,15 +67,29 @@ public class MetaDataPointer {
         this.stageStatus = stageStatus;
     }
 
-    public LocalDateTime getStageTime() {
-        return stageTime;
+    @Column(name = "stagestarttime")
+    private LocalDateTime stageStartTime;
+
+    
+    @Column(name = "stagestarttime")
+    private LocalDateTime stageEndTime;
+
+    public LocalDateTime getStageStartTime() {
+        return stageStartTime;
     }
 
-    public void setStageTime(LocalDateTime stageTime) {
-        this.stageTime = stageTime;
+    public void setStageStartTime(LocalDateTime stageStartTime) {
+        this.stageStartTime = stageStartTime;
     }
 
-    @Column(name = "stagetime")
-    private LocalDateTime stageTime;
+    public LocalDateTime getStageEndTime() {
+        return stageEndTime;
+    }
+
+    public void setStageEndTime(LocalDateTime stageEndTime) {
+        this.stageEndTime = stageEndTime;
+    }
+
+
 
 }

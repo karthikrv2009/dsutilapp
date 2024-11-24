@@ -149,7 +149,8 @@ public class SynapseLogParserService {
             metaDataPointer = new MetaDataPointer();
             metaDataPointer.setFolderName(directoryName);
             metaDataPointer.setAdlscreationtimestamp(creationTime.toLocalDateTime());
-            metaDataPointer.setStageTime(LocalDateTime.now());
+            metaDataPointer.setStageStartTime(LocalDateTime.now());
+            metaDataPointer.setStageEndTime(null);
             metaDataPointer.setStageStatus(copyStatus);
             metaDataPointer.setStorageAccount(fileSystemName);
             metaDataPointer.setEnvironment(storageAccountUrl);
@@ -173,7 +174,7 @@ public class SynapseLogParserService {
 
     private void updateChangeLogToReady(MetaDataPointer metaDataPointer) {
         Short stageStatus = 1;
-        metaDataPointer.setStageTime(LocalDateTime.now());
+        metaDataPointer.setStageStartTime(LocalDateTime.now());
         metaDataPointer.setStageStatus(stageStatus);
         metaDataPointerService.save(metaDataPointer);
     }

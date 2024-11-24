@@ -18,6 +18,8 @@ public class FolderSyncStatusDTO {
     private int errorTablesCount;
     private Set<String> errorTablesName;
 
+    private Long timeTakenLastPackage;
+
     public int getErrorTablesCount() {
         return errorTablesCount;
     }
@@ -73,7 +75,10 @@ public class FolderSyncStatusDTO {
     public void setCurrentProcessingTables(List<FolderSyncStatus> currentProcessingTables) {
         this.currentProcessingTables = currentProcessingTables;
     }
-    
-    
-    
+    public Long getTimeTakenLastPackage() {
+        return timeTakenLastPackage;
+    }
+    public void setTimeTakenLastPackage(Long timeTakenLastPackage) {
+        this.timeTakenLastPackage = timeTakenLastPackage;
+    }
     }

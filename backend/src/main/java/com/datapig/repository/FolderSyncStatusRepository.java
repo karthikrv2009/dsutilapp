@@ -17,6 +17,6 @@ List<FolderSyncStatus> findByfolder(String folder);
 List<FolderSyncStatus> findBycopyStatus(Short copyStatus);
 
 @Query("SELECT COUNT(f) FROM FolderSyncStatus f WHERE f.copyStatus = :copyStatus")
-long countByCopyStatus(@Param("copyStatus") Short copyStatus);
+ long countByCopyStatus(@Param("copyStatus") Short copyStatus);
 }
 

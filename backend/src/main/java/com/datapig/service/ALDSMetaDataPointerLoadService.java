@@ -149,8 +149,8 @@ public class ALDSMetaDataPointerLoadService {
             metaDataPointer = new MetaDataPointer();
             metaDataPointer.setFolderName(directoryName);
             metaDataPointer.setAdlscreationtimestamp(creationTime.toLocalDateTime());
-            metaDataPointer.setStageTime(LocalDateTime.now());
-            metaDataPointer.setStageStatus(copyStatus);
+            metaDataPointer.setStageStartTime(LocalDateTime.now());
+            metaDataPointer.setStageEndTime(null);            metaDataPointer.setStageStatus(copyStatus);
             metaDataPointer.setStorageAccount(fileSystemName);
             metaDataPointer.setEnvironment(storageAccountUrl);
             metaDataPointer = metaDataPointerService.save(metaDataPointer);
@@ -174,7 +174,8 @@ public class ALDSMetaDataPointerLoadService {
     private MetaDataPointer updateMetaDataPointerStageToInProgress(MetaDataPointer metaDataPointer){
         Short copyStatus = 1;
         metaDataPointer.setStageStatus(copyStatus);
-        metaDataPointer.setStageTime(LocalDateTime.now());
+        metaDataPointer.setStageStartTime(LocalDateTime.now());
+        metaDataPointer.setStageEndTime(null);
         metaDataPointer = metaDataPointerService.save(metaDataPointer);
         return metaDataPointer;
     }
