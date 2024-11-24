@@ -20,7 +20,7 @@ import org.springframework.boot.CommandLineRunner;
 @SpringBootApplication
 @EntityScan(basePackages = "com.datapig.entity") // Adjust this if needed
 @EnableJpaRepositories(basePackages = "com.datapig.repository") // Adjust if needed
-@ComponentScan({"com.datapig.*"})
+@ComponentScan({ "com.datapig.*" })
 public class MainApplication implements CommandLineRunner {
 
     @Autowired
@@ -63,6 +63,7 @@ public class MainApplication implements CommandLineRunner {
             azureQueueListenerService.startQueueListener();
         }
     }
+
     public static void main(String[] args) {
         SpringApplication.run(MainApplication.class, args);
     }
