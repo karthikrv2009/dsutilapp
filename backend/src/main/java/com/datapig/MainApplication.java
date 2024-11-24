@@ -24,7 +24,7 @@ import org.springframework.boot.CommandLineRunner;
 @SpringBootApplication
 @EntityScan(basePackages = "com.datapig.entity") // Adjust this if needed
 @EnableJpaRepositories(basePackages = "com.datapig.repository") // Adjust if needed
-@ComponentScan({"com.datapig.*"})
+@ComponentScan({ "com.datapig.*" })
 public class MainApplication implements CommandLineRunner {
 
     @Autowired
@@ -38,13 +38,13 @@ public class MainApplication implements CommandLineRunner {
 
     @Autowired
     private AzureQueueListenerService azureQueueListenerService;
-    
+
     @Override
     public void run(String... args) {
-        String modelJSONPath=propertyReader.getProperty("LOCAL_MOLDEL_JSON");
-        File file = new File(modelJSONPath);            
+        String modelJSONPath = propertyReader.getProperty("LOCAL_MOLDEL_JSON");
+        File file = new File(modelJSONPath);
         StringBuilder content = new StringBuilder(); // To accumulate the file content
-        
+
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file)))) {
             String line;
             while ((line = reader.readLine()) != null) {
@@ -53,18 +53,19 @@ public class MainApplication implements CommandLineRunner {
         } catch (IOException e) {
             System.err.println("Error reading file: " + e.getMessage());
         }
-        
+
         // Convert StringBuilder to a String
         String fileContent = content.toString();
-        
+
         // Print the file content as a single string
         System.out.println(fileContent);
         parseModelJson.parseModelJson(fileContent);
-        
-        //aldsMetaDataPointerLoadService.load();
-        
+
+        // aldsMetaDataPointerLoadService.load();
+
         azureQueueListenerService.startQueueListener();
     }
+
     public static void main(String[] args) {
         SpringApplication.run(MainApplication.class, args);
     }
