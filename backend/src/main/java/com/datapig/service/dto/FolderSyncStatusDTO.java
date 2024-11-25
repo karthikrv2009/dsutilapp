@@ -7,18 +7,12 @@ import com.datapig.entity.FolderSyncStatus;
 
 public class FolderSyncStatusDTO {
     private String currentPackageName;
-    private int pendingPackages;
     private int inProgressTables;
     private List<FolderSyncStatus> currentProcessingTables;
-
     private int pendingTables;
     private int completedTables;
-    private int completedPackages;
-
     private int errorTablesCount;
     private Set<String> errorTablesName;
-
-    private Long timeTakenLastPackage;
 
     public int getErrorTablesCount() {
         return errorTablesCount;
@@ -31,18 +25,6 @@ public class FolderSyncStatusDTO {
     }
     public void setErrorTablesName(Set<String> errorTablesName) {
         this.errorTablesName = errorTablesName;
-    }
-    public int getCompletedPackages() {
-        return completedPackages;
-    }
-    public void setCompletedPackages(int completedPackages) {
-        this.completedPackages = completedPackages;
-    }
-    public int getPendingPackages() {
-        return pendingPackages;
-    }
-    public void setPendingPackages(int pendingPackages) {
-        this.pendingPackages = pendingPackages;
     }
 
     public String getCurrentPackageName() {
@@ -74,11 +56,5 @@ public class FolderSyncStatusDTO {
     }
     public void setCurrentProcessingTables(List<FolderSyncStatus> currentProcessingTables) {
         this.currentProcessingTables = currentProcessingTables;
-    }
-    public Long getTimeTakenLastPackage() {
-        return timeTakenLastPackage;
-    }
-    public void setTimeTakenLastPackage(Long timeTakenLastPackage) {
-        this.timeTakenLastPackage = timeTakenLastPackage;
     }
     }

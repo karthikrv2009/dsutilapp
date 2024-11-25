@@ -41,7 +41,7 @@ public class FileUploadController {
             String jsonString = new BufferedReader(new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8))
                     .lines().collect(Collectors.joining("\n"));
             // Invoke the service to parse the file and return the table data
-            List<ModelTable> parsedTables = parseModelJsonService.parseModelJson(jsonString);
+            List<ModelTable> parsedTables = parseModelJsonService.parseModelJson();
 
             return ResponseEntity.ok(parsedTables);
         } catch (Exception e) {

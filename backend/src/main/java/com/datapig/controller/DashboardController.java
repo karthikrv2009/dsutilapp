@@ -23,12 +23,14 @@ public class DashboardController {
   @Autowired
   FolderSyncStatusService folderSyncStatusService;
 
+  //Overall MetaDataPointer Snapshot
     @GetMapping("/widget1")
     public ResponseEntity<DBSnapshotWidget> getDashboardData() {
       DBSnapshotWidget dbSnapshotWidget=metaDataPointerService.getDBSnapshotWidget();
       return ResponseEntity.ok(dbSnapshotWidget);
     }
   
+  //Overall Table In FolderSyncStatusSnapShot  
   @GetMapping("/getCurrentFolerStatus")
   public ResponseEntity<FolderSyncStatusDTO> getCurrentFolerStatus() {
     FolderSyncStatusDTO folderSyncStatusDTO=folderSyncStatusService.getFolerStatusDTO();

@@ -3,10 +3,10 @@ package com.datapig.service;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import com.datapig.entity.FolderSyncStatus;
+import com.datapig.entity.HealthMetrics;
 import com.datapig.entity.MetaDataCatlog;
 import com.datapig.entity.MetaDataPointer;
 
-import java.sql.SQLException;
 import java.time.LocalDateTime;
 
 public class PolybaseThreadService implements Runnable {
@@ -14,12 +14,16 @@ public class PolybaseThreadService implements Runnable {
     private final MetaDataCatlog metaDataCatlog;
     private  final FolderSyncStatus folderSyncStatus;
     private  final MetaDataPointer metaDataPointer;
+    
     private  final JdbcTemplate jdbcTemplate;
     private  final MetaDataCatlogService metaDataCatlogService;
     private  final FolderSyncStatusService folderSyncStatusService;
+    private final HealthMetricsService healthMetricsService;
+    
+    private long timespent=0;
+    private int status=0;
 
-
-     public  PolybaseThreadService(MetaDataCatlog metaDataCatlog, FolderSyncStatus folderSyncStatus,MetaDataPointer metaDataPointer,JdbcTemplate jdbcTemplate,MetaDataCatlogService metaDataCatlogService,FolderSyncStatusService folderSyncStatusService) {
+     public PolybaseThreadService(MetaDataCatlog metaDataCatlog, FolderSyncStatus folderSyncStatus,MetaDataPointer metaDataPointer,JdbcTemplate jdbcTemplate,MetaDataCatlogService metaDataCatlogService,FolderSyncStatusService folderSyncStatusService,HealthMetricsService healthMetricsService) {
         // Your processing logic here, using tableName and folder
         this.metaDataCatlog=metaDataCatlog;
         this.folderSyncStatus=folderSyncStatus;
@@ -27,53 +31,107 @@ public class PolybaseThreadService implements Runnable {
         this.jdbcTemplate=jdbcTemplate;
         this.folderSyncStatusService=folderSyncStatusService;
         this.metaDataCatlogService=metaDataCatlogService;
-        //run(); // or other methods to process
+        this.healthMetricsService=healthMetricsService;
     }
 
     @Override
     public void run() {
+        HealthMetrics healthMetrics=null;
         String tableName=folderSyncStatus.getTableName();
         String folder=folderSyncStatus.getFolder();
         String dataFrame = metaDataCatlog.getDataFrame();
         String selectColumn = metaDataCatlog.getSelectColumn();
         String columnNames = metaDataCatlog.getColumnNames();
         String data_source=metaDataPointer.getStorageAccount();
-
+        boolean flag=true;
         int errorFlag = 0;
-        createStagingTable(tableName, dataFrame);
-        
-        try {
-            stageDataFromADLS(data_source, folder, tableName, dataFrame, selectColumn);
-            System.out.println("+++++++++++++++Before Delete Operation++++");
-            cleanupSourceTableForLatest(tableName);
-            createMergeSql(tableName, columnNames);
-            postMergeAction(metaDataCatlog,folderSyncStatus);
-        } catch (Exception e) {
-            errorFlag++;
-            if (errorFlag < 2) {
-                try {
-                    createMergeSql(tableName, columnNames);
-                    postMergeAction(metaDataCatlog, folderSyncStatus);
-                } catch (Exception e1) {
-                    postMergeActionOnFail(metaDataCatlog, folderSyncStatus);
-                    e1.printStackTrace();
+
+        while(flag){
+            createStagingTable(tableName, dataFrame);
+            errorFlag=errorFlag+1;        
+            healthMetrics=stageDataFromADLS(data_source, folder, tableName, dataFrame, selectColumn);
+                if(healthMetrics!=null){
+                    if((healthMetrics.getStatus()==1) && (healthMetrics.getMethodname().equalsIgnoreCase("StageDataFromADLS")) ){
+                        healthMetrics=cleanupSourceTableForLatest(tableName);
+                    }
                 }
-            }
-            e.printStackTrace();
+    
+                if(healthMetrics!=null){
+                    if((healthMetrics.getStatus()==1) && (healthMetrics.getMethodname().equalsIgnoreCase("CleanUpStageData"))){
+                        healthMetrics=cleanupTargetTable(tableName);
+                    }
+                }
+    
+                if(healthMetrics!=null){
+                    if((healthMetrics.getStatus()==1) && (healthMetrics.getMethodname().equalsIgnoreCase("DeleteRecordsOnTargetTableBasedOnChangeFeed"))){
+                        healthMetrics=createMergeSql(tableName, columnNames);
+                    }
+                }
+    
+                if(healthMetrics!=null){
+                    if((healthMetrics.getStatus()==1) && (healthMetrics.getMethodname().equalsIgnoreCase("DedupAndMergeFromSourceToTarget"))){
+                        postMergeAction(metaDataCatlog,folderSyncStatus);
+                        flag=false;
+                    }
+                    else{
+                        if(errorFlag > 2){
+                            postMergeActionOnFail(metaDataCatlog, folderSyncStatus);
+                            flag=false;
+                        }
+                    }
+                    errorFlag=errorFlag+1;
         }
+    
     }
 
 
-    private void stageDataFromADLS(String dataSource, String folder, String tableName, String dataFrame, String selectColumn) {
+    }
+
+    private HealthMetrics logHealthMetric(FolderSyncStatus folderSyncStatus,String methodAction,long timeTaken,int status,long rowCount){
+        HealthMetrics healthMetrics=new HealthMetrics();
+        healthMetrics.setFoldername(folderSyncStatus.getFolder());
+        healthMetrics.setTableName(folderSyncStatus.getTableName());
+        healthMetrics.setMethodname(methodAction);
+        healthMetrics.setTimespent(timeTaken);
+        healthMetrics.setRowcount(rowCount);
+        healthMetrics.setStatus(status);
+        return healthMetricsService.save(healthMetrics);
+    }
+
+    private HealthMetrics stageDataFromADLS(String dataSource, String folder, String tableName, String dataFrame, String selectColumn) {
+        HealthMetrics healthMetrics=null;
+        int rowcount =0;
+        long startTime=System.currentTimeMillis();
         String query = "INSERT INTO dbo._staging_" + tableName +
                 " SELECT " + selectColumn +
                 " FROM OPENROWSET(BULK '/" + folder + "/" + tableName + "/*.csv', FORMAT = 'CSV', DATA_SOURCE = '" + dataSource + "') " +
                 "WITH (" + dataFrame + ") AS " + tableName;
         System.out.println(query);
-        jdbcTemplate.execute(query);
+        try{
+            rowcount = jdbcTemplate.update(query);
+            long endTime=System.currentTimeMillis();
+            timespent=startTime-endTime;
+            status=1;
+            String methodAction="StageDataFromADLS";
+            healthMetrics=logHealthMetric(folderSyncStatus, methodAction, timespent, status, rowcount);   
+        }catch (Exception e) {
+
+            long endTime=System.currentTimeMillis();
+            timespent=startTime-endTime;
+            status=2;
+            String methodAction="StageDataFromADLS";
+            healthMetrics=logHealthMetric(folderSyncStatus, methodAction, timespent, status, rowcount);   
+            System.err.println("Execution failed: " + e.getMessage());
+        }
+        
+        return healthMetrics;
     }
 
-    private void createMergeSql(String tableName, String columnNames) throws SQLException {
+    private HealthMetrics createMergeSql(String tableName, String columnNames){
+        HealthMetrics healthMetrics=null;
+        int rowcount =0;
+        long startTime=System.currentTimeMillis();
+    
         String[] columns = columnNames.split(",");
         StringBuilder updateStatements = new StringBuilder();
         StringBuilder valuesColumns = new StringBuilder();
@@ -93,15 +151,45 @@ public class PolybaseThreadService implements Runnable {
                 "UPDATE SET " + updateStatements.toString() +
                 " WHEN NOT MATCHED BY TARGET THEN " +
                 "INSERT (" + columnNames + ") " +
-                "VALUES (" + valuesColumns.toString() + ");";
+                "VALUES (" + valuesColumns.toString() + ")"+
+                "OUTPUT $action INTO #mergeResults;";
+                
+                
 
         System.out.println("Executed SQL: " + mergeQuery);
-        jdbcTemplate.execute(mergeQuery);
+        try{
+         jdbcTemplate.execute(mergeQuery);
+         Integer rows = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM #mergeResults", Integer.class);
+         if(rows==null){
+            rowcount=0;
+         }
+         else{
+            rowcount=rows.intValue();
+         }
+         long endTime=System.currentTimeMillis();
+         timespent=startTime-endTime;
+         status=1;
+         String methodAction="DedupAndMergeFromSourceToTarget";
+         healthMetrics=logHealthMetric(folderSyncStatus, methodAction, timespent, status, rowcount);   
+ 
+        }catch (Exception e) {
+
+        long endTime=System.currentTimeMillis();
+        timespent=startTime-endTime;
+        status=2;
+        String methodAction="DedupAndMergeFromSourceToTarget";
+        healthMetrics=logHealthMetric(folderSyncStatus, methodAction, timespent, status, rowcount);   
+        System.err.println("Execution failed: " + e.getMessage());
+    }
+        return healthMetrics;
     }
 
-    private void cleanupSourceTableForLatest(String tableName) {
-        System.out.println("+++In clean up function +++++++++++++"+tableName);
-        String query = "DELETE FROM _staging_"+tableName+"\r\n" + //
+    private HealthMetrics cleanupSourceTableForLatest(String tableName) {
+        HealthMetrics healthMetrics=null;
+        int rowcount =0;
+        long startTime=System.currentTimeMillis();
+
+            String query = "DELETE FROM _staging_"+tableName+"\r\n" + //
                         "WHERE NOT EXISTS (\r\n" + //
                         "    SELECT 1\r\n" + //
                         "    FROM (\r\n" + //
@@ -114,10 +202,58 @@ public class PolybaseThreadService implements Runnable {
                         "      AND subquery.latest_modifieddate = _staging_"+tableName+".sinkmodifiedon\r\n" + //
                         ") AND  _staging_"+tableName+".IsDelete NOT in ('1','True')\r\n" + //
                         "";
-        int rowsDeleted=jdbcTemplate.update(query);
-        System.out.println("Rows Deleted:"+rowsDeleted);
+        
+        
+        try{
+            rowcount =jdbcTemplate.update(query);
+            long endTime=System.currentTimeMillis();
+            timespent=startTime-endTime;
+            status=1;
+            String methodAction="CleanUpStageData";
+            healthMetrics=logHealthMetric(folderSyncStatus, methodAction, timespent, status, rowcount);   
+        }catch (Exception e) {
+
+        long endTime=System.currentTimeMillis();
+        timespent=startTime-endTime;
+        status=2;
+        String methodAction="CleanUpStageData";
+        healthMetrics=logHealthMetric(folderSyncStatus, methodAction, timespent, status, rowcount);   
+        System.err.println("Execution failed: " + e.getMessage());
+    }
+        return healthMetrics;
     }
 
+    private HealthMetrics cleanupTargetTable(String tableName) {
+        HealthMetrics healthMetrics=null;
+        int rowcount =0;
+        long startTime=System.currentTimeMillis();
+
+        String query = "DELETE target\n" + //
+                        "FROM "+tableName+" target\n" + //
+                        "INNER JOIN _staging_"+tableName+" source \n" + //
+                        "  ON source.recid = target.recid\n" + //
+                                "WHERE source.IsDelete IN ('1', 'True');";
+        
+        
+        try{
+            rowcount =jdbcTemplate.update(query);
+            long endTime=System.currentTimeMillis();
+            timespent=startTime-endTime;
+            status=1;
+            String methodAction="DeleteRecordsOnTargetTableBasedOnChangeFeed";
+            healthMetrics=logHealthMetric(folderSyncStatus, methodAction, timespent, status, rowcount);   
+        }catch (Exception e) {
+
+        long endTime=System.currentTimeMillis();
+        timespent=startTime-endTime;
+        status=2;
+        String methodAction="DeleteRecordsOnTargetTableBasedOnChangeFeed";
+        healthMetrics=logHealthMetric(folderSyncStatus, methodAction, timespent, status, rowcount);   
+        System.err.println("Execution failed: " + e.getMessage());
+    }
+return healthMetrics;
+}
+    
     private void createStagingTable(String tableName, String dataFrame) {
         String dropTableSQL = "IF EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = '_staging_" + tableName + "') " +
                 "DROP TABLE dbo._staging_" + tableName;
@@ -156,10 +292,8 @@ public class PolybaseThreadService implements Runnable {
         metaDataCatlog.setLastEndCopyDate(LocalDateTime.now());
         metaDataCatlog.setLastUpdatedFolder(folderSyncStatus.getFolder());
         metaDataCatlogService.save(metaDataCatlog);
-
         Short copyStatus=2;
         folderSyncStatus.setCopyStatus(copyStatus);
         folderSyncStatusService.save(folderSyncStatus);
-
     }
 }

@@ -33,6 +33,10 @@ public class PolybaseService {
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
+
+    @Autowired
+    private HealthMetricsService healthMetricsService;
+
     public void startSyncInFolder(MetaDataPointer metaDataPointer) {
 
         List<FolderSyncStatus> setfolderSyncStatus = folderSyncStatusService.getFolderSyncStatusByfolder(metaDataPointer.getFolderName());
@@ -48,8 +52,10 @@ public class PolybaseService {
 
         for (FolderSyncStatus folderSyncStatus : folderNeedsToBeProcessed) {
             MetaDataCatlog metaDataCatlog=preMergeAction(folderSyncStatus);
-            PolybaseThreadService polybaseThreadService= new PolybaseThreadService(metaDataCatlog, folderSyncStatus, metaDataPointer,jdbcTemplate,metaDataCatlogService,folderSyncStatusService);
-            executorService.submit(polybaseThreadService);
+            if(metaDataCatlog!=null){
+                PolybaseThreadService polybaseThreadService= new PolybaseThreadService(metaDataCatlog, folderSyncStatus, metaDataPointer,jdbcTemplate,metaDataCatlogService,folderSyncStatusService,healthMetricsService);
+                executorService.submit(polybaseThreadService);
+            }
         }
 
         // Shutdown the executor service

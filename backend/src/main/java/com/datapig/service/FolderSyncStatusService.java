@@ -58,7 +58,6 @@ public class FolderSyncStatusService {
         if(pendingPackages!=null){
             MetaDataPointer currentPackage=pendingPackages.first();
             folderSyncStatusDTO.setCurrentPackageName(currentPackage.getFolderName());
-            folderSyncStatusDTO.setPendingPackages(pendingPackages.size());
             List<FolderSyncStatus> inProgressFolderSyncStatusList= folderSyncStatusRepository.findByfolder(currentPackage.getFolderName());
             folderSyncStatusDTO.setCurrentProcessingTables(inProgressFolderSyncStatusList);
             folderSyncStatusDTO.setInProgressTables(inProgressFolderSyncStatusList.size());
@@ -67,22 +66,11 @@ public class FolderSyncStatusService {
         else{
             //None in Pending State
             folderSyncStatusDTO.setCurrentPackageName(null);
-            folderSyncStatusDTO.setPendingPackages(0);
             folderSyncStatusDTO.setCurrentProcessingTables(null);
             folderSyncStatusDTO.setInProgressTables(0);
         }
 
-        //completed status for package
-        copyStatus=2;
-        TreeSet<MetaDataPointer> completedPackages=metaDataPointerService.getMetaDataPointerBystageStatus(copyStatus);
-        if(completedPackages!=null){
-            folderSyncStatusDTO.setCompletedPackages(completedPackages.size());
-        }
-        else{
-            folderSyncStatusDTO.setCompletedPackages(0);
-        }
-
-        
+       
         //completed tables count
         Short folderCopyStatus=1;
         List<FolderSyncStatus> completedTables=folderSyncStatusRepository.findBycopyStatus(folderCopyStatus);
