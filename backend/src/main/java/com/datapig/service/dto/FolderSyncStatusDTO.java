@@ -1,30 +1,17 @@
 package com.datapig.service.dto;
 
-import java.util.List;
-import java.util.Set;
-
-import com.datapig.entity.FolderSyncStatus;
-
 public class FolderSyncStatusDTO {
     private String currentPackageName;
     private int inProgressTables;
-    private List<FolderSyncStatus> currentProcessingTables;
     private int pendingTables;
     private int completedTables;
     private int errorTablesCount;
-    private Set<String> errorTablesName;
 
     public int getErrorTablesCount() {
         return errorTablesCount;
     }
     public void setErrorTablesCount(int errorTablesCount) {
         this.errorTablesCount = errorTablesCount;
-    }
-    public Set<String> getErrorTablesName() {
-        return errorTablesName;
-    }
-    public void setErrorTablesName(Set<String> errorTablesName) {
-        this.errorTablesName = errorTablesName;
     }
 
     public String getCurrentPackageName() {
@@ -51,10 +38,4 @@ public class FolderSyncStatusDTO {
     public void setInProgressTables(int inProgressTables) {
         this.inProgressTables = inProgressTables;
     }
-    public List<FolderSyncStatus> getCurrentProcessingTables() {
-        return currentProcessingTables;
-    }
-    public void setCurrentProcessingTables(List<FolderSyncStatus> currentProcessingTables) {
-        this.currentProcessingTables = currentProcessingTables;
-    }
-    }
+   }

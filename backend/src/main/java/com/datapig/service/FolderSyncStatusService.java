@@ -59,14 +59,12 @@ public class FolderSyncStatusService {
             MetaDataPointer currentPackage=pendingPackages.first();
             folderSyncStatusDTO.setCurrentPackageName(currentPackage.getFolderName());
             List<FolderSyncStatus> inProgressFolderSyncStatusList= folderSyncStatusRepository.findByfolder(currentPackage.getFolderName());
-            folderSyncStatusDTO.setCurrentProcessingTables(inProgressFolderSyncStatusList);
             folderSyncStatusDTO.setInProgressTables(inProgressFolderSyncStatusList.size());
 
         }
         else{
             //None in Pending State
             folderSyncStatusDTO.setCurrentPackageName(null);
-            folderSyncStatusDTO.setCurrentProcessingTables(null);
             folderSyncStatusDTO.setInProgressTables(0);
         }
 
@@ -102,11 +100,10 @@ public class FolderSyncStatusService {
                 errortables.add(f.getTableName());
             }
             folderSyncStatusDTO.setErrorTablesCount(errorTables.size());
-            folderSyncStatusDTO.setErrorTablesName(errortables);
         }
         else{
             folderSyncStatusDTO.setErrorTablesCount(0);
-            folderSyncStatusDTO.setErrorTablesName(null);
+            
         }
 
         return folderSyncStatusDTO;

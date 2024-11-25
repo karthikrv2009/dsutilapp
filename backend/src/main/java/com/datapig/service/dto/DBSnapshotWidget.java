@@ -5,8 +5,6 @@ public class DBSnapshotWidget {
     private String lastProcessedfolder;
     private String latestADLSFolderAvailable;
     private long pendingNumberPackages;
-    private Long timeTakenLastPackage;
-
     private long pendingTablesInAllPackages;
 
     public String getLastProcessedfolder() {
