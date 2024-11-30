@@ -23,6 +23,9 @@ public class MetaDataPointerService {
     @Autowired
     private FolderSyncStatusRepository folderSyncStatusRepository;
 
+    public Long count(){
+        return metaDataPointerRepository.count();
+    }
     public List<MetaDataPointer> findAll() {
         return metaDataPointerRepository.findAll();
     }

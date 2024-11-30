@@ -18,8 +18,14 @@ public class HealthMetricsService {
         return healthMetricsRepository.save(healthMetrics);
     }
 
-    public List<HealthMetrics> findbyfolder(String folder){
-        java.util.List<HealthMetrics> entityOptional = healthMetricsRepository.findbyfolder(folder);
+    public List<HealthMetrics> findByFolderName(String folderName){
+        java.util.List<HealthMetrics> entityOptional = healthMetricsRepository.findByFolderName(folderName);
         return entityOptional; 
     }
+
+    public List<HealthMetrics> findbyPipelineId(String pipelineId){
+        java.util.List<HealthMetrics> entityOptional = healthMetricsRepository.findByPipelineId(pipelineId);
+        return entityOptional; 
+    }
+
 }

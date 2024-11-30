@@ -71,7 +71,7 @@ public class MetaDataPointer {
     private LocalDateTime stageStartTime;
 
     
-    @Column(name = "stagestarttime")
+    @Column(name = "stageendtime")
     private LocalDateTime stageEndTime;
 
     public LocalDateTime getStageStartTime() {

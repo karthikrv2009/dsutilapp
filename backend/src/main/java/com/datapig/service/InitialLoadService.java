@@ -13,7 +13,7 @@ public class InitialLoadService {
     IntitalLoadRepository intitalLoadRepository;
     
     public IntialLoad getIntialLoad(String name){
-        return intitalLoadRepository.getReferenceById(name);
+        return intitalLoadRepository.findByName(name);
     }
 
     public IntialLoad save(IntialLoad initialLoad){

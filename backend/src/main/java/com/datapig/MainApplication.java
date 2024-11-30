@@ -54,12 +54,12 @@ public class MainApplication implements CommandLineRunner {
        }
 
         if(initialLoad!=null){
-            if((initialLoad.getStagestatus() == 0) || (initialLoad.getStagestatus() == 1) ){
+            if((initialLoad.getStatus() == 0) || (initialLoad.getStatus() == 1) ){
                 aldsMetaDataPointerLoadService.load();    
             }
         }
         initialLoad=initialLoadService.getIntialLoad("DBSynctUtilInitalLoad");
-        if(initialLoad.getStagestatus()==2){
+        if(initialLoad.getStatus()==2){
             azureQueueListenerService.startQueueListener();
         }
     }

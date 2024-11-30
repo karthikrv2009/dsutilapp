@@ -40,4 +40,9 @@ public class MetaDataCatlogService {
         return entityOptional.orElse(null); // Return the entity or null if not found
     }
 
+    public List<MetaDataCatlog> findBylastCopyStatus(short lastCopyStatus){
+        List<MetaDataCatlog> metaDataCatlogs=metaDataCatlogRepository.findBylastCopyStatus(lastCopyStatus);
+        return metaDataCatlogs;
+    }
+
 }

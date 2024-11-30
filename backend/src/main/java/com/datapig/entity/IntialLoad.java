@@ -27,7 +27,7 @@ public class IntialLoad {
     private int status;
 
     @Column(name="totalpackages")
-    private int totalpackages;
+    private long totalpackages;
 
     @Column (name="stagestarttime")
     private LocalDateTime stagestarttime;
@@ -60,13 +60,6 @@ public class IntialLoad {
         this.status = status;
     }
 
-    public int getTotalpackages() {
-        return totalpackages;
-    }
-
-    public void setTotalpackages(int totalpackages) {
-        this.totalpackages = totalpackages;
-    }
 
     public LocalDateTime getStagestarttime() {
         return stagestarttime;
@@ -104,6 +97,14 @@ public class IntialLoad {
 
     public void setStagestatus(int stagestatus) {
         this.stagestatus = stagestatus;
+    }
+
+    public long getTotalpackages() {
+        return totalpackages;
+    }
+
+    public void setTotalpackages(long totalpackages) {
+        this.totalpackages = totalpackages;
     }
 
 

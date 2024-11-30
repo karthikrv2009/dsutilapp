@@ -8,5 +8,5 @@ import com.datapig.entity.IntialLoad;
 
 @Repository
 public interface IntitalLoadRepository extends JpaRepository<IntialLoad, String> {
-
+    IntialLoad findByName(String name);
 }

@@ -15,12 +15,13 @@ import java.util.List;
 public interface MetaDataPointerRepository extends JpaRepository<MetaDataPointer, String> {
 
     List<MetaDataPointer> findBystageStatus(Short stageStatus);
+    
     MetaDataPointer findByfolderName(String folderName);
 
-    @Query("SELECT m FROM MetaDataPointer m WHERE m.adlsCreationTimestamp = (SELECT MAX(m2.adlsCreationTimestamp) FROM MetaDataPointer m2)")
+    @Query("SELECT m FROM MetaDataPointer m WHERE m.adlscreationtimestamp = (SELECT MAX(m2.adlscreationtimestamp) FROM MetaDataPointer m2)")
     MetaDataPointer findMaxAdlsCreationTimestamp();
 
-    @Query("SELECT m FROM MetaDataPointer m WHERE m.stageStatus = :stageStatus ORDER BY m.adlsCreationTimestamp ASC")
+    @Query("SELECT m FROM MetaDataPointer m WHERE m.stageStatus = :stageStatus ORDER BY m.adlscreationtimestamp ASC")
     MetaDataPointer findFirstByStageStatusOrderByAdlsCreationTimestampAsc(@Param("stageStatus") Short stageStatus);
 
     @Query("SELECT COUNT(m) FROM MetaDataPointer m WHERE m.stageStatus = :stageStatus")

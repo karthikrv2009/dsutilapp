@@ -9,5 +9,7 @@ import java.util.List;
 
 @Repository
 public interface HealthMetricsRepository extends JpaRepository<HealthMetrics, Long>{
-  public List<HealthMetrics> findbyfolder(String folder);
+  public List<HealthMetrics> findByFolderName(String folderName);
+  List<HealthMetrics> findByPipelineId(String pipelineId);
+
 }

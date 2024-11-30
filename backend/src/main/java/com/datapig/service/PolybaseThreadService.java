@@ -6,6 +6,7 @@ import com.datapig.entity.FolderSyncStatus;
 import com.datapig.entity.HealthMetrics;
 import com.datapig.entity.MetaDataCatlog;
 import com.datapig.entity.MetaDataPointer;
+import com.datapig.entity.Pipeline;
 
 import java.time.LocalDateTime;
 
@@ -14,7 +15,7 @@ public class PolybaseThreadService implements Runnable {
     private final MetaDataCatlog metaDataCatlog;
     private  final FolderSyncStatus folderSyncStatus;
     private  final MetaDataPointer metaDataPointer;
-    
+    private final Pipeline pipeline;
     private  final JdbcTemplate jdbcTemplate;
     private  final MetaDataCatlogService metaDataCatlogService;
     private  final FolderSyncStatusService folderSyncStatusService;
@@ -23,11 +24,12 @@ public class PolybaseThreadService implements Runnable {
     private long timespent=0;
     private int status=0;
 
-     public PolybaseThreadService(MetaDataCatlog metaDataCatlog, FolderSyncStatus folderSyncStatus,MetaDataPointer metaDataPointer,JdbcTemplate jdbcTemplate,MetaDataCatlogService metaDataCatlogService,FolderSyncStatusService folderSyncStatusService,HealthMetricsService healthMetricsService) {
+     public PolybaseThreadService(MetaDataCatlog metaDataCatlog, FolderSyncStatus folderSyncStatus,MetaDataPointer metaDataPointer,Pipeline pipeline,JdbcTemplate jdbcTemplate,MetaDataCatlogService metaDataCatlogService,FolderSyncStatusService folderSyncStatusService,HealthMetricsService healthMetricsService) {
         // Your processing logic here, using tableName and folder
         this.metaDataCatlog=metaDataCatlog;
         this.folderSyncStatus=folderSyncStatus;
         this.metaDataPointer=metaDataPointer;
+        this.pipeline=pipeline;
         this.jdbcTemplate=jdbcTemplate;
         this.folderSyncStatusService=folderSyncStatusService;
         this.metaDataCatlogService=metaDataCatlogService;
@@ -87,13 +89,14 @@ public class PolybaseThreadService implements Runnable {
 
     }
 
-    private HealthMetrics logHealthMetric(FolderSyncStatus folderSyncStatus,String methodAction,long timeTaken,int status,long rowCount){
+    private HealthMetrics logHealthMetric(Pipeline pipeline,FolderSyncStatus folderSyncStatus,String methodAction,long timeTaken,int status,long rowCount){
         HealthMetrics healthMetrics=new HealthMetrics();
-        healthMetrics.setFoldername(folderSyncStatus.getFolder());
+        healthMetrics.setPipelineId(pipeline.getPipelineid());
+        healthMetrics.setFolderName(folderSyncStatus.getFolder());
         healthMetrics.setTableName(folderSyncStatus.getTableName());
         healthMetrics.setMethodname(methodAction);
         healthMetrics.setTimespent(timeTaken);
-        healthMetrics.setRowcount(rowCount);
+        healthMetrics.setRcount(rowCount);
         healthMetrics.setStatus(status);
         return healthMetricsService.save(healthMetrics);
     }
@@ -110,17 +113,17 @@ public class PolybaseThreadService implements Runnable {
         try{
             rowcount = jdbcTemplate.update(query);
             long endTime=System.currentTimeMillis();
-            timespent=startTime-endTime;
+            timespent=endTime-startTime;
             status=1;
             String methodAction="StageDataFromADLS";
-            healthMetrics=logHealthMetric(folderSyncStatus, methodAction, timespent, status, rowcount);   
+            healthMetrics=logHealthMetric(pipeline,folderSyncStatus, methodAction, timespent, status, rowcount);   
         }catch (Exception e) {
 
             long endTime=System.currentTimeMillis();
-            timespent=startTime-endTime;
+            timespent=endTime-startTime;
             status=2;
             String methodAction="StageDataFromADLS";
-            healthMetrics=logHealthMetric(folderSyncStatus, methodAction, timespent, status, rowcount);   
+            healthMetrics=logHealthMetric(pipeline,folderSyncStatus, methodAction, timespent, status, rowcount);   
             System.err.println("Execution failed: " + e.getMessage());
         }
         
@@ -144,41 +147,36 @@ public class PolybaseThreadService implements Runnable {
         updateStatements.deleteCharAt(updateStatements.length() - 1);
         valuesColumns.deleteCharAt(valuesColumns.length() - 1);
 
-        String mergeQuery = "MERGE INTO dbo." + tableName + " AS target " +
-                "USING dbo._staging_" + tableName + " AS source " +
-                "ON target.Id = source.Id " +
-                "WHEN MATCHED AND (target.versionnumber < source.versionnumber) THEN " +
-                "UPDATE SET " + updateStatements.toString() +
-                " WHEN NOT MATCHED BY TARGET THEN " +
-                "INSERT (" + columnNames + ") " +
-                "VALUES (" + valuesColumns.toString() + ")"+
-                "OUTPUT $action INTO #mergeResults;";
-                
-                
+        String mergeQuery = "DECLARE @mergeResults TABLE (Action NVARCHAR(20)); " +
+        "MERGE INTO dbo." + tableName + " AS target " +
+        "USING dbo._staging_" + tableName + " AS source " +
+        "ON target.Id = source.Id " +
+        "WHEN MATCHED AND (target.versionnumber < source.versionnumber) THEN " +
+        "UPDATE SET " + updateStatements.toString() +
+        " WHEN NOT MATCHED BY TARGET THEN " +
+        "INSERT (" + columnNames + ") " +
+        "VALUES (" + valuesColumns.toString() + ") " +
+        "OUTPUT $action INTO @mergeResults; " +
+        "SELECT COUNT(*) FROM @mergeResults;";
+
 
         System.out.println("Executed SQL: " + mergeQuery);
         try{
-         jdbcTemplate.execute(mergeQuery);
-         Integer rows = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM #mergeResults", Integer.class);
-         if(rows==null){
-            rowcount=0;
-         }
-         else{
-            rowcount=rows.intValue();
-         }
+            Integer rows = jdbcTemplate.queryForObject(mergeQuery, Integer.class);
+            rowcount = (rows != null) ? rows : 0;
          long endTime=System.currentTimeMillis();
-         timespent=startTime-endTime;
+         timespent=endTime-startTime;
          status=1;
          String methodAction="DedupAndMergeFromSourceToTarget";
-         healthMetrics=logHealthMetric(folderSyncStatus, methodAction, timespent, status, rowcount);   
+         healthMetrics=logHealthMetric(pipeline,folderSyncStatus, methodAction, timespent, status, rowcount);   
  
         }catch (Exception e) {
 
         long endTime=System.currentTimeMillis();
-        timespent=startTime-endTime;
+        timespent=endTime-startTime;
         status=2;
         String methodAction="DedupAndMergeFromSourceToTarget";
-        healthMetrics=logHealthMetric(folderSyncStatus, methodAction, timespent, status, rowcount);   
+        healthMetrics=logHealthMetric(pipeline,folderSyncStatus, methodAction, timespent, status, rowcount);   
         System.err.println("Execution failed: " + e.getMessage());
     }
         return healthMetrics;
@@ -207,17 +205,17 @@ public class PolybaseThreadService implements Runnable {
         try{
             rowcount =jdbcTemplate.update(query);
             long endTime=System.currentTimeMillis();
-            timespent=startTime-endTime;
+            timespent=endTime-startTime;
             status=1;
             String methodAction="CleanUpStageData";
-            healthMetrics=logHealthMetric(folderSyncStatus, methodAction, timespent, status, rowcount);   
+            healthMetrics=logHealthMetric(pipeline,folderSyncStatus, methodAction, timespent, status, rowcount);   
         }catch (Exception e) {
 
         long endTime=System.currentTimeMillis();
-        timespent=startTime-endTime;
+        timespent=endTime-startTime;
         status=2;
         String methodAction="CleanUpStageData";
-        healthMetrics=logHealthMetric(folderSyncStatus, methodAction, timespent, status, rowcount);   
+        healthMetrics=logHealthMetric(pipeline,folderSyncStatus, methodAction, timespent, status, rowcount);   
         System.err.println("Execution failed: " + e.getMessage());
     }
         return healthMetrics;
@@ -238,17 +236,17 @@ public class PolybaseThreadService implements Runnable {
         try{
             rowcount =jdbcTemplate.update(query);
             long endTime=System.currentTimeMillis();
-            timespent=startTime-endTime;
+            timespent=endTime-startTime;
             status=1;
             String methodAction="DeleteRecordsOnTargetTableBasedOnChangeFeed";
-            healthMetrics=logHealthMetric(folderSyncStatus, methodAction, timespent, status, rowcount);   
+            healthMetrics=logHealthMetric(pipeline,folderSyncStatus, methodAction, timespent, status, rowcount);   
         }catch (Exception e) {
 
         long endTime=System.currentTimeMillis();
-        timespent=startTime-endTime;
+        timespent=endTime-startTime;
         status=2;
         String methodAction="DeleteRecordsOnTargetTableBasedOnChangeFeed";
-        healthMetrics=logHealthMetric(folderSyncStatus, methodAction, timespent, status, rowcount);   
+        healthMetrics=logHealthMetric(pipeline,folderSyncStatus, methodAction, timespent, status, rowcount);   
         System.err.println("Execution failed: " + e.getMessage());
     }
 return healthMetrics;
@@ -270,9 +268,11 @@ return healthMetrics;
         jdbcTemplate.execute(dropTableSQL);
 
         Short metaCopyStatus=2;
+        int retry=0;
         metaDataCatlog.setLastCopyStatus(metaCopyStatus);
         metaDataCatlog.setLastEndCopyDate(LocalDateTime.now());
         metaDataCatlog.setLastUpdatedFolder(folderSyncStatus.getFolder());
+        metaDataCatlog.setRetry(retry);
         metaDataCatlogService.save(metaDataCatlog);
 
         Short copyStatus=1;
@@ -296,4 +296,5 @@ return healthMetrics;
         folderSyncStatus.setCopyStatus(copyStatus);
         folderSyncStatusService.save(folderSyncStatus);
     }
+
 }

@@ -16,8 +16,11 @@ public class HealthMetrics {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id; // Added ID to uniquely identify rows
 
+    @Column(name = "pipelineid",columnDefinition = "uniqueidentifier", nullable = false)
+    private String pipelineId;
+
     @Column(name = "foldername", length = 50)
-    private String foldername;
+    private String folderName;
 
     @Column(name = "tablename", length = 50)
     private String tableName;
@@ -26,15 +29,13 @@ public class HealthMetrics {
     private String methodname;
 
     @Column(name="timespent")
-    private long timespent;
+    private Long timespent;
 
     @Column(name = "status")
     private int status;
 
-    @Column (name="rowcount")
-    private long rowcount;
-
-    
+    @Column (name="rcount")
+    private Long rcount;
 
     public Long getId() {
         return id;
@@ -44,16 +45,19 @@ public class HealthMetrics {
         this.id = id;
     }
 
-    public String getFoldername() {
-        return foldername;
-    }
-
-    public void setFoldername(String foldername) {
-        this.foldername = foldername;
-    }
+    
 
     public String getTableName() {
         return tableName;
+    }
+
+    
+    public String getFolderName() {
+        return folderName;
+    }
+
+    public void setFolderName(String folderName) {
+        this.folderName = folderName;
     }
 
     public void setTableName(String tableName) {
@@ -83,14 +87,25 @@ public class HealthMetrics {
     public void setStatus(int status) {
         this.status = status;
     }
-
-    public long getRowcount() {
-        return rowcount;
+    
+    public void setTimespent(Long timespent) {
+        this.timespent = timespent;
     }
 
-    public void setRowcount(long rowcount) {
-        this.rowcount = rowcount;
+    public String getPipelineId() {
+        return pipelineId;
     }
 
+    public void setPipelineId(String pipelineId) {
+        this.pipelineId = pipelineId;
+    }
+
+    public Long getRcount() {
+        return rcount;
+    }
+
+    public void setRcount(Long rcount) {
+        this.rcount = rcount;
+    }
 
 }

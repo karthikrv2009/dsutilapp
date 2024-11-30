@@ -10,6 +10,7 @@ import com.azure.storage.file.datalake.DataLakeFileSystemClientBuilder;
 import com.azure.storage.file.datalake.models.PathProperties;
 import com.datapig.component.EncryptedPropertyReader;
 import com.datapig.entity.FolderSyncStatus;
+import com.datapig.entity.MetaDataCatlog;
 import com.datapig.entity.MetaDataPointer;
 import com.datapig.utility.JDBCTemplateUtiltiy;
 import com.datapig.utility.ModelJsonDownloader;
@@ -20,6 +21,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.ArrayList;
+import java.util.Comparator;
 
 @Service
 public class SynapseLogParserService {
@@ -110,11 +112,63 @@ public class SynapseLogParserService {
             }
         }
 
-        
+        //Retry Error logic
+        TreeSet<MetaDataPointer> failedMetaDataPointers= errorHandle();
+        for(MetaDataPointer metaDataPointer:failedMetaDataPointers){
+            polybaseService.startSyncInFolder(metaDataPointer);
+        }
+
         TreeSet<MetaDataPointer> metaDataPointers=existingFolderStagedNotComplete(); 
-        
         for(MetaDataPointer metaDataPointer:metaDataPointers){
             polybaseService.startSyncInFolder(metaDataPointer);
+        }
+    }
+
+    private TreeSet<MetaDataPointer> errorHandle(){
+        List<MetaDataPointer> metaDataPointerList=new ArrayList<MetaDataPointer>();
+        TreeSet<MetaDataPointer> orderedSet =null;
+        short failStatus=3;
+        List<MetaDataCatlog> metaDataCatlogs=metaDataCatlogService.findBylastCopyStatus(failStatus);
+        for(MetaDataCatlog failMetaDataCatlog:metaDataCatlogs){
+            if(failMetaDataCatlog.getRetry()==3){
+                quarintineTable(failMetaDataCatlog);
+            }
+            if((failMetaDataCatlog.getQuarintine()!=1) && (failMetaDataCatlog.getRetry()<=3)){
+                MetaDataPointer metaDataPointer=metaDataPointerService.getMetaDataPointer(failMetaDataCatlog.getLastUpdatedFolder());
+                if(metaDataPointer!=null){
+                    updateErrorTableToStart(failMetaDataCatlog,metaDataPointer);
+                }
+                metaDataPointerList.add(metaDataPointer);
+            }
+            
+        }
+        if(metaDataPointerList!=null){
+            // Create a TreeSet with a custom comparator for stageStartTime
+            orderedSet = new TreeSet<>(Comparator.comparing(MetaDataPointer::getStageStartTime));
+            orderedSet.addAll(metaDataPointerList);
+        }
+        return orderedSet;
+    }
+
+    private void quarintineTable(MetaDataCatlog metaDataCatlog){
+            int quarintine=1;
+            metaDataCatlog.setQuarintine(quarintine);
+            metaDataCatlogService.save(metaDataCatlog);
+    }
+    private void updateErrorTableToStart(MetaDataCatlog metaDataCatlog,MetaDataPointer metaDataPointer){
+        FolderSyncStatus folderSyncStatus=folderSyncStatusService.getFolderSyncStatusOnFolderAndTableName(metaDataPointer.getFolderName(), metaDataCatlog.getTableName());
+        if(folderSyncStatus!=null){
+            Short copyStatus=0;
+            folderSyncStatus.setCopyStatus(copyStatus);
+            folderSyncStatusService.save(folderSyncStatus);
+        }
+        if(metaDataCatlog!=null){
+            Short copyStatus=1;
+            metaDataCatlog.setLastCopyStatus(copyStatus);
+            int retry=metaDataCatlog.getRetry();
+            retry=retry+1;
+            metaDataCatlog.setRetry(retry);
+            metaDataCatlogService.save(metaDataCatlog);
         }
     }
 

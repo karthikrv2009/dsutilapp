@@ -4,13 +4,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
+import com.datapig.component.EncryptedPropertyReader;
 import com.datapig.entity.FolderSyncStatus;
+import com.datapig.entity.HealthMetrics;
 import com.datapig.entity.MetaDataCatlog;
 import com.datapig.entity.MetaDataPointer;
+import com.datapig.entity.Pipeline;
 import com.datapig.utility.JDBCTemplateUtiltiy;
 
 import java.time.LocalDateTime;
-import java.util.List; 
+import java.util.List;
+
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -37,27 +41,41 @@ public class PolybaseService {
     @Autowired
     private HealthMetricsService healthMetricsService;
 
-    public void startSyncInFolder(MetaDataPointer metaDataPointer) {
+    @Autowired
+    private PipelineService pipelineService;
 
+    @Autowired
+    private EncryptedPropertyReader encryptedPropertyReader;
+
+    public void startSyncInFolder(MetaDataPointer metaDataPointer) {
+        
+        int maxCount = Integer.parseInt(encryptedPropertyReader.getProperty("MAX_THREAD_COUNT"));
         List<FolderSyncStatus> setfolderSyncStatus = folderSyncStatusService.getFolderSyncStatusByfolder(metaDataPointer.getFolderName());
 
         List<FolderSyncStatus> folderNeedsToBeProcessed= new ArrayList<FolderSyncStatus>();
         for(FolderSyncStatus folderSyncStatus1:setfolderSyncStatus){
-            if(folderSyncStatus1.getCopyStatus()==0){
-                folderNeedsToBeProcessed.add(folderSyncStatus1);
+            MetaDataCatlog metaDataCatlog= metaDataCatlogService.getmetaDataCatlogServiceBytableName(folderSyncStatus1.getTableName());
+            if((metaDataCatlog.getLastCopyStatus()!=3) && (metaDataCatlog.getQuarintine()!=1)){
+                if(folderSyncStatus1.getCopyStatus()==0){
+                    folderNeedsToBeProcessed.add(folderSyncStatus1);
+                }
             }
         }
-        // Create an ExecutorService with a fixed thread pool
-        ExecutorService executorService = Executors.newFixedThreadPool(folderNeedsToBeProcessed.size());
 
-        for (FolderSyncStatus folderSyncStatus : folderNeedsToBeProcessed) {
-            MetaDataCatlog metaDataCatlog=preMergeAction(folderSyncStatus);
+        List<List<FolderSyncStatus>> chunksofFolderSyncStatus= chunkList(folderNeedsToBeProcessed, maxCount);
+
+        for(List<FolderSyncStatus> chunk : chunksofFolderSyncStatus){
+            
+        Pipeline pipeline=createNewPipeline(metaDataPointer.getFolderName());
+        // Create an ExecutorService with a fixed thread pool
+        ExecutorService executorService = Executors.newFixedThreadPool(chunk.size());
+        for (FolderSyncStatus folderSyncStatus : chunk) {
+            MetaDataCatlog metaDataCatlog=preMergeActionFolderSyncStatus(folderSyncStatus);
             if(metaDataCatlog!=null){
-                PolybaseThreadService polybaseThreadService= new PolybaseThreadService(metaDataCatlog, folderSyncStatus, metaDataPointer,jdbcTemplate,metaDataCatlogService,folderSyncStatusService,healthMetricsService);
+                PolybaseThreadService polybaseThreadService= new PolybaseThreadService(metaDataCatlog, folderSyncStatus, metaDataPointer,pipeline,jdbcTemplate,metaDataCatlogService,folderSyncStatusService,healthMetricsService);
                 executorService.submit(polybaseThreadService);
             }
         }
-
         // Shutdown the executor service
         executorService.shutdown();
         try {
@@ -69,18 +87,73 @@ public class PolybaseService {
             System.err.println("Thread was interrupted while waiting for tasks to complete.");
             executorService.shutdownNow();
         }
-        postMergeAction(metaDataPointer);
-        System.out.println("All data merge tasks completed for folder: " + metaDataPointer.getFolderName());
+        postMergeActionPipeline(pipeline);
+       }
+       postMergeActionMetaDataPointer(metaDataPointer);
+       System.out.println("All data merge tasks completed for folder: " + metaDataPointer.getFolderName());
+        
     }
 
-    private void postMergeAction(MetaDataPointer metaDataPointer){
+    private void postMergeActionPipeline(Pipeline pipeline){
+        pipeline.setPipelineEndTime(LocalDateTime.now());
+        List<HealthMetrics> healthMetrics=healthMetricsService.findbyPipelineId(pipeline.getPipelineid());
+        boolean flag=true;
+        for(HealthMetrics healtmet:healthMetrics){
+            if(healtmet.getStatus()==2){
+                flag=false;
+            }
+        }
+        if(flag){
+            pipeline.setStatus(2);
+        }
+        else{
+            pipeline.setStatus(3);
+        }
+        pipelineService.save(pipeline);
+
+    }
+
+
+    private  List<List<FolderSyncStatus>> chunkList(List<FolderSyncStatus> inputList, int maxCount) {
+        List<List<FolderSyncStatus>> chunks = new ArrayList<>();
+
+        int totalSize = inputList.size();
+        int numChunks = (totalSize / maxCount) + (totalSize % maxCount == 0 ? 0 : 1);
+
+        System.out.println("Total size of list: " + totalSize);
+        System.out.println("Max items per chunk: " + maxCount);
+        System.out.println("Number of chunks to create: " + numChunks);
+
+        for (int i = 0; i < numChunks; i++) {
+            int start = i * maxCount;
+            int end = Math.min(start + maxCount, totalSize);
+
+            System.out.println("Creating chunk from index " + start + " to " + (end - 1));
+            List<FolderSyncStatus> chunk = inputList.subList(start, end);
+            chunks.add(chunk);
+            System.out.println("Chunk " + (i + 1) + ": " + chunk);
+        }
+
+        return chunks;
+    }
+
+    private Pipeline createNewPipeline(String foldername){
+        Pipeline pipeline=new Pipeline();
+        pipeline.setPipelineid(java.util.UUID.randomUUID().toString());
+        pipeline.setFolderName(foldername);
+        pipeline.setStatus(1);
+        pipeline.setPipelineStartTime(LocalDateTime.now());
+        pipeline=pipelineService.save(pipeline);
+        return pipeline;
+    }
+    private void postMergeActionMetaDataPointer(MetaDataPointer metaDataPointer){
         Short copyStatus=2;
         metaDataPointer.setStageStatus(copyStatus);
         metaDataPointer.setStageEndTime(LocalDateTime.now());
         metaDataPointerService.save(metaDataPointer);
     }
 
-    private MetaDataCatlog preMergeAction(FolderSyncStatus folderSyncStatus) {
+    private MetaDataCatlog preMergeActionFolderSyncStatus(FolderSyncStatus folderSyncStatus) {
         jdbcTemplateUtiltiy.dropStagingTable(folderSyncStatus.getTableName());
         Short copyStatus=2;
         String tableName=folderSyncStatus.getTableName();

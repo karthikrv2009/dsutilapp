@@ -18,5 +18,10 @@ List<FolderSyncStatus> findBycopyStatus(Short copyStatus);
 
 @Query("SELECT COUNT(f) FROM FolderSyncStatus f WHERE f.copyStatus = :copyStatus")
  long countByCopyStatus(@Param("copyStatus") Short copyStatus);
+
+ @Query("SELECT f FROM FolderSyncStatus f WHERE f.folder = :folder AND f.tableName = :tableName")
+ FolderSyncStatus getFolderSyncStatusOnFolderAndTableName(@Param("folder") String folder, @Param("tableName") String tableName);
+ 
+
 }
 

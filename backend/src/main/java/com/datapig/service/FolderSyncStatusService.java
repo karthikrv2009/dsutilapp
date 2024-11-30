@@ -9,6 +9,7 @@ import com.datapig.repository.FolderSyncStatusRepository;
 import com.datapig.service.dto.FolderSyncStatusDTO;
 
 import org.springframework.beans.factory.annotation.Autowired;
+
 import com.datapig.entity.FolderSyncStatus;
 import com.datapig.entity.MetaDataPointer;
 
@@ -25,7 +26,10 @@ public class FolderSyncStatusService {
     @Autowired
     private MetaDataPointerService metaDataPointerService;
 
- 
+    public Long count(){
+        return folderSyncStatusRepository.count();
+    }
+
     public List<FolderSyncStatus> findAll() {
         return folderSyncStatusRepository.findAll();
     }
@@ -47,6 +51,11 @@ public class FolderSyncStatusService {
     public List<FolderSyncStatus> getFolderSyncStatusByfolder(String folder) {
         List<FolderSyncStatus> entityOptional = folderSyncStatusRepository.findByfolder(folder);
         return entityOptional; 
+    }
+
+    public FolderSyncStatus getFolderSyncStatusOnFolderAndTableName(String folder, String tableName){
+        FolderSyncStatus folderSyncStatus=folderSyncStatusRepository.getFolderSyncStatusOnFolderAndTableName(folder,tableName);
+        return folderSyncStatus;
     }
 
     public FolderSyncStatusDTO getFolerStatusDTO() {
@@ -92,7 +101,7 @@ public class FolderSyncStatusService {
         }
     
         //Error Tables
-        folderCopyStatus=3;
+        folderCopyStatus=2;
         List<FolderSyncStatus> errorTables=folderSyncStatusRepository.findBycopyStatus(folderCopyStatus);
         if (errorTables != null) {
             Set<String> errortables=new HashSet<String>();
@@ -103,7 +112,6 @@ public class FolderSyncStatusService {
         }
         else{
             folderSyncStatusDTO.setErrorTablesCount(0);
-            
         }
 
         return folderSyncStatusDTO;

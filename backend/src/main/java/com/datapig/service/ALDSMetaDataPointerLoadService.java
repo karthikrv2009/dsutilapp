@@ -12,12 +12,15 @@ import com.azure.storage.file.datalake.models.PathProperties;
 import com.datapig.component.EncryptedPropertyReader;
 import com.datapig.entity.FolderSyncStatus;
 import com.datapig.entity.IntialLoad;
+import com.datapig.entity.MetaDataCatlog;
 import com.datapig.entity.MetaDataPointer;
 import com.datapig.utility.JDBCTemplateUtiltiy;
 import com.datapig.utility.ModelJsonDownloader;
 
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -76,8 +79,9 @@ public class ALDSMetaDataPointerLoadService {
         // ADLS Gen2 endpoint with SAS token
         String endpointWithSAS = storageAccountUrl + "/" + fileSystemName + "/?" + saskey;
 
-        intialLoad=initialLoadService.getIntialLoad("DBSynctUtilInitalLoad");
-    if(intialLoad.getStatus()==0){
+    intialLoad=initialLoadService.getIntialLoad("DBSynctUtilInitalLoad");
+    if((intialLoad.getStatus()==0 || intialLoad.getStatus()==1) && intialLoad.getStagestatus()!=2){
+            intialLoad.setStagestatus(1);
             intialLoad.setStatus(1);
             intialLoad.setStarttimestamp(LocalDateTime.now());
             intialLoad.setStagestarttime(LocalDateTime.now());
@@ -87,6 +91,7 @@ public class ALDSMetaDataPointerLoadService {
                 .endpoint(endpointWithSAS)
                 .fileSystemName(fileSystemName)
                 .buildClient();
+
     // List first-level directories and check for the target file
         for (PathItem pathItem : fileSystemClient.listPaths()) {
             Set<String> tableNamesInDB = metaDataCatlogService.getAllTableName();            
@@ -136,9 +141,11 @@ public class ALDSMetaDataPointerLoadService {
                 }
                 }
             }
-        intialLoad.setStageendtime(LocalDateTime.now());
-        intialLoad=initialLoadService.save(intialLoad);
         }
+        intialLoad.setTotalpackages(metaDataPointerService.count());
+        intialLoad.setStageendtime(LocalDateTime.now());
+        intialLoad.setStagestatus(2);
+        intialLoad=initialLoadService.save(intialLoad);
     }   
         Short pointerCopyStatus=1;
         TreeSet<MetaDataPointer> metaDataPointers=metaDataPointerService.getMetaDataPointerBystageStatus(pointerCopyStatus);
@@ -149,7 +156,7 @@ public class ALDSMetaDataPointerLoadService {
         List<FolderSyncStatus> pendingTablesInFolder=folderSyncStatusService.getFolderSyncStatusBycopyStatus(copyStatus);
         if(pendingTablesInFolder.size() ==0){
             intialLoad.setEndtimestamp(LocalDateTime.now());
-            intialLoad.setStagestatus(2);
+            intialLoad.setStatus(2);
             initialLoadService.save(intialLoad);
         }
     }
@@ -221,8 +228,61 @@ public class ALDSMetaDataPointerLoadService {
         return metaDataPointer;
     }
     
+        private TreeSet<MetaDataPointer> errorHandle(){
+        List<MetaDataPointer> metaDataPointerList=new ArrayList<MetaDataPointer>();
+        TreeSet<MetaDataPointer> orderedSet =null;
+        short failStatus=3;
+        List<MetaDataCatlog> metaDataCatlogs=metaDataCatlogService.findBylastCopyStatus(failStatus);
+        for(MetaDataCatlog failMetaDataCatlog:metaDataCatlogs){
+            if(failMetaDataCatlog.getRetry()==3){
+                quarintineTable(failMetaDataCatlog);
+            }
+            if((failMetaDataCatlog.getQuarintine()!=1) && (failMetaDataCatlog.getRetry()<=3)){
+                MetaDataPointer metaDataPointer=metaDataPointerService.getMetaDataPointer(failMetaDataCatlog.getLastUpdatedFolder());
+                if(metaDataPointer!=null){
+                    updateErrorTableToStart(failMetaDataCatlog,metaDataPointer);
+                }
+                metaDataPointerList.add(metaDataPointer);
+            }
+            
+        }
+        if(metaDataPointerList!=null){
+            // Create a TreeSet with a custom comparator for stageStartTime
+            orderedSet = new TreeSet<>(Comparator.comparing(MetaDataPointer::getStageStartTime));
+            orderedSet.addAll(metaDataPointerList);
+        }
+        return orderedSet;
+    }
+
+    private void quarintineTable(MetaDataCatlog metaDataCatlog){
+            int quarintine=1;
+            metaDataCatlog.setQuarintine(quarintine);
+            metaDataCatlogService.save(metaDataCatlog);
+    }
+
+    private void updateErrorTableToStart(MetaDataCatlog metaDataCatlog,MetaDataPointer metaDataPointer){
+        FolderSyncStatus folderSyncStatus=folderSyncStatusService.getFolderSyncStatusOnFolderAndTableName(metaDataPointer.getFolderName(), metaDataCatlog.getTableName());
+        if(folderSyncStatus!=null){
+            Short copyStatus=0;
+            folderSyncStatus.setCopyStatus(copyStatus);
+            folderSyncStatusService.save(folderSyncStatus);
+        }
+        if(metaDataCatlog!=null){
+            Short copyStatus=1;
+            metaDataCatlog.setLastCopyStatus(copyStatus);
+            int retry=metaDataCatlog.getRetry();
+            retry=retry+1;
+            metaDataCatlog.setRetry(retry);
+            metaDataCatlogService.save(metaDataCatlog);
+        }
+    }
 
     private void startProcessing(MetaDataPointer metaDataPointer){
+        //Retry Error logic
+        TreeSet<MetaDataPointer> failedMetaDataPointers= errorHandle();
+        for(MetaDataPointer failMetaDataPointer:failedMetaDataPointers){
+            polybaseService.startSyncInFolder(failMetaDataPointer);
+        }
         polybaseService.startSyncInFolder(metaDataPointer);
 
     }

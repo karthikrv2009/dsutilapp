@@ -6,8 +6,6 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
-
-
 import java.time.LocalDateTime;
 
 @Entity
@@ -32,6 +30,13 @@ public class MetaDataCatlog {
 
     @Column(name = "LastCopyStatus")
     private short lastCopyStatus;
+
+    @Column(name = "retry", nullable = false, columnDefinition = "int default 0")
+    private int retry;
+
+    @Column(name = "quarintine", nullable = false, columnDefinition = "int default 0")
+    private int quarintine;
+
 
     public String getTableName() {
         return tableName;
@@ -106,5 +111,20 @@ public class MetaDataCatlog {
         this.lastCopyStatus = lastCopyStatus;
     }
 
-    // Getters and Setters
+    public int getRetry() {
+        return retry;
+    }
+
+    public void setRetry(int retry) {
+        this.retry = retry;
+    }
+
+    public int getQuarintine() {
+        return quarintine;
+    }
+
+    public void setQuarintine(int quarintine) {
+        this.quarintine = quarintine;
+    }
+    
 }
