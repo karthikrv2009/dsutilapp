@@ -24,7 +24,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-
 @RestController
 @RequestMapping("/api/dashboard")
 public class DashboardController {
@@ -48,75 +47,75 @@ public class DashboardController {
   @Autowired
   MetaDataCatlogService metaDataCatlogService;
 
-  //Overall MetaDataPointer Snapshot
-    @GetMapping("/widget1")
-    public ResponseEntity<DBSnapshotWidget> getDashboardData() {
-      DBSnapshotWidget dbSnapshotWidget=metaDataPointerService.getDBSnapshotWidget();
-      return ResponseEntity.ok(dbSnapshotWidget);
-    }
-  
-  //Overall Table In FolderSyncStatusSnapShot  
+  // Overall MetaDataPointer Snapshot
+  @GetMapping("/widget1")
+  public ResponseEntity<DBSnapshotWidget> getDashboardData() {
+    DBSnapshotWidget dbSnapshotWidget = metaDataPointerService.getDBSnapshotWidget();
+    return ResponseEntity.ok(dbSnapshotWidget);
+  }
+
+  // Overall Table In FolderSyncStatusSnapShot
   @GetMapping("/getCurrentFolerStatus")
   public ResponseEntity<FolderSyncStatusDTO> getCurrentFolerStatus() {
-    FolderSyncStatusDTO folderSyncStatusDTO=folderSyncStatusService.getFolerStatusDTO();
+    FolderSyncStatusDTO folderSyncStatusDTO = folderSyncStatusService.getFolerStatusDTO();
     return ResponseEntity.ok(folderSyncStatusDTO);
-  } 
+  }
 
-  //PipeLine information based on Duration(maximum 1 month) and Status
+  // PipeLine information based on Duration(maximum 1 month) and Status
   @GetMapping("/getPipeline")
-  public ResponseEntity<List<Pipeline>> getPipeline(int days,int error,int success,int inprogress) {
-    List<Pipeline> pipelines= new ArrayList<Pipeline>();
-    List<Pipeline> pipelinesInDB= pipelineService.getPipelinesWithinLastDays(days);
-    for(Pipeline pipeline:pipelinesInDB){
-      if(error==1 && pipeline.getStatus()==3){
+  public ResponseEntity<List<Pipeline>> getPipeline(int days, int error, int success, int inprogress) {
+    List<Pipeline> pipelines = new ArrayList<Pipeline>();
+    List<Pipeline> pipelinesInDB = pipelineService.getPipelinesWithinLastDays(days);
+    for (Pipeline pipeline : pipelinesInDB) {
+      if (error == 1 && pipeline.getStatus() == 3) {
         pipelines.add(pipeline);
       }
-      if(success==1 && pipeline.getStatus()==2){
+      if (success == 1 && pipeline.getStatus() == 2) {
         pipelines.add(pipeline);
       }
-      if(inprogress==1 && pipeline.getStatus()==1){
+      if (inprogress == 1 && pipeline.getStatus() == 1) {
         pipelines.add(pipeline);
       }
     }
-    return ResponseEntity.ok(pipelines);
-  } 
 
-  //Get HealtMetrics based on PipelineId
+    return ResponseEntity.ok(pipelines);
+  }
+
+  // Get HealtMetrics based on PipelineId
   @GetMapping("/getHealthMetrics")
   public ResponseEntity<List<HealthMetrics>> getHealthMetrics(String pipelineId) {
-      List<HealthMetrics> healthMetrics=healthMetricsService.findbyPipelineId(pipelineId);
-      return ResponseEntity.ok(healthMetrics);
-  } 
-  
-  //Get Enviorment Information 
+    List<HealthMetrics> healthMetrics = healthMetricsService.findbyPipelineId(pipelineId);
+    return ResponseEntity.ok(healthMetrics);
+  }
+
+  // Get Enviorment Information
   @GetMapping("/getEnviormentInformation")
   public ResponseEntity<EnvironmentDTO> getEnviormentInformation() {
-    EnvironmentDTO environmentDTO=new EnvironmentDTO();
+    EnvironmentDTO environmentDTO = new EnvironmentDTO();
     environmentDTO.setD365Environment(encryptedPropertyReader.getProperty("D365_ENVIRONMENT"));
-    environmentDTO.setD365EnvironmentURL(encryptedPropertyReader.getProperty("D365_ENVIRONMENT_URL"));  
+    environmentDTO.setD365EnvironmentURL(encryptedPropertyReader.getProperty("D365_ENVIRONMENT_URL"));
     environmentDTO.setAdlsStorageAccount(encryptedPropertyReader.getProperty("STRORAGE_ACCOUNT_URL"));
     environmentDTO.setContainerName(encryptedPropertyReader.getProperty("STORAGE_ACCOUNT"));
     return ResponseEntity.ok(environmentDTO);
   }
 
-  //Get MetaDataCatalog Information
+  // Get MetaDataCatalog Information
   @GetMapping("/getMetaDataCatalogInfo")
   public ResponseEntity<List<MetaDataCatalogDTO>> getMetaDataCatalogInfo() {
-      List<MetaDataCatalogDTO> metaDataCatalogDTOs=new ArrayList<MetaDataCatalogDTO>();
-      
-      List<MetaDataCatlog> metaDataCatlogs=metaDataCatlogService.findAll();
-      for(MetaDataCatlog metaDataCatlog:metaDataCatlogs){
-        MetaDataCatalogDTO metaDataCatalogDTO=new MetaDataCatalogDTO();
-        metaDataCatalogDTO.setLastCopyStatus(metaDataCatlog.getLastCopyStatus());
-        metaDataCatalogDTO.setTableName(metaDataCatlog.getTableName());
-        metaDataCatalogDTO.setQuarintine(metaDataCatlog.getQuarintine());
-        metaDataCatalogDTO.setLastUpdatedFolder(metaDataCatlog.getLastUpdatedFolder());
-        //Update it to actual count
-        metaDataCatalogDTO.setRowCount(0);
-        metaDataCatalogDTOs.add(metaDataCatalogDTO);
-      }
-      return ResponseEntity.ok(metaDataCatalogDTOs);
-  } 
+    List<MetaDataCatalogDTO> metaDataCatalogDTOs = new ArrayList<MetaDataCatalogDTO>();
 
-  
+    List<MetaDataCatlog> metaDataCatlogs = metaDataCatlogService.findAll();
+    for (MetaDataCatlog metaDataCatlog : metaDataCatlogs) {
+      MetaDataCatalogDTO metaDataCatalogDTO = new MetaDataCatalogDTO();
+      metaDataCatalogDTO.setLastCopyStatus(metaDataCatlog.getLastCopyStatus());
+      metaDataCatalogDTO.setTableName(metaDataCatlog.getTableName());
+      metaDataCatalogDTO.setQuarintine(metaDataCatlog.getQuarintine());
+      metaDataCatalogDTO.setLastUpdatedFolder(metaDataCatlog.getLastUpdatedFolder());
+      // Update it to actual count
+      metaDataCatalogDTO.setRowCount(0);
+      metaDataCatalogDTOs.add(metaDataCatalogDTO);
+    }
+    return ResponseEntity.ok(metaDataCatalogDTOs);
+  }
+
 }
