@@ -16,7 +16,7 @@ const LandingPage = () => {
     success: false,
     inprogress: false,
   });
-  const [healthMetrics, setHealthMetrics] = useState(null);
+  const [healthMetrics, setHealthMetrics] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("pipeline");
 
@@ -107,7 +107,9 @@ const LandingPage = () => {
         `/api/dashboard/getHealthMetrics/${pipelineId}`
       );
       console.log("Health Metrics:", response.data);
-      setHealthMetrics(response.data);
+      setHealthMetrics(
+        Array.isArray(response.data) ? response.data : [response.data]
+      );
       setIsModalOpen(true);
     } catch (error) {
       console.error("Error fetching health metrics:", error);
@@ -124,7 +126,7 @@ const LandingPage = () => {
 
   const closeModal = () => {
     setIsModalOpen(false);
-    setHealthMetrics(null);
+    setHealthMetrics([]);
   };
 
   return (
@@ -357,7 +359,7 @@ const LandingPage = () => {
         contentLabel="Health Metrics"
       >
         <h2>Health Metrics</h2>
-        {healthMetrics && (
+        {healthMetrics.length > 0 ? (
           <div style={{ maxHeight: "400px", overflowY: "scroll" }}>
             <table>
               <thead>
@@ -372,18 +374,22 @@ const LandingPage = () => {
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  <td>{healthMetrics.pipelineId}</td>
-                  <td>{healthMetrics.folderName}</td>
-                  <td>{healthMetrics.tableName}</td>
-                  <td>{healthMetrics.methodname}</td>
-                  <td>{healthMetrics.timespent}</td>
-                  <td>{healthMetrics.status}</td>
-                  <td>{healthMetrics.rcount}</td>
-                </tr>
+                {healthMetrics.map((metric, index) => (
+                  <tr key={index}>
+                    <td>{metric.pipelineId}</td>
+                    <td>{metric.folderName}</td>
+                    <td>{metric.tableName}</td>
+                    <td>{metric.methodname}</td>
+                    <td>{metric.timespent}</td>
+                    <td>{metric.status}</td>
+                    <td>{metric.rcount}</td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>
+        ) : (
+          <p>No health metrics available</p>
         )}
         <button onClick={closeModal}>Okay</button>
       </Modal>
