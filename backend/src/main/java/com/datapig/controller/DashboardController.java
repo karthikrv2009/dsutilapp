@@ -48,14 +48,14 @@ public class DashboardController {
   MetaDataCatlogService metaDataCatlogService;
 
   // Overall MetaDataPointer Snapshot
-  @GetMapping("/widget1")
+  @GetMapping("/getDashboardData")
   public ResponseEntity<DBSnapshotWidget> getDashboardData() {
     DBSnapshotWidget dbSnapshotWidget = metaDataPointerService.getDBSnapshotWidget();
     return ResponseEntity.ok(dbSnapshotWidget);
   }
 
   // Overall Table In FolderSyncStatusSnapShot
-  @GetMapping("/getCurrentFolerStatus")
+  @GetMapping("/getCurrentFolderStatus")
   public ResponseEntity<FolderSyncStatusDTO> getCurrentFolerStatus() {
     FolderSyncStatusDTO folderSyncStatusDTO = folderSyncStatusService.getFolerStatusDTO();
     if(folderSyncStatusDTO==null){
@@ -92,7 +92,7 @@ public class DashboardController {
   }
 
   // Get Enviorment Information
-  @GetMapping("/getEnviormentInformation")
+  @GetMapping("/getEnvironmentInformation")
   public ResponseEntity<EnvironmentDTO> getEnviormentInformation() {
     EnvironmentDTO environmentDTO = new EnvironmentDTO();
     environmentDTO.setD365Environment(encryptedPropertyReader.getProperty("D365_ENVIRONMENT"));
