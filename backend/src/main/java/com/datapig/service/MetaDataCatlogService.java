@@ -45,4 +45,8 @@ public class MetaDataCatlogService {
         return metaDataCatlogs;
     }
 
+    public Integer getRowCount(String tableName) {
+        return metaDataCatlogRepository.getRowCountByTableName(tableName);
+    }
+
 }

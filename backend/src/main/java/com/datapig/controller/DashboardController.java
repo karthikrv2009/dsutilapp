@@ -48,6 +48,7 @@ public class DashboardController {
   @Autowired
   MetaDataCatlogService metaDataCatlogService;
 
+
   // Overall MetaDataPointer Snapshot
   @GetMapping("/getDashboardData")
   public ResponseEntity<DBSnapshotWidget> getDashboardData() {
@@ -108,7 +109,6 @@ public class DashboardController {
   @GetMapping("/getMetaDataCatalogInfo")
   public ResponseEntity<List<MetaDataCatalogDTO>> getMetaDataCatalogInfo() {
     List<MetaDataCatalogDTO> metaDataCatalogDTOs = new ArrayList<MetaDataCatalogDTO>();
-
     List<MetaDataCatlog> metaDataCatlogs = metaDataCatlogService.findAll();
     for (MetaDataCatlog metaDataCatlog : metaDataCatlogs) {
       MetaDataCatalogDTO metaDataCatalogDTO = new MetaDataCatalogDTO();
@@ -117,7 +117,7 @@ public class DashboardController {
       metaDataCatalogDTO.setQuarintine(metaDataCatlog.getQuarintine());
       metaDataCatalogDTO.setLastUpdatedFolder(metaDataCatlog.getLastUpdatedFolder());
       // Update it to actual count
-      metaDataCatalogDTO.setRowCount(0);
+      metaDataCatalogDTO.setRowCount(metaDataCatlogService.getRowCount(metaDataCatlog.getTableName()));
       metaDataCatalogDTOs.add(metaDataCatalogDTO);
     }
     return ResponseEntity.ok(metaDataCatalogDTOs);

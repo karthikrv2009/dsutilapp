@@ -51,6 +51,8 @@ public class MetaDataPointerService {
         long pendingPackages=metaDataPointerRepository.countByStageStatus(stagestatus);
         Short copystatus=0;
         long pendingTables=folderSyncStatusRepository.countByCopyStatus(copystatus);
+        stagestatus=2;
+        long completedPackages=metaDataPointerRepository.countByStageStatus(stagestatus);
         if(currentpointer!=null){
             dbSnapshotWidget.setLastProcessedfolder(currentpointer.getFolderName());
         }
@@ -64,6 +66,7 @@ public class MetaDataPointerService {
         }
         dbSnapshotWidget.setPendingNumberPackages(pendingPackages);
         dbSnapshotWidget.setPendingTablesInAllPackages(pendingTables);
+        dbSnapshotWidget.setCompletedPackages(completedPackages);
         return dbSnapshotWidget;
     }
 

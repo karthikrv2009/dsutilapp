@@ -4,8 +4,11 @@ public class DBSnapshotWidget {
 
     private String lastProcessedfolder;
     private String latestADLSFolderAvailable;
+    private long completedPackages;
     private long pendingNumberPackages;
     private long pendingTablesInAllPackages;
+
+    
 
     public String getLastProcessedfolder() {
         return lastProcessedfolder;
@@ -37,6 +40,14 @@ public class DBSnapshotWidget {
 
     public void setPendingTablesInAllPackages(long pendingTablesInAllPackages) {
         this.pendingTablesInAllPackages = pendingTablesInAllPackages;
+    }
+
+    public long getCompletedPackages() {
+        return completedPackages;
+    }
+
+    public void setCompletedPackages(long completedPackages) {
+        this.completedPackages = completedPackages;
     }
     
 }
