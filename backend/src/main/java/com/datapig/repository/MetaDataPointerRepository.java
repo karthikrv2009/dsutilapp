@@ -3,6 +3,7 @@ package com.datapig.repository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.data.domain.Pageable;
 
 import com.datapig.entity.MetaDataPointer;
 
@@ -22,9 +23,7 @@ public interface MetaDataPointerRepository extends JpaRepository<MetaDataPointer
     MetaDataPointer findMaxAdlsCreationTimestamp();
 
     @Query("SELECT m FROM MetaDataPointer m WHERE m.stageStatus = :stageStatus ORDER BY m.adlscreationtimestamp ASC")
-    MetaDataPointer findFirstByStageStatusOrderByAdlsCreationTimestampAsc(@Param("stageStatus") Short stageStatus);
-
-    @Query("SELECT COUNT(m) FROM MetaDataPointer m WHERE m.stageStatus = :stageStatus")
-    int countByStageStatus(@Param("stageStatus") Short stageStatus);    
-
+    List<MetaDataPointer> findByStageStatusOrderByAdlsCreationTimestampAsc(@Param("stageStatus") Short stageStatus, Pageable pageable);
+        
+    int countByStageStatus(Short stageStatus);
 }

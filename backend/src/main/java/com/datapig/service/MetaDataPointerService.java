@@ -7,6 +7,9 @@ import com.datapig.repository.MetaDataPointerRepository;
 import com.datapig.service.dto.DBSnapshotWidget;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+
 
 import java.util.List;
 import java.util.TreeSet;
@@ -34,11 +37,16 @@ public class MetaDataPointerService {
         return metaDataPointerRepository.save(metaDataPointer);
     }
 
+    public MetaDataPointer getFirstRecordByStageStatus(Short stageStatus) {
+        Pageable pageable = PageRequest.of(0, 1); // Fetch only one record
+        List<MetaDataPointer> results = metaDataPointerRepository.findByStageStatusOrderByAdlsCreationTimestampAsc(stageStatus, pageable);
+        return results.isEmpty() ? null : results.get(0); // Return the first record or null if no result
+    }
+
     public DBSnapshotWidget getDBSnapshotWidget(){
         DBSnapshotWidget dbSnapshotWidget =new DBSnapshotWidget();
         Short stagestatus=1;
-        
-        MetaDataPointer currentpointer = metaDataPointerRepository.findFirstByStageStatusOrderByAdlsCreationTimestampAsc(stagestatus);
+        MetaDataPointer currentpointer = getFirstRecordByStageStatus(stagestatus);
         MetaDataPointer latestpointer = metaDataPointerRepository.findMaxAdlsCreationTimestamp();
         long pendingPackages=metaDataPointerRepository.countByStageStatus(stagestatus);
         Short copystatus=0;
@@ -46,19 +54,14 @@ public class MetaDataPointerService {
         if(currentpointer!=null){
             dbSnapshotWidget.setLastProcessedfolder(currentpointer.getFolderName());
         }
-        else{
-            dbSnapshotWidget.setLastProcessedfolder("None");
-        }
         
         if(latestpointer!=null){
             dbSnapshotWidget.setLatestADLSFolderAvailable(latestpointer.getFolderName());
+            dbSnapshotWidget.setLastProcessedfolder(latestpointer.getFolderName());
         }
         else{
             dbSnapshotWidget.setLatestADLSFolderAvailable("None");
         }
-        
-        
-        
         dbSnapshotWidget.setPendingNumberPackages(pendingPackages);
         dbSnapshotWidget.setPendingTablesInAllPackages(pendingTables);
         return dbSnapshotWidget;
