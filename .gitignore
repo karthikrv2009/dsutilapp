@@ -19,3 +19,4 @@
 # Spring Boot properties
 /src/main/resources/application.properties
 
+frontend/package-lock.json

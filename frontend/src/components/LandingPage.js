@@ -26,43 +26,74 @@ const LandingPage = () => {
   }, []);
 
   const fetchDashboardData = async () => {
-    const response = await axios.get("/api/dashboard/getDashboardData");
-    setDashboardData(Array.isArray(response.data) ? response.data : []);
+    try {
+      const response = await axios.get("/api/getDashboardData");
+      console.log("Dashboard Data:", response.data);
+      setDashboardData(Array.isArray(response.data) ? response.data : []);
+    } catch (error) {
+      console.error("Error fetching dashboard data:", error);
+      setDashboardData([]);
+    }
   };
 
   const fetchFolderStatus = async () => {
-    const response = await axios.get("/api/dashboard/getCurrentFolderStatus");
-    setFolderStatus(Array.isArray(response.data) ? response.data : []);
+    try {
+      const response = await axios.get("/api/getCurrentFolderStatus");
+      console.log("Folder Status:", response.data);
+      setFolderStatus(Array.isArray(response.data) ? response.data : []);
+    } catch (error) {
+      console.error("Error fetching folder status:", error);
+      setFolderStatus([]);
+    }
   };
 
   const fetchPipelineData = async () => {
-    const response = await axios.get("/api/dashboard/getPipeline", {
-      params: {
+    try {
+      const params = {
         days: selectedDays,
         ...pipelineFilters,
-      },
-    });
-    setPipelineData(response.data);
+      };
+      console.log("Pipeline Request Params:", params);
+      const response = await axios.get("/api/getPipeline", { params });
+      console.log("Pipeline Data:", response.data);
+      setPipelineData(Array.isArray(response.data) ? response.data : []);
+    } catch (error) {
+      console.error("Error fetching pipeline data:", error);
+      setPipelineData([]);
+    }
   };
 
   const fetchEnvironmentInfo = async () => {
-    const response = await axios.get(
-      "/api/dashboard/getEnvironmentInformation"
-    );
-    setEnvironmentInfo(Array.isArray(response.data) ? response.data : []);
+    try {
+      const response = await axios.get("/api/getEnvironmentInformation");
+      console.log("Environment Info:", response.data);
+      setEnvironmentInfo(Array.isArray(response.data) ? response.data : []);
+    } catch (error) {
+      console.error("Error fetching environment information:", error);
+      setEnvironmentInfo([]);
+    }
   };
 
   const fetchMetaDataCatalog = async () => {
-    const response = await axios.get("/api/dashboard/getMetaDataCatalogInfo");
-    setMetaDataCatalog(Array.isArray(response.data) ? response.data : []);
+    try {
+      const response = await axios.get("/api/getMetaDataCatalogInfo");
+      console.log("MetaData Catalog:", response.data);
+      setMetaDataCatalog(Array.isArray(response.data) ? response.data : []);
+    } catch (error) {
+      console.error("Error fetching metadata catalog:", error);
+      setMetaDataCatalog([]);
+    }
   };
 
   const fetchHealthMetrics = async (pipelineId) => {
-    const response = await axios.get(
-      `/api/dashboard/getHealthMetrics/${pipelineId}`
-    );
-    setHealthMetrics(response.data);
-    setIsModalOpen(true);
+    try {
+      const response = await axios.get(`/api/getHealthMetrics/${pipelineId}`);
+      console.log("Health Metrics:", response.data);
+      setHealthMetrics(response.data);
+      setIsModalOpen(true);
+    } catch (error) {
+      console.error("Error fetching health metrics:", error);
+    }
   };
 
   const handlePipelineFilterChange = (e) => {
