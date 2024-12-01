@@ -27,7 +27,7 @@ const LandingPage = () => {
 
   const fetchDashboardData = async () => {
     try {
-      const response = await axios.get("/api/getDashboardData");
+      const response = await axios.get("/api/dashboard/getDashboardData");
       console.log("Dashboard Data:", response.data);
       setDashboardData(Array.isArray(response.data) ? response.data : []);
     } catch (error) {
@@ -38,7 +38,7 @@ const LandingPage = () => {
 
   const fetchFolderStatus = async () => {
     try {
-      const response = await axios.get("/api/getCurrentFolderStatus");
+      const response = await axios.get("/api/dashboard/getCurrentFolderStatus");
       console.log("Folder Status:", response.data);
       setFolderStatus(Array.isArray(response.data) ? response.data : []);
     } catch (error) {
@@ -54,7 +54,9 @@ const LandingPage = () => {
         ...pipelineFilters,
       };
       console.log("Pipeline Request Params:", params);
-      const response = await axios.get("/api/getPipeline", { params });
+      const response = await axios.get("/api/dashboard/getPipeline", {
+        params,
+      });
       console.log("Pipeline Data:", response.data);
       setPipelineData(Array.isArray(response.data) ? response.data : []);
     } catch (error) {
@@ -65,7 +67,9 @@ const LandingPage = () => {
 
   const fetchEnvironmentInfo = async () => {
     try {
-      const response = await axios.get("/api/getEnvironmentInformation");
+      const response = await axios.get(
+        "/api/dashboard/getEnvironmentInformation"
+      );
       console.log("Environment Info:", response.data);
       setEnvironmentInfo(Array.isArray(response.data) ? response.data : []);
     } catch (error) {
@@ -76,7 +80,7 @@ const LandingPage = () => {
 
   const fetchMetaDataCatalog = async () => {
     try {
-      const response = await axios.get("/api/getMetaDataCatalogInfo");
+      const response = await axios.get("/api/dashboard/getMetaDataCatalogInfo");
       console.log("MetaData Catalog:", response.data);
       setMetaDataCatalog(Array.isArray(response.data) ? response.data : []);
     } catch (error) {
@@ -87,7 +91,9 @@ const LandingPage = () => {
 
   const fetchHealthMetrics = async (pipelineId) => {
     try {
-      const response = await axios.get(`/api/getHealthMetrics/${pipelineId}`);
+      const response = await axios.get(
+        `/api/dashboard/getHealthMetrics/${pipelineId}`
+      );
       console.log("Health Metrics:", response.data);
       setHealthMetrics(response.data);
       setIsModalOpen(true);
