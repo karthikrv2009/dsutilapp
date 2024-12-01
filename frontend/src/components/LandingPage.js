@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Modal from "react-modal";
 
+axios.defaults.baseURL = "http://localhost:8080"; // Set the base URL for Axios
+
 const LandingPage = () => {
   const [dashboardData, setDashboardData] = useState([]);
   const [folderStatus, setFolderStatus] = useState([]);
@@ -129,14 +131,20 @@ const LandingPage = () => {
           </tr>
         </thead>
         <tbody>
-          {dashboardData.map((data, index) => (
-            <tr key={index}>
-              <td>{data.lastProcessedfolder}</td>
-              <td>{data.latestADLSFolderAvailable}</td>
-              <td>{data.pendingNumberPackages}</td>
-              <td>{data.pendingTablesInAllPackages}</td>
+          {dashboardData.length > 0 ? (
+            dashboardData.map((data, index) => (
+              <tr key={index}>
+                <td>{data.lastProcessedfolder}</td>
+                <td>{data.latestADLSFolderAvailable}</td>
+                <td>{data.pendingNumberPackages}</td>
+                <td>{data.pendingTablesInAllPackages}</td>
+              </tr>
+            ))
+          ) : (
+            <tr>
+              <td colSpan="4">No data available</td>
             </tr>
-          ))}
+          )}
         </tbody>
       </table>
 
@@ -152,15 +160,21 @@ const LandingPage = () => {
           </tr>
         </thead>
         <tbody>
-          {folderStatus.map((status, index) => (
-            <tr key={index}>
-              <td>{status.currentPackageName}</td>
-              <td>{status.inProgressTables}</td>
-              <td>{status.pendingTables}</td>
-              <td>{status.completedTables}</td>
-              <td>{status.errorTablesCount}</td>
+          {folderStatus.length > 0 ? (
+            folderStatus.map((status, index) => (
+              <tr key={index}>
+                <td>{status.currentPackageName}</td>
+                <td>{status.inProgressTables}</td>
+                <td>{status.pendingTables}</td>
+                <td>{status.completedTables}</td>
+                <td>{status.errorTablesCount}</td>
+              </tr>
+            ))
+          ) : (
+            <tr>
+              <td colSpan="5">No data available</td>
             </tr>
-          ))}
+          )}
         </tbody>
       </table>
 
@@ -232,22 +246,28 @@ const LandingPage = () => {
               </tr>
             </thead>
             <tbody>
-              {pipelineData.map((pipeline, index) => (
-                <tr key={index}>
-                  <td>
-                    <a
-                      href="#"
-                      onClick={() => fetchHealthMetrics(pipeline.pipelineid)}
-                    >
-                      {pipeline.pipelineid}
-                    </a>
-                  </td>
-                  <td>{pipeline.folderName}</td>
-                  <td>{pipeline.pipelineStartTime}</td>
-                  <td>{pipeline.pipelineEndTime}</td>
-                  <td>{pipeline.status}</td>
+              {pipelineData.length > 0 ? (
+                pipelineData.map((pipeline, index) => (
+                  <tr key={index}>
+                    <td>
+                      <a
+                        href="#"
+                        onClick={() => fetchHealthMetrics(pipeline.pipelineid)}
+                      >
+                        {pipeline.pipelineid}
+                      </a>
+                    </td>
+                    <td>{pipeline.folderName}</td>
+                    <td>{pipeline.pipelineStartTime}</td>
+                    <td>{pipeline.pipelineEndTime}</td>
+                    <td>{pipeline.status}</td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="5">No data available</td>
                 </tr>
-              ))}
+              )}
             </tbody>
           </table>
         </div>
@@ -267,15 +287,21 @@ const LandingPage = () => {
               </tr>
             </thead>
             <tbody>
-              {environmentInfo.map((info, index) => (
-                <tr key={index}>
-                  <td>{info.d365Environment}</td>
-                  <td>{info.d365EnvironmentURL}</td>
-                  <td>{info.adlsStorageAccount}</td>
-                  <td>{info.containerName}</td>
-                  <td>{info.max_thread_count}</td>
+              {environmentInfo.length > 0 ? (
+                environmentInfo.map((info, index) => (
+                  <tr key={index}>
+                    <td>{info.d365Environment}</td>
+                    <td>{info.d365EnvironmentURL}</td>
+                    <td>{info.adlsStorageAccount}</td>
+                    <td>{info.containerName}</td>
+                    <td>{info.max_thread_count}</td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="5">No data available</td>
                 </tr>
-              ))}
+              )}
             </tbody>
           </table>
         </div>
@@ -295,15 +321,21 @@ const LandingPage = () => {
               </tr>
             </thead>
             <tbody>
-              {metaDataCatalog.map((metaData, index) => (
-                <tr key={index}>
-                  <td>{metaData.tableName}</td>
-                  <td>{metaData.lastUpdatedFolder}</td>
-                  <td>{metaData.lastCopyStatus}</td>
-                  <td>{metaData.quarintine}</td>
-                  <td>{metaData.rowCount}</td>
+              {metaDataCatalog.length > 0 ? (
+                metaDataCatalog.map((metaData, index) => (
+                  <tr key={index}>
+                    <td>{metaData.tableName}</td>
+                    <td>{metaData.lastUpdatedFolder}</td>
+                    <td>{metaData.lastCopyStatus}</td>
+                    <td>{metaData.quarintine}</td>
+                    <td>{metaData.rowCount}</td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="5">No data available</td>
                 </tr>
-              ))}
+              )}
             </tbody>
           </table>
         </div>
