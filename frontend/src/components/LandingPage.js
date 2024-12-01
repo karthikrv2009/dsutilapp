@@ -26,17 +26,17 @@ const LandingPage = () => {
   }, []);
 
   const fetchDashboardData = async () => {
-    const response = await axios.get("/api/getDashboardData");
-    setDashboardData(response.data);
+    const response = await axios.get("/api/dashboard/getDashboardData");
+    setDashboardData(Array.isArray(response.data) ? response.data : []);
   };
 
   const fetchFolderStatus = async () => {
-    const response = await axios.get("/api/getCurrentFolderStatus");
-    setFolderStatus(response.data);
+    const response = await axios.get("/api/dashboard/getCurrentFolderStatus");
+    setFolderStatus(Array.isArray(response.data) ? response.data : []);
   };
 
   const fetchPipelineData = async () => {
-    const response = await axios.get("/api/getPipeline", {
+    const response = await axios.get("/api/dashboard/getPipeline", {
       params: {
         days: selectedDays,
         ...pipelineFilters,
@@ -46,17 +46,21 @@ const LandingPage = () => {
   };
 
   const fetchEnvironmentInfo = async () => {
-    const response = await axios.get("/api/getEnvironmentInformation");
-    setEnvironmentInfo(response.data);
+    const response = await axios.get(
+      "/api/dashboard/getEnvironmentInformation"
+    );
+    setEnvironmentInfo(Array.isArray(response.data) ? response.data : []);
   };
 
   const fetchMetaDataCatalog = async () => {
-    const response = await axios.get("/api/getMetaDataCatalogInfo");
-    setMetaDataCatalog(response.data);
+    const response = await axios.get("/api/dashboard/getMetaDataCatalogInfo");
+    setMetaDataCatalog(Array.isArray(response.data) ? response.data : []);
   };
 
   const fetchHealthMetrics = async (pipelineId) => {
-    const response = await axios.get(`/api/getHealthMetrics/${pipelineId}`);
+    const response = await axios.get(
+      `/api/dashboard/getHealthMetrics/${pipelineId}`
+    );
     setHealthMetrics(response.data);
     setIsModalOpen(true);
   };
