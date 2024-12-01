@@ -21,6 +21,7 @@ import com.datapig.service.dto.FolderSyncStatusDTO;
 import com.datapig.service.dto.MetaDataCatalogDTO;
 
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -66,17 +67,17 @@ public class DashboardController {
 
   // PipeLine information based on Duration(maximum 1 month) and Status
   @GetMapping("/getPipeline")
-  public ResponseEntity<List<Pipeline>> getPipeline(int days, int error, int success, int inprogress) {
+  public ResponseEntity<List<Pipeline>> getPipeline(int days, boolean error, boolean success, boolean inprogress) {
     List<Pipeline> pipelines = new ArrayList<Pipeline>();
     List<Pipeline> pipelinesInDB = pipelineService.getPipelinesWithinLastDays(days);
     for (Pipeline pipeline : pipelinesInDB) {
-      if (error == 1 && pipeline.getStatus() == 3) {
+      if (error && pipeline.getStatus() == 3) {
         pipelines.add(pipeline);
       }
-      if (success == 1 && pipeline.getStatus() == 2) {
+      if (success  && pipeline.getStatus() == 2) {
         pipelines.add(pipeline);
       }
-      if (inprogress == 1 && pipeline.getStatus() == 1) {
+      if (inprogress && pipeline.getStatus() == 1) {
         pipelines.add(pipeline);
       }
     }
@@ -85,8 +86,8 @@ public class DashboardController {
   }
 
   // Get HealtMetrics based on PipelineId
-  @GetMapping("/getHealthMetrics")
-  public ResponseEntity<List<HealthMetrics>> getHealthMetrics(String pipelineId) {
+  @GetMapping("/getHealthMetrics/{pipelineId}")
+  public ResponseEntity<List<HealthMetrics>> getHealthMetrics(@PathVariable String pipelineId) {
     List<HealthMetrics> healthMetrics = healthMetricsService.findbyPipelineId(pipelineId);
     return ResponseEntity.ok(healthMetrics);
   }
