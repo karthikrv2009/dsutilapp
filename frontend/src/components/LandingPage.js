@@ -31,7 +31,9 @@ const LandingPage = () => {
     try {
       const response = await axios.get("/api/dashboard/getDashboardData");
       console.log("Dashboard Data:", response.data);
-      setDashboardData(Array.isArray(response.data) ? response.data : []);
+      setDashboardData(
+        Array.isArray(response.data) ? response.data : [response.data]
+      );
     } catch (error) {
       console.error("Error fetching dashboard data:", error);
       setDashboardData([]);
@@ -42,7 +44,9 @@ const LandingPage = () => {
     try {
       const response = await axios.get("/api/dashboard/getCurrentFolderStatus");
       console.log("Folder Status:", response.data);
-      setFolderStatus(Array.isArray(response.data) ? response.data : []);
+      setFolderStatus(
+        Array.isArray(response.data) ? response.data : [response.data]
+      );
     } catch (error) {
       console.error("Error fetching folder status:", error);
       setFolderStatus([]);
@@ -60,7 +64,9 @@ const LandingPage = () => {
         params,
       });
       console.log("Pipeline Data:", response.data);
-      setPipelineData(Array.isArray(response.data) ? response.data : []);
+      setPipelineData(
+        Array.isArray(response.data) ? response.data : [response.data]
+      );
     } catch (error) {
       console.error("Error fetching pipeline data:", error);
       setPipelineData([]);
@@ -73,7 +79,9 @@ const LandingPage = () => {
         "/api/dashboard/getEnvironmentInformation"
       );
       console.log("Environment Info:", response.data);
-      setEnvironmentInfo(Array.isArray(response.data) ? response.data : []);
+      setEnvironmentInfo(
+        Array.isArray(response.data) ? response.data : [response.data]
+      );
     } catch (error) {
       console.error("Error fetching environment information:", error);
       setEnvironmentInfo([]);
@@ -84,7 +92,9 @@ const LandingPage = () => {
     try {
       const response = await axios.get("/api/dashboard/getMetaDataCatalogInfo");
       console.log("MetaData Catalog:", response.data);
-      setMetaDataCatalog(Array.isArray(response.data) ? response.data : []);
+      setMetaDataCatalog(
+        Array.isArray(response.data) ? response.data : [response.data]
+      );
     } catch (error) {
       console.error("Error fetching metadata catalog:", error);
       setMetaDataCatalog([]);
