@@ -138,6 +138,7 @@ const LandingPage = () => {
           <tr>
             <th>Last Processed Folder</th>
             <th>Latest ADLS Folder Available</th>
+            <th>Completed Packages</th>
             <th>Pending Number of Packages</th>
             <th>Pending Tables in All Packages</th>
           </tr>
@@ -148,6 +149,7 @@ const LandingPage = () => {
               <tr key={index}>
                 <td>{data.lastProcessedfolder}</td>
                 <td>{data.latestADLSFolderAvailable}</td>
+                <td>{data.completedPackages}</td>
                 <td>{data.pendingNumberPackages}</td>
                 <td>{data.pendingTablesInAllPackages}</td>
               </tr>
