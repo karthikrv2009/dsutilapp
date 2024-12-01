@@ -29,7 +29,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/dashboard")
 public class DashboardController {
 
-  @Autowired
+    @Autowired
   MetaDataPointerService metaDataPointerService;
 
   
@@ -100,6 +100,7 @@ public class DashboardController {
     environmentDTO.setD365EnvironmentURL(encryptedPropertyReader.getProperty("D365_ENVIRONMENT_URL"));
     environmentDTO.setAdlsStorageAccount(encryptedPropertyReader.getProperty("STRORAGE_ACCOUNT_URL"));
     environmentDTO.setContainerName(encryptedPropertyReader.getProperty("STORAGE_ACCOUNT"));
+    environmentDTO.setMax_thread_count(Integer.parseInt(encryptedPropertyReader.getProperty("MAX_THREAD_COUNT")));
     return ResponseEntity.ok(environmentDTO);
   }
 
