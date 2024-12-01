@@ -64,8 +64,10 @@ public class AzureQueueListenerService {
 
         while (running) {
             QueueMessageItem message = queueClient.receiveMessage();
-            processMessage(message, changeLog);
-            queueClient.deleteMessage(message.getMessageId(), message.getPopReceipt());
+            if(message!=null){
+                processMessage(message, changeLog);
+                queueClient.deleteMessage(message.getMessageId(), message.getPopReceipt());
+            }
 
             try {
                 Thread.sleep(10000); // Sleep for 10 seconds
@@ -110,6 +112,5 @@ public class AzureQueueListenerService {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-
     }
 }

@@ -42,7 +42,7 @@ public class MainApplication implements CommandLineRunner {
     public void run(String... args) {
     
         
-        IntialLoad initialLoad=initialLoadService.getIntialLoad("DataPig");
+        IntialLoad initialLoad=initialLoadService.getIntialLoad("DBSynctUtilInitalLoad");
         if(initialLoad==null){
         if(modelJsonDownloader.downloadFile()){
             parseModelJson.parseModelJson();
