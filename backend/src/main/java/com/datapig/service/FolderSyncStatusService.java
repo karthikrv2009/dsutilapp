@@ -64,7 +64,7 @@ public class FolderSyncStatusService {
         //Pending Package logic
         TreeSet<MetaDataPointer> pendingPackages= metaDataPointerService.getMetaDataPointerBystageStatus(copyStatus);
         
-        if(pendingPackages!=null){
+        if(pendingPackages!=null && pendingPackages.size()>0){
             MetaDataPointer currentPackage=pendingPackages.first();
             folderSyncStatusDTO.setCurrentPackageName(currentPackage.getFolderName());
             List<FolderSyncStatus> inProgressFolderSyncStatusList= folderSyncStatusRepository.findByfolder(currentPackage.getFolderName());
@@ -82,7 +82,7 @@ public class FolderSyncStatusService {
         Short folderCopyStatus=1;
         List<FolderSyncStatus> completedTables=folderSyncStatusRepository.findBycopyStatus(folderCopyStatus);
         
-        if(completedTables!=null){
+        if(completedTables!=null && completedTables.size()>0){
             folderSyncStatusDTO.setCompletedTables(completedTables.size());
         }
         else{
@@ -93,7 +93,7 @@ public class FolderSyncStatusService {
         folderCopyStatus=0;
         List<FolderSyncStatus> pendingTables=folderSyncStatusRepository.findBycopyStatus(folderCopyStatus);
         
-        if(pendingTables!=null){
+        if(pendingTables!=null && pendingTables.size()>0){
             folderSyncStatusDTO.setPendingTables(pendingTables.size());
         }
         else{
@@ -103,7 +103,7 @@ public class FolderSyncStatusService {
         //Error Tables
         folderCopyStatus=2;
         List<FolderSyncStatus> errorTables=folderSyncStatusRepository.findBycopyStatus(folderCopyStatus);
-        if (errorTables != null) {
+        if (errorTables != null && errorTables.size()>0) {
             Set<String> errortables=new HashSet<String>();
             for(FolderSyncStatus f:errorTables){
                 errortables.add(f.getTableName());

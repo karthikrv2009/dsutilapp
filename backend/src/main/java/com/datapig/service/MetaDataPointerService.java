@@ -43,18 +43,34 @@ public class MetaDataPointerService {
         long pendingPackages=metaDataPointerRepository.countByStageStatus(stagestatus);
         Short copystatus=0;
         long pendingTables=folderSyncStatusRepository.countByCopyStatus(copystatus);
-
-        dbSnapshotWidget.setLastProcessedfolder(currentpointer.getFolderName());
-        dbSnapshotWidget.setLatestADLSFolderAvailable(latestpointer.getFolderName());
+        if(currentpointer!=null){
+            dbSnapshotWidget.setLastProcessedfolder(currentpointer.getFolderName());
+        }
+        else{
+            dbSnapshotWidget.setLastProcessedfolder("None");
+        }
+        
+        if(latestpointer!=null){
+            dbSnapshotWidget.setLatestADLSFolderAvailable(latestpointer.getFolderName());
+        }
+        else{
+            dbSnapshotWidget.setLatestADLSFolderAvailable("None");
+        }
+        
+        
+        
         dbSnapshotWidget.setPendingNumberPackages(pendingPackages);
         dbSnapshotWidget.setPendingTablesInAllPackages(pendingTables);
         return dbSnapshotWidget;
     }
 
     public TreeSet<MetaDataPointer> getMetaDataPointerBystageStatus(Short stageStatus) {
+        TreeSet<MetaDataPointer> metaDataPointer=null;
         List<MetaDataPointer> entityOptional = metaDataPointerRepository.findBystageStatus(stageStatus);
-        TreeSet<MetaDataPointer> metaDataPointer=new TreeSet<>(Comparator.comparing(MetaDataPointer::getAdlscreationtimestamp).thenComparing(MetaDataPointer::getFolderName));
-        metaDataPointer.addAll(entityOptional);
+        if(entityOptional!=null){
+            metaDataPointer=new TreeSet<>(Comparator.comparing(MetaDataPointer::getAdlscreationtimestamp).thenComparing(MetaDataPointer::getFolderName));
+            metaDataPointer.addAll(entityOptional);
+        }
         return metaDataPointer;
     }
 

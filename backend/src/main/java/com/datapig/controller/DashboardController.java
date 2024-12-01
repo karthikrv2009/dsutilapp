@@ -58,6 +58,9 @@ public class DashboardController {
   @GetMapping("/getCurrentFolerStatus")
   public ResponseEntity<FolderSyncStatusDTO> getCurrentFolerStatus() {
     FolderSyncStatusDTO folderSyncStatusDTO = folderSyncStatusService.getFolerStatusDTO();
+    if(folderSyncStatusDTO==null){
+      folderSyncStatusDTO=new FolderSyncStatusDTO();
+    }
     return ResponseEntity.ok(folderSyncStatusDTO);
   }
 
