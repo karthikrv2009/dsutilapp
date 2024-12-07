@@ -17,13 +17,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 @Service
 public class FolderSyncStatusService {
-
-    private static final Logger logger = LoggerFactory.getLogger(FolderSyncStatusService.class);
 
     @Autowired
     private FolderSyncStatusRepository folderSyncStatusRepository;
