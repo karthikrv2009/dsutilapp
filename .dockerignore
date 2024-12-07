@@ -1,0 +1,7 @@
+# Ignore unnecessary files for Docker build
+frontend/node_modules
+backend/target
+*.log
+*.iml
+.idea/
+.DS_Store
