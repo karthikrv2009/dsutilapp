@@ -2,10 +2,10 @@ import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { Container } from "@mui/material";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
-import Header from "./Header";
-import Footer from "./Footer";
-import LicenseKeyPage from "./LicenseKeyPage";
-import LandingPage from "./LandingPage";
+import Header from "./components/Header";
+import Footer from "./components/Footer"; // Corrected import statement
+import LicenseKeyPage from "./components/LicenseKeyPage";
+import LandingPage from "./components/LandingPage";
 
 const theme = createTheme({
   palette: {

@@ -5,14 +5,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
-import com.datapig.service.SynapseLogParserService;
-
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @Service
 public class JDBCTemplateUtiltiy {
@@ -22,12 +19,13 @@ public class JDBCTemplateUtiltiy {
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
 
-	public Set<String> getTableInFolder(String folderName, String DATA_SOURCE) {
+	public Set<String> getTableInFolder(String folderName) {
 		Set<String> tables = new LinkedHashSet<>();
 		try {
 			String sql = "SELECT table_name FROM information_schema.tables WHERE table_schema = ?";
 			logger.debug("Executing SQL query: {}", sql);
-			List<String> tableList = jdbcTemplate.queryForList(sql, new Object[] { folderName }, String.class);
+			List<String> tableList = jdbcTemplate.query(sql, new Object[] { folderName },
+					(rs, rowNum) -> rs.getString("table_name"));
 			tables.addAll(tableList);
 			logger.info("Tables retrieved for folder {}: {}", folderName, tables);
 		} catch (Exception e) {
@@ -57,12 +55,12 @@ public class JDBCTemplateUtiltiy {
 		if (tableCount != null && tableCount == 0) {
 			// Create the table if it does not exist
 			jdbcTemplate.execute(createTableSQL);
-			logger.info("Created table", tableName);
+			logger.info("Table created: {}", tableName);
 
 			// Create indexes
 			createIndexes(tableName);
 		} else {
-			logger.info("Table already exist ", tableName);
+			logger.info("Table already exists: {}", tableName);
 		}
 	}
 
@@ -78,6 +76,6 @@ public class JDBCTemplateUtiltiy {
 		jdbcTemplate.execute(createRecIdIndexSQL);
 		jdbcTemplate.execute(createVersionNumberIndexSQL);
 
-		logger.info("Created indexes for table ", tableName);
+		logger.info("Indexes created for table: {}", tableName);
 	}
 }

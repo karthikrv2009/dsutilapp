@@ -15,7 +15,7 @@
 
 # Maven target folder
 /target
-
+/src/main/resources/static
 # Spring Boot properties
 /src/main/resources/application.properties
 

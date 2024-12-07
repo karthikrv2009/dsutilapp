@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @Service
 public class ALDSMetaDataPointerLoadService {
@@ -124,7 +123,7 @@ public class ALDSMetaDataPointerLoadService {
                                 // Check if the target file exists in the directory
                                 if (doesFileExist(directoryClient, targetFileName)) {
                                     Set<String> tableNames = jDBCTemplateUtiltiy
-                                            .getTableInFolder(metaDataPointer.getFolderName(), fileSystemName);
+                                            .getTableInFolder(metaDataPointer.getFolderName());
 
                                     for (String tableName : tableNames) {
                                         if (!tableNamesInDB.contains(tableName)) {
@@ -156,7 +155,7 @@ public class ALDSMetaDataPointerLoadService {
         Short copyStatus = 0;
         List<FolderSyncStatus> pendingTablesInFolder = folderSyncStatusService
                 .getFolderSyncStatusBycopyStatus(copyStatus);
-        if (pendingTablesInFolder.size() == 0) {
+        if (pendingTablesInFolder.isEmpty()) {
             intialLoad.setEndtimestamp(LocalDateTime.now());
             intialLoad.setStatus(2);
             initialLoadService.save(intialLoad);
@@ -170,12 +169,14 @@ public class ALDSMetaDataPointerLoadService {
             logger.info(directoryClient.getDirectoryUrl());
             DataLakeFileClient fileClient = directoryClient.getFileClient(fileName);
             if (fileClient != null) {
-                logger.debug("File client: {}", fileClient.toString());
+                if (logger.isDebugEnabled()) {
+                    logger.debug("File client: {}", fileClient);
+                }
             } else {
                 logger.debug("File client is null");
             }
             if (fileClient != null) {
-                logger.info("file size", fileClient.getProperties().getFileSize());
+                logger.info("file size: {}", fileClient.getProperties().getFileSize());
                 if ((fileClient.getProperties().getFileSize() > 2000)) {
                     flag = true;
                 }
@@ -197,8 +198,6 @@ public class ALDSMetaDataPointerLoadService {
         MetaDataPointer metaDataPointer = null;
         try {
             PathProperties properties = directoryClient.getProperties();
-            // String leaseStatus = properties.getLeaseStatus() != null ?
-            // properties.getLeaseStatus().toString() : "Unknown";
             Short copyStatus = 0;
             OffsetDateTime creationTime = properties.getCreationTime();
             metaDataPointer = new MetaDataPointer();
@@ -210,9 +209,9 @@ public class ALDSMetaDataPointerLoadService {
             metaDataPointer.setStorageAccount(fileSystemName);
             metaDataPointer.setEnvironment(storageAccountUrl);
             metaDataPointer = metaDataPointerService.save(metaDataPointer);
-            logger.info("  Creation Time: ", (creationTime != null ? creationTime : "Unknown"));
+            logger.info("  Creation Time: {}", (creationTime != null ? creationTime : "Unknown"));
         } catch (Exception e) {
-            logger.info("  Failed to retrieve properties for directory: ", directoryClient.getDirectoryPath());
+            logger.info("  Failed to retrieve properties for directory: {}", directoryClient.getDirectoryPath());
         }
         return metaDataPointer;
     }
@@ -237,7 +236,7 @@ public class ALDSMetaDataPointerLoadService {
     }
 
     private TreeSet<MetaDataPointer> errorHandle() {
-        List<MetaDataPointer> metaDataPointerList = new ArrayList<MetaDataPointer>();
+        List<MetaDataPointer> metaDataPointerList = new ArrayList<>();
         TreeSet<MetaDataPointer> orderedSet = null;
         short failStatus = 3;
         List<MetaDataCatlog> metaDataCatlogs = metaDataCatlogService.findBylastCopyStatus(failStatus);

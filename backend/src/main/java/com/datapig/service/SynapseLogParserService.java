@@ -84,7 +84,7 @@ public class SynapseLogParserService {
             if (doesFileExist(directoryClient, targetFileName)) {
                 List<String> tablesInDB = getTablesPerFolderInDB(metaDataPointer);
                 Set<String> tableNamesInAdls = jdbcTemplateUtiltiy
-                        .getTableInFolder(metaDataPointer.getFolderName(), fileSystemName);
+                        .getTableInFolder(metaDataPointer.getFolderName());
 
                 for (String tableName : tableNamesInAdls) {
                     if (!tableNamesInMetadataCatalogDB.contains(tableName)) {
@@ -109,7 +109,7 @@ public class SynapseLogParserService {
             if (doesFileExist(directoryClient, targetFileName)) {
 
                 Set<String> tableNamesInAdls = jdbcTemplateUtiltiy
-                        .getTableInFolder(metaDataPointer.getFolderName(), fileSystemName);
+                        .getTableInFolder(metaDataPointer.getFolderName());
                 for (String tableName : tableNamesInAdls) {
                     loadFolderSyncStatus(metaDataPointer, tableName);
                 }
@@ -238,7 +238,7 @@ public class SynapseLogParserService {
             metaDataPointer.setStorageAccount(fileSystemName);
             metaDataPointer.setEnvironment(storageAccountUrl);
             metaDataPointer = metaDataPointerService.save(metaDataPointer);
-            logger.info("  Creation Time: " + (creationTime != null ? creationTime : "Unknown"));
+            logger.info("  Creation Time: {}", (creationTime != null ? creationTime : "Unknown"));
         } catch (Exception e) {
             logger.error("Failed to retrieve properties for directory: " + directoryClient.getDirectoryPath(),
                     e.getMessage(), e);

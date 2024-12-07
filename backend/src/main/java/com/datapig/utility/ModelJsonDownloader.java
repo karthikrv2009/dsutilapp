@@ -3,7 +3,6 @@ package com.datapig.utility;
 import com.azure.storage.blob.*;
 import com.azure.storage.blob.models.*;
 import com.datapig.component.EncryptedPropertyReader;
-import com.datapig.service.SynapseLogParserService;
 
 import org.springframework.stereotype.Service;
 
@@ -23,19 +22,13 @@ public class ModelJsonDownloader {
     @Autowired
     private EncryptedPropertyReader propertyReader;
 
-    private String storageAccountUrl;
-    private String sasToken;
-    private String containerName;
-    private String blobName;
-    private String localFilePath;
-
     public boolean downloadFile() {
         boolean flag = false;
-        storageAccountUrl = propertyReader.getProperty("STRORAGE_ACCOUNT_URL");
-        sasToken = propertyReader.getProperty("Storage_SAS_TOKEN");
-        containerName = propertyReader.getProperty("STORAGE_ACCOUNT");
-        blobName = propertyReader.getProperty("BLOB_NAME");
-        localFilePath = propertyReader.getProperty("LOCAL_MOLDEL_JSON");
+        String storageAccountUrl = propertyReader.getProperty("STRORAGE_ACCOUNT_URL");
+        String sasToken = propertyReader.getProperty("Storage_SAS_TOKEN");
+        String containerName = propertyReader.getProperty("STORAGE_ACCOUNT");
+        String blobName = propertyReader.getProperty("BLOB_NAME");
+        String localFilePath = propertyReader.getProperty("LOCAL_MOLDEL_JSON");
 
         logger.info("{} =====> {}", storageAccountUrl, sasToken);
         // Create a BlobServiceClient using the storage account URL and SAS token
