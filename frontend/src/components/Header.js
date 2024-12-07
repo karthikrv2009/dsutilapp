@@ -14,14 +14,8 @@ function Header() {
         <Button color="inherit" onClick={() => navigate("/")}>
           Home
         </Button>
-        <Button color="inherit" onClick={() => navigate("/configuration")}>
-          Configuration
-        </Button>
-        <Button color="inherit" onClick={() => navigate("/dashboard")}>
-          Dashboard
-        </Button>
-        <Button color="inherit" onClick={() => navigate("/properties")}>
-          Properties
+        <Button color="inherit" onClick={() => navigate("/license")}>
+          License
         </Button>
       </Toolbar>
     </AppBar>

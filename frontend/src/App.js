@@ -2,13 +2,10 @@ import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { Container } from "@mui/material";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
-import Header from "./components/Header";
-import Footer from "./components/Footer";
-import LicenseKeyPage from "./components/LicenseKeyPage";
-import ConfigurationPage from "./components/ConfigurationPage";
-import DashboardPage from "./components/DashboardPage";
-import PropertiesPage from "./components/PropertiesPage";
-import LandingPage from "./components/LandingPage"; // Import the LandingPage component
+import Header from "./Header";
+import Footer from "./Footer";
+import LicenseKeyPage from "./LicenseKeyPage";
+import LandingPage from "./LandingPage";
 
 const theme = createTheme({
   palette: {
@@ -30,9 +27,6 @@ function App() {
           {/* Adjust height if needed */}
           <Routes>
             <Route path="/license" element={<LicenseKeyPage />} />
-            <Route path="/configuration" element={<ConfigurationPage />} />
-            <Route path="/dashboard" element={<DashboardPage />} />
-            <Route path="/properties" element={<PropertiesPage />} />
             <Route path="/" element={<LandingPage />} />{" "}
             {/* Load LandingPage */}
           </Routes>
