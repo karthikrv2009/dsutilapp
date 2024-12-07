@@ -3,6 +3,8 @@ package com.datapig.utility;
 import com.azure.storage.blob.*;
 import com.azure.storage.blob.models.*;
 import com.datapig.component.EncryptedPropertyReader;
+import com.datapig.service.SynapseLogParserService;
+
 import org.springframework.stereotype.Service;
 
 import java.nio.file.Files;
@@ -10,10 +12,14 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Service
 public class ModelJsonDownloader {
-   
+
+    private static final Logger logger = LoggerFactory.getLogger(ModelJsonDownloader.class);
+
     @Autowired
     private EncryptedPropertyReader propertyReader;
 
@@ -22,16 +28,16 @@ public class ModelJsonDownloader {
     private String containerName;
     private String blobName;
     private String localFilePath;
-    
+
     public boolean downloadFile() {
-        boolean flag=false;
+        boolean flag = false;
         storageAccountUrl = propertyReader.getProperty("STRORAGE_ACCOUNT_URL");
         sasToken = propertyReader.getProperty("Storage_SAS_TOKEN");
         containerName = propertyReader.getProperty("STORAGE_ACCOUNT");
-        blobName=propertyReader.getProperty("BLOB_NAME");
-        localFilePath=propertyReader.getProperty("LOCAL_MOLDEL_JSON");
+        blobName = propertyReader.getProperty("BLOB_NAME");
+        localFilePath = propertyReader.getProperty("LOCAL_MOLDEL_JSON");
 
-        System.out.println(storageAccountUrl+"=====>"+sasToken);
+        logger.info("{} =====> {}", storageAccountUrl, sasToken);
         // Create a BlobServiceClient using the storage account URL and SAS token
         BlobServiceClient blobServiceClient = new BlobServiceClientBuilder()
                 .endpoint(storageAccountUrl)
@@ -48,18 +54,18 @@ public class ModelJsonDownloader {
 
         // Check if the local file already exists
         if (Files.exists(localPath)) {
-            System.out.println("File already exists at " + localPath + ". It will be replaced.");
+            logger.info("File already exists at {}. It will be replaced.", localPath);
         }
 
         try {
             // Download the blob to a local file
             blobClient.downloadToFile(localPath.toString(), true);
-            System.out.println("File downloaded to: " + localPath);
-            flag=true;
+            logger.info("File downloaded to: {}", localPath);
+            flag = true;
         } catch (BlobStorageException e) {
-            System.err.println("Error downloading file from Azure Blob Storage: " + e.getMessage());
+            logger.error("Error downloading file from Azure Blob Storage: {}", e.getMessage(), e);
         } catch (Exception e) { // Catch all other exceptions
-            System.err.println("An error occurred: " + e.getMessage());
+            logger.error("An error occurred: {}", e.getMessage(), e);
         }
 
         return flag;

@@ -23,15 +23,19 @@ import java.util.TreeSet;
 import java.util.ArrayList;
 import java.util.Comparator;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @Service
 public class SynapseLogParserService {
+
+    private static final Logger logger = LoggerFactory.getLogger(SynapseLogParserService.class);
 
     @Autowired
     private ParseModelJson parseModelJson;
 
     @Autowired
     private ModelJsonDownloader modelJsonDownloader;
-
 
     @Autowired
     private EncryptedPropertyReader encryptedPropertyReader;
@@ -53,7 +57,7 @@ public class SynapseLogParserService {
 
     public void startParse(String folderName) {
 
-        Set<String> tableNamesInMetadataCatalogDB = metaDataCatlogService.getAllTableName();            
+        Set<String> tableNamesInMetadataCatalogDB = metaDataCatlogService.getAllTableName();
         String fileSystemName = encryptedPropertyReader.getProperty("STORAGE_ACCOUNT");
         String targetFileName = encryptedPropertyReader.getProperty("TARGET_FILENAME");
 
@@ -76,19 +80,19 @@ public class SynapseLogParserService {
         for (MetaDataPointer metaDataPointer : existingFoldersNotStaged) {
             // Get a reference to the directory
             DataLakeDirectoryClient directoryClient = fileSystemClient.getDirectoryClient(folderName);
-            System.out.println(directoryClient.getDirectoryPath());
+            logger.info(directoryClient.getDirectoryPath());
             if (doesFileExist(directoryClient, targetFileName)) {
-                List<String> tablesInDB=getTablesPerFolderInDB(metaDataPointer);
+                List<String> tablesInDB = getTablesPerFolderInDB(metaDataPointer);
                 Set<String> tableNamesInAdls = jdbcTemplateUtiltiy
                         .getTableInFolder(metaDataPointer.getFolderName(), fileSystemName);
-                
+
                 for (String tableName : tableNamesInAdls) {
-                    if(!tableNamesInMetadataCatalogDB.contains(tableName)){
-                        if(modelJsonDownloader.downloadFile()){
+                    if (!tableNamesInMetadataCatalogDB.contains(tableName)) {
+                        if (modelJsonDownloader.downloadFile()) {
                             parseModelJson.parseModelJson();
                         }
-                    }   
-                    if(!tablesInDB.contains(tableName)){
+                    }
+                    if (!tablesInDB.contains(tableName)) {
                         loadFolderSyncStatus(metaDataPointer, tableName);
                     }
                 }
@@ -96,53 +100,55 @@ public class SynapseLogParserService {
             }
         }
 
-        MetaDataPointer metaDataPointerInDB= metaDataPointerService.getMetaDataPointer(folderName);
+        MetaDataPointer metaDataPointerInDB = metaDataPointerService.getMetaDataPointer(folderName);
 
-        if(metaDataPointerInDB==null){
+        if (metaDataPointerInDB == null) {
             DataLakeDirectoryClient directoryClient = fileSystemClient.getDirectoryClient(folderName);
-            MetaDataPointer metaDataPointer = loadMetaDataPointer(directoryClient, folderName,storageAccountUrl,fileSystemName);
+            MetaDataPointer metaDataPointer = loadMetaDataPointer(directoryClient, folderName, storageAccountUrl,
+                    fileSystemName);
             if (doesFileExist(directoryClient, targetFileName)) {
 
                 Set<String> tableNamesInAdls = jdbcTemplateUtiltiy
                         .getTableInFolder(metaDataPointer.getFolderName(), fileSystemName);
                 for (String tableName : tableNamesInAdls) {
-                     loadFolderSyncStatus(metaDataPointer, tableName);
+                    loadFolderSyncStatus(metaDataPointer, tableName);
                 }
                 updateChangeLogToReady(metaDataPointer); // Update the status after processing
             }
         }
 
-        //Retry Error logic
-        TreeSet<MetaDataPointer> failedMetaDataPointers= errorHandle();
-        for(MetaDataPointer metaDataPointer:failedMetaDataPointers){
+        // Retry Error logic
+        TreeSet<MetaDataPointer> failedMetaDataPointers = errorHandle();
+        for (MetaDataPointer metaDataPointer : failedMetaDataPointers) {
             polybaseService.startSyncInFolder(metaDataPointer);
         }
 
-        TreeSet<MetaDataPointer> metaDataPointers=existingFolderStagedNotComplete(); 
-        for(MetaDataPointer metaDataPointer:metaDataPointers){
+        TreeSet<MetaDataPointer> metaDataPointers = existingFolderStagedNotComplete();
+        for (MetaDataPointer metaDataPointer : metaDataPointers) {
             polybaseService.startSyncInFolder(metaDataPointer);
         }
     }
 
-    private TreeSet<MetaDataPointer> errorHandle(){
-        List<MetaDataPointer> metaDataPointerList=new ArrayList<MetaDataPointer>();
-        TreeSet<MetaDataPointer> orderedSet =null;
-        short failStatus=3;
-        List<MetaDataCatlog> metaDataCatlogs=metaDataCatlogService.findBylastCopyStatus(failStatus);
-        for(MetaDataCatlog failMetaDataCatlog:metaDataCatlogs){
-            if(failMetaDataCatlog.getRetry()==3){
+    private TreeSet<MetaDataPointer> errorHandle() {
+        List<MetaDataPointer> metaDataPointerList = new ArrayList<MetaDataPointer>();
+        TreeSet<MetaDataPointer> orderedSet = null;
+        short failStatus = 3;
+        List<MetaDataCatlog> metaDataCatlogs = metaDataCatlogService.findBylastCopyStatus(failStatus);
+        for (MetaDataCatlog failMetaDataCatlog : metaDataCatlogs) {
+            if (failMetaDataCatlog.getRetry() == 3) {
                 quarintineTable(failMetaDataCatlog);
             }
-            if((failMetaDataCatlog.getQuarintine()!=1) && (failMetaDataCatlog.getRetry()<=3)){
-                MetaDataPointer metaDataPointer=metaDataPointerService.getMetaDataPointer(failMetaDataCatlog.getLastUpdatedFolder());
-                if(metaDataPointer!=null){
-                    updateErrorTableToStart(failMetaDataCatlog,metaDataPointer);
+            if ((failMetaDataCatlog.getQuarintine() != 1) && (failMetaDataCatlog.getRetry() <= 3)) {
+                MetaDataPointer metaDataPointer = metaDataPointerService
+                        .getMetaDataPointer(failMetaDataCatlog.getLastUpdatedFolder());
+                if (metaDataPointer != null) {
+                    updateErrorTableToStart(failMetaDataCatlog, metaDataPointer);
                 }
                 metaDataPointerList.add(metaDataPointer);
             }
-            
+
         }
-        if(metaDataPointerList!=null){
+        if (metaDataPointerList != null) {
             // Create a TreeSet with a custom comparator for stageStartTime
             orderedSet = new TreeSet<>(Comparator.comparing(MetaDataPointer::getStageStartTime));
             orderedSet.addAll(metaDataPointerList);
@@ -150,33 +156,36 @@ public class SynapseLogParserService {
         return orderedSet;
     }
 
-    private void quarintineTable(MetaDataCatlog metaDataCatlog){
-            int quarintine=1;
-            metaDataCatlog.setQuarintine(quarintine);
-            metaDataCatlogService.save(metaDataCatlog);
+    private void quarintineTable(MetaDataCatlog metaDataCatlog) {
+        int quarintine = 1;
+        metaDataCatlog.setQuarintine(quarintine);
+        metaDataCatlogService.save(metaDataCatlog);
     }
-    private void updateErrorTableToStart(MetaDataCatlog metaDataCatlog,MetaDataPointer metaDataPointer){
-        FolderSyncStatus folderSyncStatus=folderSyncStatusService.getFolderSyncStatusOnFolderAndTableName(metaDataPointer.getFolderName(), metaDataCatlog.getTableName());
-        if(folderSyncStatus!=null){
-            Short copyStatus=0;
+
+    private void updateErrorTableToStart(MetaDataCatlog metaDataCatlog, MetaDataPointer metaDataPointer) {
+        FolderSyncStatus folderSyncStatus = folderSyncStatusService.getFolderSyncStatusOnFolderAndTableName(
+                metaDataPointer.getFolderName(), metaDataCatlog.getTableName());
+        if (folderSyncStatus != null) {
+            Short copyStatus = 0;
             folderSyncStatus.setCopyStatus(copyStatus);
             folderSyncStatusService.save(folderSyncStatus);
         }
-        if(metaDataCatlog!=null){
-            Short copyStatus=1;
+        if (metaDataCatlog != null) {
+            Short copyStatus = 1;
             metaDataCatlog.setLastCopyStatus(copyStatus);
-            int retry=metaDataCatlog.getRetry();
-            retry=retry+1;
+            int retry = metaDataCatlog.getRetry();
+            retry = retry + 1;
             metaDataCatlog.setRetry(retry);
             metaDataCatlogService.save(metaDataCatlog);
         }
     }
 
-    //Method to get Table per folder from FolderSyncStatus in DB
-    private List<String> getTablesPerFolderInDB(MetaDataPointer metaDataPointer){
-        List<String> tables=new ArrayList<String>();
-        List<FolderSyncStatus> folderSyncStatuss=folderSyncStatusService.getFolderSyncStatusByfolder(metaDataPointer.getFolderName());
-        for(FolderSyncStatus folderSyncStatus:folderSyncStatuss){
+    // Method to get Table per folder from FolderSyncStatus in DB
+    private List<String> getTablesPerFolderInDB(MetaDataPointer metaDataPointer) {
+        List<String> tables = new ArrayList<String>();
+        List<FolderSyncStatus> folderSyncStatuss = folderSyncStatusService
+                .getFolderSyncStatusByfolder(metaDataPointer.getFolderName());
+        for (FolderSyncStatus folderSyncStatus : folderSyncStatuss) {
             tables.add(folderSyncStatus.getTableName());
         }
         return tables;
@@ -186,13 +195,15 @@ public class SynapseLogParserService {
     private boolean doesFileExist(DataLakeDirectoryClient directoryClient, String fileName) {
         try {
             boolean flag = false;
-            System.out.println(directoryClient.getDirectoryUrl());
+            logger.info(directoryClient.getDirectoryUrl());
             DataLakeFileClient fileClient = directoryClient.getFileClient(fileName);
-            System.out.println(fileClient);
+            if (logger.isInfoEnabled()) {
+                logger.info(fileClient.toString());
+            }
             while (!flag) {
                 Thread.sleep(10000);
                 if (fileClient != null) {
-                    System.out.println("file size" + fileClient.getProperties().getFileSize());
+                    logger.info("file size" + fileClient.getProperties().getFileSize());
                     if ((fileClient.getProperties().getFileSize() > 2000)) {
                         flag = true;
                     }
@@ -227,9 +238,10 @@ public class SynapseLogParserService {
             metaDataPointer.setStorageAccount(fileSystemName);
             metaDataPointer.setEnvironment(storageAccountUrl);
             metaDataPointer = metaDataPointerService.save(metaDataPointer);
-            System.out.println("  Creation Time: " + (creationTime != null ? creationTime : "Unknown"));
+            logger.info("  Creation Time: " + (creationTime != null ? creationTime : "Unknown"));
         } catch (Exception e) {
-            System.out.println("  Failed to retrieve properties for directory: " + directoryClient.getDirectoryPath());
+            logger.error("Failed to retrieve properties for directory: " + directoryClient.getDirectoryPath(),
+                    e.getMessage(), e);
         }
         return metaDataPointer;
     }
