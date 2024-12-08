@@ -19,10 +19,31 @@ public class JDBCTemplateUtiltiy {
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
 
-	public Set<String> getTableInFolder(String folderName) {
+	public Set<String> getTableInFolder(String folderName, String DATA_SOURCE) {
 		Set<String> tables = new LinkedHashSet<>();
 		try {
-			String sql = "SELECT table_name FROM information_schema.tables WHERE table_schema = ?";
+			String sql = "SELECT tablename\r\n"
+					+ "			FROM\r\n"
+					+ "				OPENROWSET(\r\n"
+					+ "					BULK '/" + folderName + "/model.json',\r\n"
+					+ "					DATA_SOURCE = '" + DATA_SOURCE + "',\r\n"
+					+ "					FORMAT = 'CSV',\r\n"
+					+ "					FIELDQUOTE = '0x0b',\r\n"
+					+ "					FIELDTERMINATOR ='0x0b',\r\n"
+					+ "					ROWTERMINATOR = '0x0b'\r\n"
+					+ "				)\r\n"
+					+ "				WITH \r\n"
+					+ "				(\r\n"
+					+ "					jsonContent varchar(MAX)\r\n"
+					+ "				) AS r\r\n"
+					+ "				cross apply openjson(jsonContent) with (entities nvarchar(max) as JSON)\r\n"
+					+ "				cross apply openjson (entities) with([tablename] NVARCHAR(200) '$.name', [partitions] NVARCHAR(MAX) '$.partitions' as JSON ) t\r\n"
+					+ "				where  [partitions] != '[]'\r\n"
+					+ "				group by tablename\r\n"
+					+ "";
+
+			// String sql = "SELECT table_name FROM information_schema.tables WHERE
+			// table_schema = ?";
 			logger.debug("Executing SQL query: {}", sql);
 			List<String> tableList = jdbcTemplate.query(sql, new Object[] { folderName },
 					(rs, rowNum) -> rs.getString("table_name"));

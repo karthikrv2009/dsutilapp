@@ -123,7 +123,7 @@ public class ALDSMetaDataPointerLoadService {
                                 // Check if the target file exists in the directory
                                 if (doesFileExist(directoryClient, targetFileName)) {
                                     Set<String> tableNames = jDBCTemplateUtiltiy
-                                            .getTableInFolder(metaDataPointer.getFolderName());
+                                            .getTableInFolder(metaDataPointer.getFolderName(), fileSystemName);
 
                                     for (String tableName : tableNames) {
                                         if (!tableNamesInDB.contains(tableName)) {

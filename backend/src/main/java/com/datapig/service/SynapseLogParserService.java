@@ -84,7 +84,7 @@ public class SynapseLogParserService {
             if (doesFileExist(directoryClient, targetFileName)) {
                 List<String> tablesInDB = getTablesPerFolderInDB(metaDataPointer);
                 Set<String> tableNamesInAdls = jdbcTemplateUtiltiy
-                        .getTableInFolder(metaDataPointer.getFolderName());
+                        .getTableInFolder(metaDataPointer.getFolderName(), fileSystemName);
 
                 for (String tableName : tableNamesInAdls) {
                     if (!tableNamesInMetadataCatalogDB.contains(tableName)) {
