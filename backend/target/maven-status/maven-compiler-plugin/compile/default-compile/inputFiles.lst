@@ -6,7 +6,9 @@ C:\Users\Administrator\Documents\GitHub\dsutilapp\backend\src\main\java\com\data
 C:\Users\Administrator\Documents\GitHub\dsutilapp\backend\src\main\java\com\datapig\utility\ModelJsonDownloader.java
 C:\Users\Administrator\Documents\GitHub\dsutilapp\backend\src\main\java\com\datapig\service\dto\ModelAttribute.java
 C:\Users\Administrator\Documents\GitHub\dsutilapp\backend\src\main\java\com\datapig\service\InitialLoadService.java
+C:\Users\Administrator\Documents\GitHub\dsutilapp\backend\src\main\java\com\datapig\entity\LicenseKey.java
 C:\Users\Administrator\Documents\GitHub\dsutilapp\backend\src\main\java\com\datapig\repository\HealthMetricsRepository.java
+C:\Users\Administrator\Documents\GitHub\dsutilapp\backend\src\main\java\com\datapig\repository\LicenseKeyRepository.java
 C:\Users\Administrator\Documents\GitHub\dsutilapp\backend\src\main\java\com\datapig\repository\PipelineRepository.java
 C:\Users\Administrator\Documents\GitHub\dsutilapp\backend\src\main\java\com\datapig\service\dto\ModelTable.java
 C:\Users\Administrator\Documents\GitHub\dsutilapp\backend\src\main\java\com\datapig\service\PipelineService.java
@@ -37,6 +39,7 @@ C:\Users\Administrator\Documents\GitHub\dsutilapp\backend\src\main\java\com\data
 C:\Users\Administrator\Documents\GitHub\dsutilapp\backend\src\main\java\com\datapig\controller\LicenseKeyController.java
 C:\Users\Administrator\Documents\GitHub\dsutilapp\backend\src\main\java\com\datapig\service\MetaDataPointerService.java
 C:\Users\Administrator\Documents\GitHub\dsutilapp\backend\src\main\java\com\datapig\service\dto\ConfigurationRequest.java
+C:\Users\Administrator\Documents\GitHub\dsutilapp\backend\src\main\java\com\datapig\service\dto\LicenseKeyDTO.java
 C:\Users\Administrator\Documents\GitHub\dsutilapp\backend\src\main\java\com\datapig\service\FolderSyncStatusService.java
 C:\Users\Administrator\Documents\GitHub\dsutilapp\backend\src\main\java\com\datapig\config\PropertiesFileReader.java
 C:\Users\Administrator\Documents\GitHub\dsutilapp\backend\src\main\java\com\datapig\service\dto\MetaDataCatalogDTO.java
@@ -47,3 +50,4 @@ C:\Users\Administrator\Documents\GitHub\dsutilapp\backend\src\main\java\com\data
 C:\Users\Administrator\Documents\GitHub\dsutilapp\backend\src\main\java\com\datapig\controller\DashboardController.java
 C:\Users\Administrator\Documents\GitHub\dsutilapp\backend\src\main\java\com\datapig\repository\IntitalLoadRepository.java
 C:\Users\Administrator\Documents\GitHub\dsutilapp\backend\src\main\java\com\datapig\service\dto\DBSnapshotWidget.java
+C:\Users\Administrator\Documents\GitHub\dsutilapp\backend\src\main\java\com\datapig\service\LicenseKeyService.java

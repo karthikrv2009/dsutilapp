@@ -3,6 +3,7 @@ com\datapig\service\FolderSyncStatusService.class
 com\datapig\service\dto\ModelAnnotation.class
 com\datapig\service\dto\DashboardData.class
 com\datapig\service\dto\ModelTraitArgument.class
+com\datapig\repository\LicenseKeyRepository.class
 com\datapig\config\WebConfig.class
 com\datapig\service\MetaDataPointerService.class
 com\datapig\service\dto\ModelTrait.class
@@ -19,6 +20,7 @@ com\datapig\service\PolybaseThreadService.class
 com\datapig\entity\HealthMetrics.class
 com\datapig\service\dto\ConfigurationRequest.class
 com\datapig\service\HealthMetricsService.class
+com\datapig\service\LicenseKeyService.class
 com\datapig\service\dto\ModelEntity.class
 com\datapig\controller\FileUploadController.class
 com\datapig\entity\Pipeline.class
@@ -27,6 +29,7 @@ com\datapig\service\ParseModelJson.class
 com\datapig\controller\DashboardController.class
 com\datapig\entity\MetaDataPointer.class
 com\datapig\repository\MetaDataPointerRepository.class
+com\datapig\service\dto\LicenseKeyDTO.class
 com\datapig\service\dto\ModelTable.class
 com\datapig\repository\FolderSyncStatusRepository.class
 com\datapig\service\dto\EnvironmentDTO.class
@@ -42,6 +45,7 @@ com\datapig\controller\LicenseKeyController.class
 com\datapig\service\PolybaseService.class
 com\datapig\config\PropertiesFileReader.class
 com\datapig\service\dto\ModelRoot.class
+com\datapig\entity\LicenseKey.class
 com\datapig\utility\ModelJsonDownloader.class
 com\datapig\MainApplication.class
 com\datapig\service\SynapseLogParserService.class

@@ -21,6 +21,7 @@ public class JDBCTemplateUtiltiy {
 
 	public Set<String> getTableInFolder(String folderName, String DATA_SOURCE) {
 		Set<String> tables = new LinkedHashSet<>();
+		List<String> tableNames =null;
 		try {
 			String sql = "SELECT tablename\r\n"
 					+ "			FROM\r\n"
@@ -45,14 +46,13 @@ public class JDBCTemplateUtiltiy {
 			// String sql = "SELECT table_name FROM information_schema.tables WHERE
 			// table_schema = ?";
 			logger.debug("Executing SQL query: {}", sql);
-			List<String> tableList = jdbcTemplate.query(sql, new Object[] { folderName },
-					(rs, rowNum) -> rs.getString("table_name"));
-			tables.addAll(tableList);
+			tableNames = jdbcTemplate.query(sql, (rs, rowNum) -> rs.getString("tablename"));
+			
 			logger.info("Tables retrieved for folder {}: {}", folderName, tables);
 		} catch (Exception e) {
 			logger.error("An error occurred while retrieving tables for folder {}: {}", folderName, e.getMessage(), e);
 		}
-		return tables;
+		return new LinkedHashSet<>(tableNames);
 	}
 
 	public void dropStagingTable(String tableName) {

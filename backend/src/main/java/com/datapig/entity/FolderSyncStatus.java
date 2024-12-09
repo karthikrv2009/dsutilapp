@@ -21,7 +21,7 @@ public class FolderSyncStatus {
 
     @Column(name = "tablename", length = 50)
     private String tableName;
-
+ 
     @Column(name = "copystatus")
     private Short copyStatus;
 
