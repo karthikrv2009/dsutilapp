@@ -22,24 +22,38 @@
     </properties>
 
     <dependencies>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-logging</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-log4j2</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+
+    <!-- Add SLF4J with Logback -->
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-logging</artifactId>
+    </dependency>
+
+
+
         <!-- Spring Boot Web Starter -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
 
-        <!-- Log4j2 (Exclude Logback) -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-log4j2</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.springframework.boot</groupId>
-                    <artifactId>spring-boot-starter-logging</artifactId> <!-- Excludes Logback -->
-                </exclusion>
-            </exclusions>
-        </dependency>
-
+    
         <!-- SQL Server JDBC Driver -->
         <dependency>
             <groupId>com.microsoft.sqlserver</groupId>

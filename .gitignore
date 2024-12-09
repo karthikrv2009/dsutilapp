@@ -8,6 +8,7 @@
 
 # Compiled class files
 **/target/
+target/
 
 # IntelliJ project files
 *.idea/
@@ -20,3 +21,5 @@
 /src/main/resources/application.properties
 
 frontend/package-lock.json
+backend/src/main/resources/static/
+
