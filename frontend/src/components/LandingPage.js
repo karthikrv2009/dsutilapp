@@ -3,6 +3,7 @@ import axios from "axios";
 import Modal from "react-modal";
 import { fetchDataWithToken } from "./apiUtils"; // Import the method from apiUtils
 import { useMsal } from "@azure/msal-react";
+
 axios.defaults.baseURL = "http://localhost:8080"; // Set the base URL for Axios
 
 const LandingPage = () => {
@@ -20,7 +21,7 @@ const LandingPage = () => {
   });
   const [healthMetrics, setHealthMetrics] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState("environment");
+  const [activeTab, setActiveTab] = useState("environment"); // Set default tab to "environment"
 
   useEffect(() => {
     const fetchData = async () => {
@@ -58,45 +59,6 @@ const LandingPage = () => {
     return response.accessToken;
   };
 
-  const fetchDashboardData = async () => {
-    try {
-      const token = await getToken(); // Retrieve the token
-      const response = await axios.get("/api/dashboard/getDashboardData", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      console.log("Dashboard Data:", response.data);
-      setDashboardData(
-        Array.isArray(response.data) ? response.data : [response.data]
-      );
-    } catch (error) {
-      console.error("Error fetching dashboard data:", error);
-      setDashboardData([]);
-    }
-  };
-
-  const fetchFolderStatus = async () => {
-    try {
-      const token = await getToken(); // Retrieve the token
-      const response = await axios.get(
-        "/api/dashboard/getCurrentFolderStatus",
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      console.log("Folder Status:", response.data);
-      setFolderStatus(
-        Array.isArray(response.data) ? response.data : [response.data]
-      );
-    } catch (error) {
-      console.error("Error fetching folder status:", error);
-      setFolderStatus([]);
-    }
-  };
-
   const fetchPipelineData = async () => {
     try {
       const token = await getToken(); // Retrieve the token
@@ -118,48 +80,6 @@ const LandingPage = () => {
     } catch (error) {
       console.error("Error fetching pipeline data:", error);
       setPipelineData([]);
-    }
-  };
-
-  const fetchEnvironmentInfo = async () => {
-    try {
-      const token = await getToken(); // Retrieve the token
-      const response = await axios.get(
-        "/api/dashboard/getEnvironmentInformation",
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      console.log("Environment Info:", response.data);
-      setEnvironmentInfo(
-        Array.isArray(response.data) ? response.data : [response.data]
-      );
-    } catch (error) {
-      console.error("Error fetching environment information:", error);
-      setEnvironmentInfo([]);
-    }
-  };
-
-  const fetchMetaDataCatalog = async () => {
-    try {
-      const token = await getToken(); // Retrieve the token
-      const response = await axios.get(
-        "/api/dashboard/getMetaDataCatalogInfo",
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      console.log("MetaData Catalog:", response.data);
-      setMetaDataCatalog(
-        Array.isArray(response.data) ? response.data : [response.data]
-      );
-    } catch (error) {
-      console.error("Error fetching metadata catalog:", error);
-      setMetaDataCatalog([]);
     }
   };
 
@@ -230,7 +150,6 @@ const LandingPage = () => {
             </tbody>
           </table>
         </div>
-
         <div style={{ flex: 1, marginLeft: "10px" }}>
           <h2>Current Folder Status</h2>
           <table>
@@ -447,7 +366,7 @@ const LandingPage = () => {
           },
         }}
       >
-        <h2>Health Metrics</h2>
+        <h1>Health Metrics</h1> {/* Changed to h1 for header level */}
         {healthMetrics.length > 0 ? (
           <div style={{ maxHeight: "400px", overflowY: "scroll" }}>
             <table>
