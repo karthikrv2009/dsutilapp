@@ -18,7 +18,7 @@ const LandingPage = () => {
   });
   const [healthMetrics, setHealthMetrics] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState("pipeline");
+  const [activeTab, setActiveTab] = useState("environment");
 
   useEffect(() => {
     fetchDashboardData();
@@ -132,65 +132,69 @@ const LandingPage = () => {
   return (
     <div>
       <h1>Landing Page</h1>
-      <h2>Dashboard Data</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>Last Processed Folder</th>
-            <th>Latest ADLS Folder Available</th>
-            <th>Completed Packages</th>
-            <th>Pending Number of Packages</th>
-            <th>Pending Tables in All Packages</th>
-          </tr>
-        </thead>
-        <tbody>
-          {dashboardData.length > 0 ? (
-            dashboardData.map((data, index) => (
-              <tr key={index}>
-                <td>{data.lastProcessedfolder}</td>
-                <td>{data.latestADLSFolderAvailable}</td>
-                <td>{data.completedPackages}</td>
-                <td>{data.pendingNumberPackages}</td>
-                <td>{data.pendingTablesInAllPackages}</td>
+      <div style={{ display: "flex", justifyContent: "space-between" }}>
+        <div style={{ flex: 1, marginRight: "10px" }}>
+          <h2>Dashboard Data</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Last Processed Folder</th>
+                <th>Latest ADLS Folder Available</th>
+                <th>Pending Number of Packages</th>
+                <th>Pending Tables in All Packages</th>
               </tr>
-            ))
-          ) : (
-            <tr>
-              <td colSpan="4">No data available</td>
-            </tr>
-          )}
-        </tbody>
-      </table>
+            </thead>
+            <tbody>
+              {dashboardData.length > 0 ? (
+                dashboardData.map((data, index) => (
+                  <tr key={index}>
+                    <td>{data.lastProcessedfolder}</td>
+                    <td>{data.latestADLSFolderAvailable}</td>
+                    <td>{data.pendingNumberPackages}</td>
+                    <td>{data.pendingTablesInAllPackages}</td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="4">No data available</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
 
-      <h2>Current Folder Status</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>Current Package Name</th>
-            <th>In Progress Tables</th>
-            <th>Pending Tables</th>
-            <th>Completed Tables</th>
-            <th>Error Tables Count</th>
-          </tr>
-        </thead>
-        <tbody>
-          {folderStatus.length > 0 ? (
-            folderStatus.map((status, index) => (
-              <tr key={index}>
-                <td>{status.currentPackageName}</td>
-                <td>{status.inProgressTables}</td>
-                <td>{status.pendingTables}</td>
-                <td>{status.completedTables}</td>
-                <td>{status.errorTablesCount}</td>
+        <div style={{ flex: 1, marginLeft: "10px" }}>
+          <h2>Current Folder Status</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Current Package Name</th>
+                <th>In Progress Tables</th>
+                <th>Pending Tables</th>
+                <th>Completed Tables</th>
+                <th>Error Tables Count</th>
               </tr>
-            ))
-          ) : (
-            <tr>
-              <td colSpan="5">No data available</td>
-            </tr>
-          )}
-        </tbody>
-      </table>
+            </thead>
+            <tbody>
+              {folderStatus.length > 0 ? (
+                folderStatus.map((status, index) => (
+                  <tr key={index}>
+                    <td>{status.currentPackageName}</td>
+                    <td>{status.inProgressTables}</td>
+                    <td>{status.pendingTables}</td>
+                    <td>{status.completedTables}</td>
+                    <td>{status.errorTablesCount}</td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="5">No data available</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
 
       <div>
         <button onClick={() => setActiveTab("pipeline")}>
