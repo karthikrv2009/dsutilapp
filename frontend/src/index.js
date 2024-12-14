@@ -1,18 +1,13 @@
 import React from "react";
-import ReactDOM from "react-dom";
-import "./index.css";
+import ReactDOM from "react-dom/client";
+import { MsalProvider } from "@azure/msal-react";
+import { msalInstance } from "./components/authConfig"; // Import the MSAL instance
 import App from "./App";
-import reportWebVitals from "./reportWebVitals";
-import Modal from "react-modal";
+import "./index.css";
 
-// Set the app element for react-modal
-Modal.setAppElement("#root");
-
-ReactDOM.render(
-  <React.StrictMode>
+const root = ReactDOM.createRoot(document.getElementById("root"));
+root.render(
+  <MsalProvider instance={msalInstance}>
     <App />
-  </React.StrictMode>,
-  document.getElementById("root")
+  </MsalProvider>
 );
-
-reportWebVitals();

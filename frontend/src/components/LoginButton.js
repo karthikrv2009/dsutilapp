@@ -5,13 +5,9 @@ const LoginButton = () => {
   const { instance } = useMsal();
 
   const handleLogin = () => {
-    instance
-      .loginPopup({
-        scopes: ["openid", "profile", "email"],
-      })
-      .then((response) => {
-        console.log(response);
-      });
+    instance.loginRedirect({
+      scopes: ["openid", "profile", "email"],
+    });
   };
 
   return <button onClick={handleLogin}>Login</button>;

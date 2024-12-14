@@ -10,6 +10,7 @@ import LicenseKeyPage from "./components/LicenseKeyPage";
 import LandingPage from "./components/LandingPage";
 import LoginButton from "./components/LoginButton";
 import AppLoader from "./components/AppLoader"; // Assuming you have an AppLoader component
+import AuthHandler from "./components/AuthHandler"; // Import the AuthHandler component
 
 const theme = createTheme({
   palette: {
@@ -31,6 +32,7 @@ function App() {
         <Router>
           <Header /> {/* The header will be shown on every page */}
           <Container style={{ minHeight: "80vh" }}>
+            <AuthHandler /> {/* Handle authentication and redirection */}
             {accounts.length === 0 ? (
               <LoginButton /> // Show LoginButton if not authenticated
             ) : (
