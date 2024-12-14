@@ -24,11 +24,12 @@ function App() {
       <Router>
         <Header /> {/* The header will be shown on every page */}
         <Container style={{ minHeight: "80vh" }}>
-          {/* Adjust height if needed */}
           <Routes>
+            <Route path="/" element={<AppLoader />} />{" "}
+            {/* Initial App Loader */}
+            <Route path="/landing" element={<LandingPage />} />{" "}
+            {/* Redirect here */}
             <Route path="/license" element={<LicenseKeyPage />} />
-            <Route path="/" element={<LandingPage />} />{" "}
-            {/* Load LandingPage */}
           </Routes>
         </Container>
         <Footer /> {/* The footer will be shown on every page */}

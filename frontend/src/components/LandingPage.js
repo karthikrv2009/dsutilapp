@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Modal from "react-modal";
-
+import { fetchDataWithToken } from "./apiUtils"; // Import the method from apiUtils
+import { useMsal } from "@azure/msal-react";
 axios.defaults.baseURL = "http://localhost:8080"; // Set the base URL for Axios
 
 const LandingPage = () => {
+  const { instance, accounts } = useMsal();
   const [dashboardData, setDashboardData] = useState([]);
   const [folderStatus, setFolderStatus] = useState([]);
   const [pipelineData, setPipelineData] = useState([]);
@@ -21,15 +23,49 @@ const LandingPage = () => {
   const [activeTab, setActiveTab] = useState("environment");
 
   useEffect(() => {
-    fetchDashboardData();
-    fetchFolderStatus();
-    fetchEnvironmentInfo();
-    fetchMetaDataCatalog();
+    const fetchData = async () => {
+      const token = await getToken();
+      fetchDataWithToken(
+        "/api/dashboard/getDashboardData",
+        setDashboardData,
+        token
+      );
+      fetchDataWithToken(
+        "/api/dashboard/getCurrentFolderStatus",
+        setFolderStatus,
+        token
+      );
+      fetchDataWithToken(
+        "/api/dashboard/getEnvironmentInformation",
+        setEnvironmentInfo,
+        token
+      );
+      fetchDataWithToken(
+        "/api/dashboard/getMetaDataCatalogInfo",
+        setMetaDataCatalog,
+        token
+      );
+    };
+    fetchData();
   }, []);
+
+  const getToken = async () => {
+    const request = {
+      scopes: ["User.Read"],
+      account: accounts[0],
+    };
+    const response = await instance.acquireTokenSilent(request);
+    return response.accessToken;
+  };
 
   const fetchDashboardData = async () => {
     try {
-      const response = await axios.get("/api/dashboard/getDashboardData");
+      const token = await getToken(); // Retrieve the token
+      const response = await axios.get("/api/dashboard/getDashboardData", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       console.log("Dashboard Data:", response.data);
       setDashboardData(
         Array.isArray(response.data) ? response.data : [response.data]
@@ -42,7 +78,15 @@ const LandingPage = () => {
 
   const fetchFolderStatus = async () => {
     try {
-      const response = await axios.get("/api/dashboard/getCurrentFolderStatus");
+      const token = await getToken(); // Retrieve the token
+      const response = await axios.get(
+        "/api/dashboard/getCurrentFolderStatus",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       console.log("Folder Status:", response.data);
       setFolderStatus(
         Array.isArray(response.data) ? response.data : [response.data]
@@ -55,12 +99,16 @@ const LandingPage = () => {
 
   const fetchPipelineData = async () => {
     try {
+      const token = await getToken(); // Retrieve the token
       const params = {
         days: selectedDays,
         ...pipelineFilters,
       };
       console.log("Pipeline Request Params:", params);
       const response = await axios.get("/api/dashboard/getPipeline", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
         params,
       });
       console.log("Pipeline Data:", response.data);
@@ -75,8 +123,14 @@ const LandingPage = () => {
 
   const fetchEnvironmentInfo = async () => {
     try {
+      const token = await getToken(); // Retrieve the token
       const response = await axios.get(
-        "/api/dashboard/getEnvironmentInformation"
+        "/api/dashboard/getEnvironmentInformation",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
       console.log("Environment Info:", response.data);
       setEnvironmentInfo(
@@ -90,7 +144,15 @@ const LandingPage = () => {
 
   const fetchMetaDataCatalog = async () => {
     try {
-      const response = await axios.get("/api/dashboard/getMetaDataCatalogInfo");
+      const token = await getToken(); // Retrieve the token
+      const response = await axios.get(
+        "/api/dashboard/getMetaDataCatalogInfo",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       console.log("MetaData Catalog:", response.data);
       setMetaDataCatalog(
         Array.isArray(response.data) ? response.data : [response.data]
@@ -103,8 +165,14 @@ const LandingPage = () => {
 
   const fetchHealthMetrics = async (pipelineId) => {
     try {
+      const token = await getToken(); // Retrieve the token
       const response = await axios.get(
-        `/api/dashboard/getHealthMetrics/${pipelineId}`
+        `/api/dashboard/getHealthMetrics/${pipelineId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
       console.log("Health Metrics:", response.data);
       setHealthMetrics(
@@ -131,7 +199,10 @@ const LandingPage = () => {
 
   return (
     <div>
-      <h1>Landing Page</h1>
+      <div>
+        <h1>Landing Page</h1>
+        {data ? <pre>{JSON.stringify(data, null, 2)}</pre> : <p>Loading...</p>}
+      </div>
       <div style={{ display: "flex", justifyContent: "space-between" }}>
         <div style={{ flex: 1, marginRight: "10px" }}>
           <h2>Dashboard Data</h2>
