@@ -31,3 +31,5 @@ backend/target/maven-status/maven-compiler-plugin/compile/default-compile/inputF
 backend/target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst
 backend/target/classes/application.properties
 frontend/package-lock.json
+backend/src/main/resources/static/index.html
+backend/src/main/resources/static/asset-manifest.json

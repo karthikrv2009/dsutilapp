@@ -199,10 +199,7 @@ const LandingPage = () => {
 
   return (
     <div>
-      <div>
-        <h1>Landing Page</h1>
-        {data ? <pre>{JSON.stringify(data, null, 2)}</pre> : <p>Loading...</p>}
-      </div>
+      <h1>Landing Page</h1>
       <div style={{ display: "flex", justifyContent: "space-between" }}>
         <div style={{ flex: 1, marginRight: "10px" }}>
           <h2>Dashboard Data</h2>
