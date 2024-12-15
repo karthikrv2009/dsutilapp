@@ -8,7 +8,7 @@ const AppLoader = () => {
   useEffect(() => {
     // Simulate a loading process or authentication check
     setTimeout(() => {
-      navigate("/landing"); // Redirect to LandingPage after loading
+      navigate("/index.html"); // Redirect to LandingPage after loading
     }, 2000); // Adjust the timeout as needed
   }, [navigate]);
 

@@ -47,6 +47,7 @@ function App() {
           </Container>
           <Footer /> {/* The footer will be shown on every page */}
         </Router>
+
       </ThemeProvider>
     </MsalProvider>
   );

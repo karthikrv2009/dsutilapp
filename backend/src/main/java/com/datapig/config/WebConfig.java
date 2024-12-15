@@ -11,7 +11,7 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(@NonNull CorsRegistry registry) {
         registry.addMapping("/**")
-                .allowedOrigins("http://localhost:3000") // Assuming React is running on port 3000
+                .allowedOrigins("http://localhost:8080") // Assuming React is running on port 3000
                 .allowedMethods("GET", "POST", "PUT", "DELETE")
                 .allowedHeaders("*").allowCredentials(true);
     }

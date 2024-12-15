@@ -9,7 +9,7 @@ function Header() {
 
   const handleLogout = () => {
     instance.logoutRedirect({
-      postLogoutRedirectUri: "http://localhost:8080", // Replace with your post-logout redirect URI
+      postLogoutRedirectUri: "http://localhost:8080/index.html", // Replace with your post-logout redirect URI
     });
   };
 
@@ -26,7 +26,7 @@ function Header() {
             Hello, {userName}
           </Typography>
         )}
-        <Button color="inherit" onClick={() => navigate("/")}>
+        <Button color="inherit" onClick={() => navigate("/landing")}>
           Home
         </Button>
         <Button color="inherit" onClick={() => navigate("/license")}>

@@ -60,9 +60,10 @@ public class MainApplication implements CommandLineRunner {
         }
         initialLoad=initialLoadService.getIntialLoad("DBSynctUtilInitalLoad");
         if(initialLoad.getStatus()==2){
-            azureQueueListenerService.startQueueListener();
+           // azureQueueListenerService.startQueueListener();
         }
     }
+    
 
     public static void main(String[] args) {
         SpringApplication.run(MainApplication.class, args);

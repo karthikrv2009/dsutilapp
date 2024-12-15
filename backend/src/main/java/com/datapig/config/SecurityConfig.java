@@ -10,15 +10,17 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableWebSecurity
 public class SecurityConfig {
 
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http
-                .authorizeHttpRequests(authorizeRequests -> authorizeRequests
-                        .requestMatchers("/**").permitAll() // Allow public access to specific endpoints
-                        .anyRequest().authenticated() // Require authentication for all other requests
-                )
-                .oauth2Login(); // Enable OAuth2 login
+@Bean
+public SecurityFilterChain securityFilterChain(HttpSecurity http)
+throws Exception {
+http
+.authorizeHttpRequests(authorizeRequests -> authorizeRequests
+.requestMatchers("/", "/index.html", "/static/**", "/landing",
+"/license", "/**").permitAll() // Allow public access to specific endpoints
+.anyRequest().authenticated() // Require authentication for all other requests
+)
+.oauth2Login(); // Enable OAuth2 login
 
-        return http.build();
-    }
+return http.build();
+}
 }
