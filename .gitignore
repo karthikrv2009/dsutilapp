@@ -14,22 +14,13 @@ target/
 *.idea/
 *.iml
 
-# Maven target folder
-/target
-/src/main/resources/static
+
+
 # Spring Boot properties
 /src/main/resources/application.properties
 
-frontend/package-lock.json
-backend/src/main/resources/static/
-
 backend/pmd-report.txt
 backend/unusedcode.xml
-backend/target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst
-backend/target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst
-backend/target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst
-backend/target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst
-backend/target/classes/application.properties
+backend/target/*
 frontend/package-lock.json
-backend/src/main/resources/static/index.html
-backend/src/main/resources/static/asset-manifest.json
+backend/src/main/resources/static/*
