@@ -1,9 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
+import { useMsal } from "@azure/msal-react";
+import axios from "axios";
 import {
-  Container,
-  TextField,
-  Button,
   Typography,
+  Tabs,
+  Tab,
+  Container,
   Table,
   TableBody,
   TableCell,
@@ -12,98 +14,206 @@ import {
   TableRow,
   Paper,
 } from "@mui/material";
-import { useNavigate } from "react-router-dom";
+import { makeStyles } from "@mui/styles";
+import Header from "./Header"; // Import the Header component
 
-function LicenseKeyPage() {
-  const [licenseKey, setLicenseKey] = useState("");
-  const [message, setMessage] = useState("");
-  const [licenseData, setLicenseData] = useState(null);
-  const navigate = useNavigate();
+axios.defaults.baseURL = "http://localhost:8080"; // Set the base URL for Axios
 
-  const handleValidate = () => {
-    fetch("http://localhost:8080/api/license/validate", {
-      method: "POST",
+const useStyles = makeStyles((theme) => ({
+  tableContainer: {
+    marginTop: theme.spacing(4),
+    marginBottom: theme.spacing(4),
+    boxShadow: theme.shadows[3],
+  },
+  tableHead: {
+    backgroundColor: theme.palette.primary.main, // Blue color
+    color: theme.palette.primary.contrastText, // Optional: To ensure text is readable (light color for text)
+  },
+  tableCellHead: {
+    color: theme.palette.common.white,
+  },
+  tableCellBody: {
+    color: theme.palette.text.primary,
+  },
+  title: {
+    marginBottom: theme.spacing(2),
+    color: theme.palette.primary.main,
+  },
+  tabs: {
+    marginBottom: theme.spacing(2),
+  },
+}));
+
+const fetchDataWithToken = async (url, setData, token) => {
+  try {
+    const response = await axios.get(url, {
       headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
+        Authorization: `Bearer ${token}`,
       },
-      body: new URLSearchParams({ licenseKey }), // Pass licenseKey as request parameter
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        if (data && data.companyName) {
-          setLicenseData(data);
-          setMessage("License key validated successfully!");
-          // Navigate to LandingPage on success
-          navigate("/");
-        } else {
-          setMessage("Invalid License Key");
-          setLicenseData(null);
-        }
-      })
-      .catch((error) => {
-        console.error("Error:", error);
-        setMessage("An error occurred while validating the license key.");
-        setLicenseData(null);
-      });
+    });
+    setData(response.data);
+  } catch (error) {
+    console.error("Error fetching data:", error);
+  }
+};
+
+const LicenseKeyPage = () => {
+  const { instance, accounts } = useMsal();
+  const classes = useStyles();
+  const [licenseData, setLicenseData] = useState(null);
+  const [environmentInfo, setEnvironmentInfo] = useState([]);
+  const [activeTab, setActiveTab] = useState(0); // Set default tab to 0
+
+  const getToken = useCallback(async () => {
+    const request = {
+      scopes: ["User.Read"],
+      account: accounts[0],
+    };
+    const response = await instance.acquireTokenSilent(request);
+    return response.accessToken;
+  }, [instance, accounts]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const token = await getToken();
+      fetchDataWithToken("/api/license", setLicenseData, token);
+      fetchDataWithToken("/api/environment", setEnvironmentInfo, token);
+    };
+    fetchData();
+  }, [getToken]);
+
+  const handleTabChange = (event, newValue) => {
+    setActiveTab(newValue);
   };
 
   return (
-    <Container>
-      <Typography variant="h4" gutterBottom>
-        Validate License Key
-      </Typography>
-      <TextField
-        label="License Key"
-        variant="outlined"
-        fullWidth
-        value={licenseKey}
-        onChange={(e) => setLicenseKey(e.target.value)}
-        margin="normal"
-      />
-      <Button variant="contained" color="primary" onClick={handleValidate}>
-        Validate
-      </Button>
-      {message && (
-        <Typography variant="body1" color="error" style={{ marginTop: "20px" }}>
-          {message}
-        </Typography>
-      )}
-      {licenseData && (
-        <TableContainer component={Paper} style={{ marginTop: "20px" }}>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>Field</TableCell>
-                <TableCell>Value</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              <TableRow>
-                <TableCell>Company Name</TableCell>
-                <TableCell>{licenseData.companyName}</TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>Machine Name</TableCell>
-                <TableCell>{licenseData.machineName}</TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>License Type</TableCell>
-                <TableCell>{licenseData.licenseType}</TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>Validity</TableCell>
-                <TableCell>{licenseData.validity}</TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>License Key</TableCell>
-                <TableCell>{licenseData.licenseKey}</TableCell>
-              </TableRow>
-            </TableBody>
-          </Table>
-        </TableContainer>
-      )}
-    </Container>
+    <div>
+      <Header /> {/* Include the Header component */}
+      <Container>
+        <Tabs
+          value={activeTab}
+          onChange={handleTabChange}
+          className={classes.tabs}
+        >
+          <Tab label="License Information" />
+          <Tab label="Environment Information" />
+        </Tabs>
+
+        {activeTab === 0 && (
+          <div>
+            <Typography variant="h4" className={classes.title}>
+              License Information
+            </Typography>
+            {/* Always show License Information */}
+            <TableContainer
+              component={Paper}
+              className={classes.tableContainer}
+            >
+              <Table>
+                <TableHead className={classes.tableHead}>
+                  <TableRow>
+                    <TableCell className={classes.tableCellHead}>
+                      Company Name
+                    </TableCell>
+                    <TableCell className={classes.tableCellHead}>
+                      License Key
+                    </TableCell>
+                    <TableCell className={classes.tableCellHead}>
+                      Valid Until
+                    </TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {licenseData ? (
+                    <TableRow>
+                      <TableCell className={classes.tableCellBody}>
+                        {licenseData.companyName}
+                      </TableCell>
+                      <TableCell className={classes.tableCellBody}>
+                        {licenseData.licenseKey}
+                      </TableCell>
+                      <TableCell className={classes.tableCellBody}>
+                        {licenseData.validUntil}
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    <TableRow>
+                      <TableCell colSpan={3} className={classes.tableCellBody}>
+                        No data available
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </div>
+        )}
+
+        {activeTab === 1 && (
+          <div>
+            <Typography variant="h4" className={classes.title}>
+              Environment Information
+            </Typography>
+            <TableContainer
+              component={Paper}
+              className={classes.tableContainer}
+            >
+              <Table>
+                <TableHead className={classes.tableHead}>
+                  <TableRow>
+                    <TableCell className={classes.tableCellHead}>
+                      D365 Environment
+                    </TableCell>
+                    <TableCell className={classes.tableCellHead}>
+                      D365 Environment URL
+                    </TableCell>
+                    <TableCell className={classes.tableCellHead}>
+                      ADLS Storage Account
+                    </TableCell>
+                    <TableCell className={classes.tableCellHead}>
+                      Container Name
+                    </TableCell>
+                    <TableCell className={classes.tableCellHead}>
+                      Max Thread Count
+                    </TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {environmentInfo.length > 0 ? (
+                    environmentInfo.map((info, index) => (
+                      <TableRow key={index}>
+                        <TableCell className={classes.tableCellBody}>
+                          {info.d365Environment}
+                        </TableCell>
+                        <TableCell className={classes.tableCellBody}>
+                          {info.d365EnvironmentURL}
+                        </TableCell>
+                        <TableCell className={classes.tableCellBody}>
+                          {info.adlsStorageAccount}
+                        </TableCell>
+                        <TableCell className={classes.tableCellBody}>
+                          {info.containerName}
+                        </TableCell>
+                        <TableCell className={classes.tableCellBody}>
+                          {info.max_thread_count}
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  ) : (
+                    <TableRow>
+                      <TableCell colSpan={5} className={classes.tableCellBody}>
+                        No data available
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </div>
+        )}
+      </Container>
+    </div>
   );
-}
+};
 
 export default LicenseKeyPage;
