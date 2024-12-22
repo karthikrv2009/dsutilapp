@@ -29,7 +29,7 @@ table {
 }
 
 thead tr {
-  background-color: #009879;
+  background-color: #000000;
   color: #ffffff;
   text-align: left;
 }
@@ -37,6 +37,15 @@ thead tr {
 th,
 td {
   padding: 12px 15px;
+}
+
+/* Ensure the text color of TableCell in TableHead is white */
+.MuiTableCell-head {
+  color: white !important;
+}
+/* Add this rule to set the text color of TableCell in TableHead to white */
+thead th {
+  color: white;
 }
 
 tbody tr {
@@ -48,7 +57,7 @@ tbody tr:nth-of-type(even) {
 }
 
 tbody tr:last-of-type {
-  border-bottom: 2px solid #009879;
+  border-bottom: 2px solid #030303;
 }
 
 tbody tr:hover {
@@ -62,7 +71,7 @@ div {
 
 /* Button Styles */
 button {
-  background-color: #009879;
+  background-color: #000000;
   color: white;
   border: none;
   padding: 10px 20px;
@@ -77,7 +86,8 @@ button {
 }
 
 button:hover {
-  background-color: #007f67;
+  background-color: #000000;
+  color: rgb(245, 245, 245);
 }
 
 /* Label Styles */

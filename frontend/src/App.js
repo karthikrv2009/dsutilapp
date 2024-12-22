@@ -1,5 +1,13 @@
-import React from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import React, { useEffect } from "react";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  useNavigate,
+  Navigate,
+  useLocation,
+} from "react-router-dom";
+
 import {
   Container,
   Grid,
@@ -18,7 +26,6 @@ import LicenseKeyPage from "./components/LicenseKeyPage";
 import LandingPage from "./components/LandingPage";
 import LoginButton from "./components/LoginButton";
 import AppLoader from "./components/AppLoader"; // Assuming you have an AppLoader component
-import AuthHandler from "./components/AuthHandler"; // Import the AuthHandler component
 import DataPigLogo from "./components/DataPigHome.png"; // Adjust the path as needed
 import DataPigBlackLogo from "./components/datapigblack.png"; // Adjust the path as needed
 
@@ -51,6 +58,24 @@ const Card = styled(MuiCard)(({ theme }) => ({
   }),
 }));
 
+const AuthHandler = () => {
+  const { accounts } = useMsal();
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    if (accounts.length > 0) {
+      if (location.pathname === "/index.html") {
+        navigate("/landing");
+      } else if (location.pathname === "/license") {
+        navigate("/license");
+      }
+    }
+  }, [accounts, navigate, location.pathname]);
+
+  return null;
+};
+
 function App() {
   const { accounts } = useMsal();
 
@@ -63,13 +88,19 @@ function App() {
             <AuthHandler /> {/* Handle authentication and redirection */}
             {accounts.length === 0 ? (
               <>
-                <div style={{ textAlign: "center", marginBottom: "20px" }}>
+                <Box sx={{ textAlign: "center", paddingTop: 6 }}>
+                  {" "}
+                  {/* Add padding to bring the logo down */}
                   <img
                     src={DataPigBlackLogo}
-                    alt="Data Pig Black Logo"
-                    style={{ maxWidth: "200px", height: "auto" }}
+                    alt="Data Pig Logo"
+                    style={{
+                      width: "75%",
+                      maxWidth: "300px",
+                      height: "auto",
+                    }} // Adjust the size as needed
                   />
-                </div>
+                </Box>
                 <Stack
                   direction="column"
                   component="main"
@@ -160,10 +191,13 @@ function App() {
               </>
             ) : (
               <Routes>
-                {/* Initial App Loader */}
+                <Route path="/" element={<Navigate to="/landing" />} />{" "}
+                {/* Redirect to Landing Page */}
                 <Route path="/landing" element={<LandingPage />} />{" "}
-                {/* Redirect here */}
-                <Route path="/license" element={<LicenseKeyPage />} />
+                {/* Landing Page */}
+                <Route path="/license" element={<LicenseKeyPage />} />{" "}
+                {/* License Key Page */}
+                {/* Handle redirect from auth */}
               </Routes>
             )}
           </Container>

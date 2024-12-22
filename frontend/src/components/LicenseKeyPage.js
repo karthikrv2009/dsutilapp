@@ -10,9 +10,9 @@ import {
   TableBody,
   TableCell,
   TableContainer,
-  TableHead,
   TableRow,
   Paper,
+  TableHead,
 } from "@mui/material";
 import { makeStyles } from "@mui/styles";
 import Header from "./Header"; // Import the Header component
@@ -101,48 +101,47 @@ const LicenseKeyPage = () => {
 
         {activeTab === 0 && (
           <div>
-            <Typography variant="h4" className={classes.title}>
-              License Information
-            </Typography>
-            {/* Always show License Information */}
+            {/* Always show License Information as a table with two columns */}
             <TableContainer
               component={Paper}
               className={classes.tableContainer}
             >
               <Table>
-                <TableHead className={classes.tableHead}>
+                <TableBody>
                   <TableRow>
-                    <TableCell className={classes.tableCellHead}>
+                    <TableCell
+                      className={classes.tableCellBody}
+                      sx={{ width: "30%" }}
+                    >
                       Company Name
                     </TableCell>
-                    <TableCell className={classes.tableCellHead}>
-                      License Key
-                    </TableCell>
-                    <TableCell className={classes.tableCellHead}>
-                      Valid Until
+                    <TableCell className={classes.tableCellBody}>
+                      {licenseData?.companyName || ""}
+                      {"Abaracadabra "}
                     </TableCell>
                   </TableRow>
-                </TableHead>
-                <TableBody>
-                  {licenseData ? (
-                    <TableRow>
-                      <TableCell className={classes.tableCellBody}>
-                        {licenseData.companyName}
-                      </TableCell>
-                      <TableCell className={classes.tableCellBody}>
-                        {licenseData.licenseKey}
-                      </TableCell>
-                      <TableCell className={classes.tableCellBody}>
-                        {licenseData.validUntil}
-                      </TableCell>
-                    </TableRow>
-                  ) : (
-                    <TableRow>
-                      <TableCell colSpan={3} className={classes.tableCellBody}>
-                        No data available
-                      </TableCell>
-                    </TableRow>
-                  )}
+                  <TableRow>
+                    <TableCell
+                      className={classes.tableCellBody}
+                      sx={{ width: "30%" }}
+                    >
+                      License Key
+                    </TableCell>
+                    <TableCell className={classes.tableCellBody}>
+                      {licenseData?.licenseKey || ""}
+                    </TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell
+                      className={classes.tableCellBody}
+                      sx={{ width: "30%" }}
+                    >
+                      Valid Until
+                    </TableCell>
+                    <TableCell className={classes.tableCellBody}>
+                      {licenseData?.validUntil || ""}
+                    </TableCell>
+                  </TableRow>
                 </TableBody>
               </Table>
             </TableContainer>
@@ -151,9 +150,6 @@ const LicenseKeyPage = () => {
 
         {activeTab === 1 && (
           <div>
-            <Typography variant="h4" className={classes.title}>
-              Environment Information
-            </Typography>
             <TableContainer
               component={Paper}
               className={classes.tableContainer}

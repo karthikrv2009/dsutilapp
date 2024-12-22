@@ -68,7 +68,7 @@ function Header() {
 
   const handleLogout = () => {
     instance.logoutRedirect({
-      postLogoutRedirectUri: "http://localhost:8080/index.html", // Replace with your post-logout redirect URI
+      postLogoutRedirectUri: "http://localhost:8080/", // Replace with your post-logout redirect URI
     });
   };
 

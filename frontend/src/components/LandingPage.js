@@ -18,6 +18,8 @@ import {
 } from "@mui/material";
 import { makeStyles } from "@mui/styles";
 import Header from "./Header"; // Import the Header component
+import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
+import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 
 axios.defaults.baseURL = "http://localhost:8080"; // Set the base URL for Axios
 
@@ -288,9 +290,6 @@ const LandingPage = () => {
 
         {activeTab === 1 && (
           <div>
-            <Typography variant="h4" className={classes.title}>
-              Pipeline Information
-            </Typography>
             <div>
               <label>
                 Days:
@@ -381,7 +380,13 @@ const LandingPage = () => {
                           {pipeline.pipelineEndTime}
                         </TableCell>
                         <TableCell className={classes.tableCellBody}>
-                          {pipeline.status}
+                          {pipeline.status === 0 ? (
+                            <CheckCircleOutlineIcon
+                              style={{ color: "green" }}
+                            />
+                          ) : (
+                            <ErrorOutlineIcon style={{ color: "red" }} />
+                          )}
                         </TableCell>
                       </TableRow>
                     ))
@@ -400,9 +405,6 @@ const LandingPage = () => {
 
         {activeTab === 2 && (
           <div>
-            <Typography variant="h4" className={classes.title}>
-              MetaData Catalog
-            </Typography>
             <TableContainer
               component={Paper}
               className={classes.tableContainer}

@@ -11,8 +11,11 @@ const AuthHandler = () => {
     if (accounts.length === 0 && location.pathname !== "/") {
       // If not authenticated and not already on the home page, redirect to home page
       navigate("/");
-    } else if (accounts.length > 0 && location.pathname === "/") {
-      // If authenticated and on the home page, redirect to landing page
+    } else if (
+      accounts.length > 0 &&
+      (location.pathname === "/" || location.pathname === "/index.html")
+    ) {
+      // If authenticated and on the home page or index.html, redirect to landing page
       navigate("/landing");
     }
   }, [accounts, navigate, location.pathname]);
