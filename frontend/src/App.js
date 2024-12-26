@@ -28,6 +28,7 @@ import LoginButton from "./components/LoginButton";
 import AppLoader from "./components/AppLoader"; // Assuming you have an AppLoader component
 import DataPigLogo from "./components/DataPigHome.png"; // Adjust the path as needed
 import DataPigBlackLogo from "./components/datapigblack.png"; // Adjust the path as needed
+import DatabaseConfigPage from "./components/DatabaseConfigPage"; // Import the DatabaseConfigPage component
 
 const theme = createTheme({
   palette: {
@@ -197,6 +198,11 @@ function App() {
                 {/* Landing Page */}
                 <Route path="/license" element={<LicenseKeyPage />} />{" "}
                 {/* License Key Page */}
+                <Route
+                  path="/database-config"
+                  element={<DatabaseConfigPage />}
+                />{" "}
+                {/* Database Config Page */}
                 {/* Handle redirect from auth */}
               </Routes>
             )}
