@@ -1,25 +1,11 @@
-import React from "react";
-import { useMsal } from "@azure/msal-react";
-import { Button, Box } from "@mui/material";
+import { Button } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 
 const LoginButton = () => {
-  const { instance } = useMsal();
   const navigate = useNavigate();
 
   const handleLogin = () => {
-    // MSAL login redirect
-    instance
-      .loginRedirect({
-        scopes: ["openid", "profile", "email"],
-      })
-      .then(() => {
-        navigate("/main-page"); // Redirect to main page after successful login
-      })
-      .catch((error) => {
-        console.error("Login failed: ", error);
-        alert("Login failed");
-      });
+    navigate("/landing"); // Redirect to landing page after button click
   };
 
   return (

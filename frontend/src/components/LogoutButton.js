@@ -1,13 +1,11 @@
 import React from "react";
-import { useMsal } from "@azure/msal-react";
+import { useNavigate } from "react-router-dom";
 
 const LogoutButton = () => {
-  const { instance } = useMsal();
+  const navigate = useNavigate();
 
   const handleLogout = () => {
-    instance.logoutRedirect({
-      postLogoutRedirectUri: "/",
-    });
+    navigate("/"); // Redirect to home page after button click
   };
 
   return <button onClick={handleLogout}>Logout</button>;

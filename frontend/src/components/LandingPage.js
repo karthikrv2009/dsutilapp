@@ -1,8 +1,5 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
-import Modal from "react-modal";
-import { fetchDataWithToken } from "./apiUtils"; // Import the method from apiUtils
-import { useMsal } from "@azure/msal-react";
 import {
   Table,
   TableBody,
@@ -20,6 +17,7 @@ import { makeStyles } from "@mui/styles";
 import Header from "./Header"; // Import the Header component
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
+import Modal from "react-modal";
 
 axios.defaults.baseURL = "http://localhost:8080"; // Set the base URL for Axios
 
@@ -31,7 +29,6 @@ const useStyles = makeStyles((theme) => ({
   },
   tableHead: {
     backgroundColor: theme.palette.primary.main, // Blue color
-    color: theme.palette.primary.contrastText, // Optional: To ensure text is readable (light color for text)
   },
   tableCellHead: {
     color: theme.palette.common.white,
@@ -48,8 +45,16 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+const fetchData = async (url, setData) => {
+  try {
+    const response = await axios.get(url);
+    setData(response.data);
+  } catch (error) {
+    console.error("Error fetching data:", error);
+  }
+};
+
 const LandingPage = () => {
-  const { instance, accounts } = useMsal();
   const classes = useStyles();
   const [dashboardData, setDashboardData] = useState([]);
   const [folderStatus, setFolderStatus] = useState([]);
@@ -65,49 +70,23 @@ const LandingPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState(0); // Set default tab to 0
 
-  const getToken = useCallback(async () => {
-    const request = {
-      scopes: ["User.Read"],
-      account: accounts[0],
-    };
-    const response = await instance.acquireTokenSilent(request);
-    return response.accessToken;
-  }, [instance, accounts]);
-
   useEffect(() => {
-    const fetchData = async () => {
-      const token = await getToken();
-      fetchDataWithToken(
-        "/api/dashboard/getDashboardData",
-        setDashboardData,
-        token
-      );
-      fetchDataWithToken(
-        "/api/dashboard/getCurrentFolderStatus",
-        setFolderStatus,
-        token
-      );
-      fetchDataWithToken(
-        "/api/dashboard/getMetaDataCatalogInfo",
-        setMetaDataCatalog,
-        token
-      );
+    const fetchDataAsync = async () => {
+      fetchData("/api/dashboard/getDashboardData", setDashboardData);
+      fetchData("/api/dashboard/getCurrentFolderStatus", setFolderStatus);
+      fetchData("/api/dashboard/getMetaDataCatalogInfo", setMetaDataCatalog);
     };
-    fetchData();
-  }, [getToken]);
+    fetchDataAsync();
+  }, []);
 
   const fetchPipelineData = async () => {
     try {
-      const token = await getToken(); // Retrieve the token
       const params = {
         days: selectedDays,
         ...pipelineFilters,
       };
       console.log("Pipeline Request Params:", params);
       const response = await axios.get("/api/dashboard/getPipeline", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
         params,
       });
       console.log("Pipeline Data:", response.data);
@@ -122,14 +101,8 @@ const LandingPage = () => {
 
   const fetchHealthMetrics = async (pipelineId) => {
     try {
-      const token = await getToken(); // Retrieve the token
       const response = await axios.get(
-        `/api/dashboard/getHealthMetrics/${pipelineId}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
+        `/api/dashboard/getHealthMetrics/${pipelineId}`
       );
       console.log("Health Metrics:", response.data);
       setHealthMetrics(
@@ -184,16 +157,28 @@ const LandingPage = () => {
               <Table>
                 <TableHead className={classes.tableHead}>
                   <TableRow>
-                    <TableCell className={classes.tableCellHead}>
+                    <TableCell
+                      className={classes.tableCellHead}
+                      style={{ color: "white" }}
+                    >
                       Last Processed Folder
                     </TableCell>
-                    <TableCell className={classes.tableCellHead}>
+                    <TableCell
+                      className={classes.tableCellHead}
+                      style={{ color: "white" }}
+                    >
                       Latest ADLS Folder Available
                     </TableCell>
-                    <TableCell className={classes.tableCellHead}>
+                    <TableCell
+                      className={classes.tableCellHead}
+                      style={{ color: "white" }}
+                    >
                       Pending Number of Packages
                     </TableCell>
-                    <TableCell className={classes.tableCellHead}>
+                    <TableCell
+                      className={classes.tableCellHead}
+                      style={{ color: "white" }}
+                    >
                       Pending Tables in All Packages
                     </TableCell>
                   </TableRow>
@@ -237,19 +222,34 @@ const LandingPage = () => {
               <Table>
                 <TableHead className={classes.tableHead}>
                   <TableRow>
-                    <TableCell className={classes.tableCellHead}>
+                    <TableCell
+                      className={classes.tableCellHead}
+                      style={{ color: "white" }}
+                    >
                       Current Package Name
                     </TableCell>
-                    <TableCell className={classes.tableCellHead}>
+                    <TableCell
+                      className={classes.tableCellHead}
+                      style={{ color: "white" }}
+                    >
                       In Progress Tables
                     </TableCell>
-                    <TableCell className={classes.tableCellHead}>
+                    <TableCell
+                      className={classes.tableCellHead}
+                      style={{ color: "white" }}
+                    >
                       Pending Tables
                     </TableCell>
-                    <TableCell className={classes.tableCellHead}>
+                    <TableCell
+                      className={classes.tableCellHead}
+                      style={{ color: "white" }}
+                    >
                       Completed Tables
                     </TableCell>
-                    <TableCell className={classes.tableCellHead}>
+                    <TableCell
+                      className={classes.tableCellHead}
+                      style={{ color: "white" }}
+                    >
                       Error Tables Count
                     </TableCell>
                   </TableRow>
@@ -290,6 +290,9 @@ const LandingPage = () => {
 
         {activeTab === 1 && (
           <div>
+            <Typography variant="h4" className={classes.title}>
+              Pipeline Information
+            </Typography>
             <div>
               <label>
                 Days:
@@ -339,19 +342,34 @@ const LandingPage = () => {
               <Table>
                 <TableHead className={classes.tableHead}>
                   <TableRow>
-                    <TableCell className={classes.tableCellHead}>
+                    <TableCell
+                      className={classes.tableCellHead}
+                      style={{ color: "white" }}
+                    >
                       Pipeline ID
                     </TableCell>
-                    <TableCell className={classes.tableCellHead}>
+                    <TableCell
+                      className={classes.tableCellHead}
+                      style={{ color: "white" }}
+                    >
                       Folder Name
                     </TableCell>
-                    <TableCell className={classes.tableCellHead}>
+                    <TableCell
+                      className={classes.tableCellHead}
+                      style={{ color: "white" }}
+                    >
                       Pipeline Start Time
                     </TableCell>
-                    <TableCell className={classes.tableCellHead}>
+                    <TableCell
+                      className={classes.tableCellHead}
+                      style={{ color: "white" }}
+                    >
                       Pipeline End Time
                     </TableCell>
-                    <TableCell className={classes.tableCellHead}>
+                    <TableCell
+                      className={classes.tableCellHead}
+                      style={{ color: "white" }}
+                    >
                       Status
                     </TableCell>
                   </TableRow>
@@ -405,6 +423,9 @@ const LandingPage = () => {
 
         {activeTab === 2 && (
           <div>
+            <Typography variant="h4" className={classes.title}>
+              MetaData Catalog
+            </Typography>
             <TableContainer
               component={Paper}
               className={classes.tableContainer}
@@ -412,19 +433,34 @@ const LandingPage = () => {
               <Table>
                 <TableHead className={classes.tableHead}>
                   <TableRow>
-                    <TableCell className={classes.tableCellHead}>
+                    <TableCell
+                      className={classes.tableCellHead}
+                      style={{ color: "white" }}
+                    >
                       Table Name
                     </TableCell>
-                    <TableCell className={classes.tableCellHead}>
+                    <TableCell
+                      className={classes.tableCellHead}
+                      style={{ color: "white" }}
+                    >
                       Last Updated Folder
                     </TableCell>
-                    <TableCell className={classes.tableCellHead}>
+                    <TableCell
+                      className={classes.tableCellHead}
+                      style={{ color: "white" }}
+                    >
                       Last Copy Status
                     </TableCell>
-                    <TableCell className={classes.tableCellHead}>
+                    <TableCell
+                      className={classes.tableCellHead}
+                      style={{ color: "white" }}
+                    >
                       Quarantine
                     </TableCell>
-                    <TableCell className={classes.tableCellHead}>
+                    <TableCell
+                      className={classes.tableCellHead}
+                      style={{ color: "white" }}
+                    >
                       Row Count
                     </TableCell>
                   </TableRow>
@@ -492,25 +528,46 @@ const LandingPage = () => {
               <Table>
                 <TableHead className={classes.tableHead}>
                   <TableRow>
-                    <TableCell className={classes.tableCellHead}>
+                    <TableCell
+                      className={classes.tableCellHead}
+                      style={{ color: "white" }}
+                    >
                       Pipeline ID
                     </TableCell>
-                    <TableCell className={classes.tableCellHead}>
+                    <TableCell
+                      className={classes.tableCellHead}
+                      style={{ color: "white" }}
+                    >
                       Folder Name
                     </TableCell>
-                    <TableCell className={classes.tableCellHead}>
+                    <TableCell
+                      className={classes.tableCellHead}
+                      style={{ color: "white" }}
+                    >
                       Table Name
                     </TableCell>
-                    <TableCell className={classes.tableCellHead}>
+                    <TableCell
+                      className={classes.tableCellHead}
+                      style={{ color: "white" }}
+                    >
                       Method Name
                     </TableCell>
-                    <TableCell className={classes.tableCellHead}>
+                    <TableCell
+                      className={classes.tableCellHead}
+                      style={{ color: "white" }}
+                    >
                       Time Spent
                     </TableCell>
-                    <TableCell className={classes.tableCellHead}>
+                    <TableCell
+                      className={classes.tableCellHead}
+                      style={{ color: "white" }}
+                    >
                       Status
                     </TableCell>
-                    <TableCell className={classes.tableCellHead}>
+                    <TableCell
+                      className={classes.tableCellHead}
+                      style={{ color: "white" }}
+                    >
                       Row Count
                     </TableCell>
                   </TableRow>

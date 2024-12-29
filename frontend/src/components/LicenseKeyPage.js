@@ -1,5 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
-import { useMsal } from "@azure/msal-react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import {
   Typography,
@@ -44,13 +43,9 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const fetchDataWithToken = async (url, setData, token) => {
+const fetchData = async (url, setData) => {
   try {
-    const response = await axios.get(url, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    const response = await axios.get(url);
     setData(response.data);
   } catch (error) {
     console.error("Error fetching data:", error);
@@ -58,29 +53,18 @@ const fetchDataWithToken = async (url, setData, token) => {
 };
 
 const LicenseKeyPage = () => {
-  const { instance, accounts } = useMsal();
   const classes = useStyles();
   const [licenseData, setLicenseData] = useState(null);
   const [environmentInfo, setEnvironmentInfo] = useState([]);
   const [activeTab, setActiveTab] = useState(0); // Set default tab to 0
 
-  const getToken = useCallback(async () => {
-    const request = {
-      scopes: ["User.Read"],
-      account: accounts[0],
-    };
-    const response = await instance.acquireTokenSilent(request);
-    return response.accessToken;
-  }, [instance, accounts]);
-
   useEffect(() => {
-    const fetchData = async () => {
-      const token = await getToken();
-      fetchDataWithToken("/api/license", setLicenseData, token);
-      fetchDataWithToken("/api/environment", setEnvironmentInfo, token);
+    const fetchDataAsync = async () => {
+      fetchData("/api/license", setLicenseData);
+      fetchData("/api/environment", setEnvironmentInfo);
     };
-    fetchData();
-  }, [getToken]);
+    fetchDataAsync();
+  }, []);
 
   const handleTabChange = (event, newValue) => {
     setActiveTab(newValue);
@@ -101,7 +85,9 @@ const LicenseKeyPage = () => {
 
         {activeTab === 0 && (
           <div>
-            {/* Always show License Information as a table with two columns */}
+            <Typography variant="h4" className={classes.title}>
+              License Information
+            </Typography>
             <TableContainer
               component={Paper}
               className={classes.tableContainer}
@@ -115,9 +101,11 @@ const LicenseKeyPage = () => {
                     >
                       Company Name
                     </TableCell>
-                    <TableCell className={classes.tableCellBody}>
+                    <TableCell
+                      className={classes.tableCellBody}
+                      sx={{ width: "70%" }}
+                    >
                       {licenseData?.companyName || ""}
-                      {"Abaracadabra "}
                     </TableCell>
                   </TableRow>
                   <TableRow>
@@ -127,7 +115,10 @@ const LicenseKeyPage = () => {
                     >
                       License Key
                     </TableCell>
-                    <TableCell className={classes.tableCellBody}>
+                    <TableCell
+                      className={classes.tableCellBody}
+                      sx={{ width: "70%" }}
+                    >
                       {licenseData?.licenseKey || ""}
                     </TableCell>
                   </TableRow>
@@ -138,7 +129,10 @@ const LicenseKeyPage = () => {
                     >
                       Valid Until
                     </TableCell>
-                    <TableCell className={classes.tableCellBody}>
+                    <TableCell
+                      className={classes.tableCellBody}
+                      sx={{ width: "70%" }}
+                    >
                       {licenseData?.validUntil || ""}
                     </TableCell>
                   </TableRow>
@@ -150,6 +144,9 @@ const LicenseKeyPage = () => {
 
         {activeTab === 1 && (
           <div>
+            <Typography variant="h4" className={classes.title}>
+              Environment Information
+            </Typography>
             <TableContainer
               component={Paper}
               className={classes.tableContainer}

@@ -1,21 +1,8 @@
 import React from "react";
 import { AppBar, Toolbar, Typography, Button } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-import { useMsal } from "@azure/msal-react";
 import { makeStyles } from "@mui/styles";
-import { createTheme, ThemeProvider } from "@mui/material/styles";
 import DataPigLogo from "./datapigblack.png"; // Adjust the path as needed
-
-const theme = createTheme({
-  palette: {
-    primary: {
-      main: "#007bff",
-    },
-    secondary: {
-      main: "#ff4081",
-    },
-  },
-});
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -40,11 +27,6 @@ const useStyles = makeStyles((theme) => ({
     fontSize: "1rem", // Adjust the font size as needed
     color: "black", // Set text color to black
   },
-  userName: {
-    fontSize: "10px", // Set the font size to 10px
-    marginLeft: theme.spacing(1),
-    color: "gray", // Set text color to gray
-  },
   button: {
     marginLeft: theme.spacing(1),
     fontSize: "0.875rem", // Adjust the font size as needed
@@ -64,59 +46,47 @@ const useStyles = makeStyles((theme) => ({
 function Header() {
   const classes = useStyles();
   const navigate = useNavigate();
-  const { instance, accounts } = useMsal();
 
   const handleLogout = () => {
-    instance.logoutRedirect({
-      postLogoutRedirectUri: "http://localhost:8080/", // Replace with your post-logout redirect URI
-    });
+    navigate("/"); // Redirect to home page after logout
   };
 
-  const userName = accounts.length > 0 ? `${accounts[0].name}` : "";
-
   return (
-    <ThemeProvider theme={theme}>
-      <AppBar position="static" className={classes.appBar}>
-        <Toolbar className={classes.toolbar}>
-          <img src={DataPigLogo} alt="Data Pig Logo" className={classes.logo} />
-          <div className={classes.buttonContainer}>
-            {userName && (
-              <Typography className={classes.userName}>
-                Hello {userName} |
-              </Typography>
-            )}
-            <Button
-              color="inherit"
-              onClick={() => navigate("/landing")}
-              className={classes.button}
-            >
-              Home
-            </Button>
-            <Button
-              color="inherit"
-              onClick={() => navigate("/license")}
-              className={classes.button}
-            >
-              Settings
-            </Button>
-            <Button
-              color="inherit"
-              onClick={() => navigate("/database-config")}
-              className={classes.button}
-            >
-              Database Config
-            </Button>
-            <Button
-              color="inherit"
-              onClick={handleLogout}
-              className={classes.button}
-            >
-              Logout
-            </Button>
-          </div>
-        </Toolbar>
-      </AppBar>
-    </ThemeProvider>
+    <AppBar position="static" className={classes.appBar}>
+      <Toolbar className={classes.toolbar}>
+        <img src={DataPigLogo} alt="Data Pig Logo" className={classes.logo} />
+        <div className={classes.buttonContainer}>
+          <Button
+            color="inherit"
+            onClick={() => navigate("/landing")}
+            className={classes.button}
+          >
+            Home
+          </Button>
+          <Button
+            color="inherit"
+            onClick={() => navigate("/license")}
+            className={classes.button}
+          >
+            Settings
+          </Button>
+          <Button
+            color="inherit"
+            onClick={() => navigate("/database-config")}
+            className={classes.button}
+          >
+            Database Config
+          </Button>
+          <Button
+            color="inherit"
+            onClick={handleLogout}
+            className={classes.button}
+          >
+            Logout
+          </Button>
+        </div>
+      </Toolbar>
+    </AppBar>
   );
 }
 

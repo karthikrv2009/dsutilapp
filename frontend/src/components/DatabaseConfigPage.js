@@ -19,7 +19,6 @@ import {
   DialogTitle,
 } from "@mui/material";
 import { makeStyles } from "@mui/styles";
-import { useMsal } from "@azure/msal-react";
 import Header from "./Header"; // Import the Header component
 import PlayCircleOutlineIcon from "@mui/icons-material/PlayCircleOutline";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
@@ -67,15 +66,37 @@ const fetchDataWithToken = async (url, setData, token) => {
   }
 };
 
+const fetchDataWithoutToken = async (url, setData) => {
+  try {
+    const response = await axios.get(url);
+    setData(response.data);
+  } catch (error) {
+    console.error("Error fetching data:", error);
+  }
+};
+
 const DatabaseConfigPage = () => {
-  const { instance, accounts } = useMsal();
   const classes = useStyles();
   const [configs, setConfigs] = useState([
     {
       name: "Config 1",
       url: "http://example.com/db1",
       username: "user1",
+      password: "password1",
       dbIdentifier: "db1",
+      driverClassName: "com.microsoft.sqlserver.jdbc.SQLServerDriver",
+      queueName: "queue1",
+      queueSasToken: "sasToken1",
+      queueEndpoint: "endpoint1",
+      adlsStorageAccountName: "storageAccount1",
+      adlsStorageAccountEndpoint: "storageEndpoint1",
+      adlsStorageAccountSasKey: "sasKey1",
+      adlsContainerName: "container1",
+      adlsFolderName: "folder1",
+      adlsCdmFileName: "cdmFileName1",
+      adlsCdmFilePath: "cdmFilePath1",
+      localCdmFilePath: "localCdmFilePath1",
+      maxThreads: 5,
       initialLoadStatus: 0,
       queueListenerStatus: 0,
     },
@@ -83,17 +104,32 @@ const DatabaseConfigPage = () => {
       name: "Config 2",
       url: "http://example.com/db2",
       username: "user2",
+      password: "password2",
       dbIdentifier: "db2",
+      driverClassName: "com.microsoft.sqlserver.jdbc.SQLServerDriver",
+      queueName: "queue2",
+      queueSasToken: "sasToken2",
+      queueEndpoint: "endpoint2",
+      adlsStorageAccountName: "storageAccount2",
+      adlsStorageAccountEndpoint: "storageEndpoint2",
+      adlsStorageAccountSasKey: "sasKey2",
+      adlsContainerName: "container2",
+      adlsFolderName: "folder2",
+      adlsCdmFileName: "cdmFileName2",
+      adlsCdmFilePath: "cdmFilePath2",
+      localCdmFilePath: "localCdmFilePath2",
+      maxThreads: 10,
       initialLoadStatus: 1,
       queueListenerStatus: 1,
     },
   ]);
   const [open, setOpen] = useState(false);
   const [newConfig, setNewConfig] = useState({
-    dbIdentifier: "",
+    name: "",
     url: "",
     username: "",
     password: "",
+    dbIdentifier: "",
     driverClassName: "com.microsoft.sqlserver.jdbc.SQLServerDriver",
     queueName: "",
     queueSasToken: "",
@@ -106,25 +142,15 @@ const DatabaseConfigPage = () => {
     adlsCdmFileName: "",
     adlsCdmFilePath: "",
     localCdmFilePath: "",
-    maxThreads: 0,
+    maxThreads: 1,
   });
 
-  const getToken = useCallback(async () => {
-    const request = {
-      scopes: ["User.Read"],
-      account: accounts[0],
-    };
-    const response = await instance.acquireTokenSilent(request);
-    return response.accessToken;
-  }, [instance, accounts]);
-
   useEffect(() => {
-    const fetchData = async () => {
-      const token = await getToken();
-      fetchDataWithToken("/api/database-configs", setConfigs, token);
+    const fetchDataAsync = async () => {
+      fetchDataWithoutToken("/api/database-configs", setConfigs);
     };
-    fetchData();
-  }, [getToken]);
+    fetchDataAsync();
+  }, []);
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -143,13 +169,8 @@ const DatabaseConfigPage = () => {
   };
 
   const handleSave = async () => {
-    const token = await getToken();
     try {
-      await axios.post("/api/database-configs/save", newConfig, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      await axios.post("/api/database-configs/save", newConfig);
       setConfigs((prevConfigs) => [...prevConfigs, newConfig]);
       handleClose();
     } catch (error) {
@@ -158,17 +179,10 @@ const DatabaseConfigPage = () => {
   };
 
   const handleStartInitialLoad = async (dbIdentifier) => {
-    const token = await getToken();
     try {
-      await axios.post(
-        `/api/database-configs/start-initail-load`,
-        { dbIdentifier },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      await axios.post(`/api/database-configs/start-initial-load`, {
+        dbIdentifier,
+      });
       alert("Initial Load started successfully");
       // Update the status in the state
       setConfigs((prevConfigs) =>
@@ -184,17 +198,10 @@ const DatabaseConfigPage = () => {
   };
 
   const handleStartQueueListener = async (dbIdentifier) => {
-    const token = await getToken();
     try {
-      await axios.post(
-        `/api/database-configs/start-queue-listener`,
-        { dbIdentifier },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      await axios.post(`/api/database-configs/start-queue-listener`, {
+        dbIdentifier,
+      });
       alert("Queue Listener started successfully");
       // Update the status in the state
       setConfigs((prevConfigs) =>
@@ -214,7 +221,7 @@ const DatabaseConfigPage = () => {
       <Header /> {/* Include the Header component */}
       <Container>
         <Typography variant="h4" className={classes.title}>
-          SynapseLink and Target Database Configurations
+          Database Configurations
         </Typography>
         <Button variant="contained" color="primary" onClick={handleClickOpen}>
           Add New Configuration
@@ -223,24 +230,50 @@ const DatabaseConfigPage = () => {
           <Table>
             <TableHead className={classes.tableHead}>
               <TableRow>
-                <TableCell className={classes.tableCellHead}>
-                  SynapseLink Profile
-                </TableCell>
+                <TableCell className={classes.tableCellHead}>Name</TableCell>
                 <TableCell className={classes.tableCellHead}>URL</TableCell>
                 <TableCell className={classes.tableCellHead}>
                   Username
                 </TableCell>
                 <TableCell className={classes.tableCellHead}>
+                  DB Identifier
+                </TableCell>
+                <TableCell className={classes.tableCellHead}>
+                  Driver Class Name
+                </TableCell>
+                <TableCell className={classes.tableCellHead}>
                   Queue Name
+                </TableCell>
+                <TableCell className={classes.tableCellHead}>
+                  Queue SAS Token
+                </TableCell>
+                <TableCell className={classes.tableCellHead}>
+                  Queue Endpoint
                 </TableCell>
                 <TableCell className={classes.tableCellHead}>
                   ADLS Storage Account Name
                 </TableCell>
-
+                <TableCell className={classes.tableCellHead}>
+                  ADLS Storage Account Endpoint
+                </TableCell>
+                <TableCell className={classes.tableCellHead}>
+                  ADLS Storage Account SAS Key
+                </TableCell>
                 <TableCell className={classes.tableCellHead}>
                   ADLS Container Name
                 </TableCell>
-
+                <TableCell className={classes.tableCellHead}>
+                  ADLS Folder Name
+                </TableCell>
+                <TableCell className={classes.tableCellHead}>
+                  ADLS CDM File Name
+                </TableCell>
+                <TableCell className={classes.tableCellHead}>
+                  ADLS CDM File Path
+                </TableCell>
+                <TableCell className={classes.tableCellHead}>
+                  Local CDM File Path
+                </TableCell>
                 <TableCell className={classes.tableCellHead}>
                   Max Threads
                 </TableCell>
@@ -257,7 +290,7 @@ const DatabaseConfigPage = () => {
                 configs.map((config, index) => (
                   <TableRow key={index}>
                     <TableCell className={classes.tableCellBody}>
-                      {config.dbIdentifier}
+                      {config.name}
                     </TableCell>
                     <TableCell className={classes.tableCellBody}>
                       {config.url}
@@ -266,14 +299,43 @@ const DatabaseConfigPage = () => {
                       {config.username}
                     </TableCell>
                     <TableCell className={classes.tableCellBody}>
+                      {config.dbIdentifier}
+                    </TableCell>
+                    <TableCell className={classes.tableCellBody}>
+                      {config.driverClassName}
+                    </TableCell>
+                    <TableCell className={classes.tableCellBody}>
                       {config.queueName}
                     </TableCell>
-
+                    <TableCell className={classes.tableCellBody}>
+                      {config.queueSasToken}
+                    </TableCell>
+                    <TableCell className={classes.tableCellBody}>
+                      {config.queueEndpoint}
+                    </TableCell>
                     <TableCell className={classes.tableCellBody}>
                       {config.adlsStorageAccountName}
                     </TableCell>
                     <TableCell className={classes.tableCellBody}>
+                      {config.adlsStorageAccountEndpoint}
+                    </TableCell>
+                    <TableCell className={classes.tableCellBody}>
+                      {config.adlsStorageAccountSasKey}
+                    </TableCell>
+                    <TableCell className={classes.tableCellBody}>
                       {config.adlsContainerName}
+                    </TableCell>
+                    <TableCell className={classes.tableCellBody}>
+                      {config.adlsFolderName}
+                    </TableCell>
+                    <TableCell className={classes.tableCellBody}>
+                      {config.adlsCdmFileName}
+                    </TableCell>
+                    <TableCell className={classes.tableCellBody}>
+                      {config.adlsCdmFilePath}
+                    </TableCell>
+                    <TableCell className={classes.tableCellBody}>
+                      {config.localCdmFilePath}
                     </TableCell>
                     <TableCell className={classes.tableCellBody}>
                       {config.maxThreads}
@@ -323,10 +385,10 @@ const DatabaseConfigPage = () => {
             </DialogContentText>
             <form className={classes.form} noValidate autoComplete="off">
               <TextField
-                label="DB Identifier"
+                label="Name"
                 variant="outlined"
-                name="dbIdentifier"
-                value={newConfig.dbIdentifier}
+                name="name"
+                value={newConfig.name}
                 onChange={handleChange}
                 fullWidth
               />
@@ -352,6 +414,14 @@ const DatabaseConfigPage = () => {
                 name="password"
                 type="password"
                 value={newConfig.password}
+                onChange={handleChange}
+                fullWidth
+              />
+              <TextField
+                label="DB Identifier"
+                variant="outlined"
+                name="dbIdentifier"
+                value={newConfig.dbIdentifier}
                 onChange={handleChange}
                 fullWidth
               />
