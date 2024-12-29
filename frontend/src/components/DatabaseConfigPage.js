@@ -21,6 +21,8 @@ import {
 import { makeStyles } from "@mui/styles";
 import { useMsal } from "@azure/msal-react";
 import Header from "./Header"; // Import the Header component
+import PlayCircleOutlineIcon from "@mui/icons-material/PlayCircleOutline";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 
 axios.defaults.baseURL = "http://localhost:8080"; // Set the base URL for Axios
 
@@ -68,7 +70,24 @@ const fetchDataWithToken = async (url, setData, token) => {
 const DatabaseConfigPage = () => {
   const { instance, accounts } = useMsal();
   const classes = useStyles();
-  const [configs, setConfigs] = useState([]);
+  const [configs, setConfigs] = useState([
+    {
+      name: "Config 1",
+      url: "http://example.com/db1",
+      username: "user1",
+      dbIdentifier: "db1",
+      initialLoadStatus: 0,
+      queueListenerStatus: 0,
+    },
+    {
+      name: "Config 2",
+      url: "http://example.com/db2",
+      username: "user2",
+      dbIdentifier: "db2",
+      initialLoadStatus: 1,
+      queueListenerStatus: 1,
+    },
+  ]);
   const [open, setOpen] = useState(false);
   const [newConfig, setNewConfig] = useState({
     name: "",
@@ -113,7 +132,7 @@ const DatabaseConfigPage = () => {
   const handleSave = async () => {
     const token = await getToken();
     try {
-      await axios.post("/api/database-configs", newConfig, {
+      await axios.post("/api/database-configs/save", newConfig, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -122,6 +141,58 @@ const DatabaseConfigPage = () => {
       handleClose();
     } catch (error) {
       console.error("Error saving config:", error);
+    }
+  };
+
+  const handleStartInitialLoad = async (dbIdentifier) => {
+    const token = await getToken();
+    try {
+      await axios.post(
+        `/api/database-configs/start-initail-load`,
+        { dbIdentifier },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      alert("Initial Load started successfully");
+      // Update the status in the state
+      setConfigs((prevConfigs) =>
+        prevConfigs.map((config) =>
+          config.dbIdentifier === dbIdentifier
+            ? { ...config, initialLoadStatus: 1 }
+            : config
+        )
+      );
+    } catch (error) {
+      console.error("Error starting initial load:", error);
+    }
+  };
+
+  const handleStartQueueListener = async (dbIdentifier) => {
+    const token = await getToken();
+    try {
+      await axios.post(
+        `/api/database-configs/start-queue-listener`,
+        { dbIdentifier },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      alert("Queue Listener started successfully");
+      // Update the status in the state
+      setConfigs((prevConfigs) =>
+        prevConfigs.map((config) =>
+          config.dbIdentifier === dbIdentifier
+            ? { ...config, queueListenerStatus: 1 }
+            : config
+        )
+      );
+    } catch (error) {
+      console.error("Error starting queue listener:", error);
     }
   };
 
@@ -144,7 +215,12 @@ const DatabaseConfigPage = () => {
                 <TableCell className={classes.tableCellHead}>
                   Username
                 </TableCell>
-                <TableCell className={classes.tableCellHead}>Actions</TableCell>
+                <TableCell className={classes.tableCellHead}>
+                  Initial Load Status
+                </TableCell>
+                <TableCell className={classes.tableCellHead}>
+                  Queue Listener Status
+                </TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -161,13 +237,34 @@ const DatabaseConfigPage = () => {
                       {config.username}
                     </TableCell>
                     <TableCell className={classes.tableCellBody}>
-                      {/* Add actions like edit and delete here */}
+                      {config.initialLoadStatus === 0 ? (
+                        <PlayCircleOutlineIcon
+                          style={{ color: "blue", cursor: "pointer" }}
+                          onClick={() =>
+                            handleStartInitialLoad(config.dbIdentifier)
+                          }
+                        />
+                      ) : (
+                        <CheckCircleIcon style={{ color: "green" }} />
+                      )}
+                    </TableCell>
+                    <TableCell className={classes.tableCellBody}>
+                      {config.queueListenerStatus === 0 ? (
+                        <PlayCircleOutlineIcon
+                          style={{ color: "blue", cursor: "pointer" }}
+                          onClick={() =>
+                            handleStartQueueListener(config.dbIdentifier)
+                          }
+                        />
+                      ) : (
+                        <CheckCircleIcon style={{ color: "green" }} />
+                      )}
                     </TableCell>
                   </TableRow>
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={4} className={classes.tableCellBody}>
+                  <TableCell colSpan={6} className={classes.tableCellBody}>
                     No data available
                   </TableCell>
                 </TableRow>

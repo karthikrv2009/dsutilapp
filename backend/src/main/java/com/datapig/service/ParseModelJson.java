@@ -51,7 +51,7 @@ public class ParseModelJson {
 
     private static final Logger logger = LoggerFactory.getLogger(ParseModelJson.class);
 
-    public List<ModelTable> parseModelJson() {
+    public List<ModelTable> parseModelJson(String dbIdentifier) {
         String modelJSONPath = encryptedPropertyReader.getProperty("LOCAL_MOLDEL_JSON");
         File file = new File(modelJSONPath);
         StringBuilder content = new StringBuilder(); // To accumulate the file content
@@ -111,7 +111,7 @@ public class ParseModelJson {
         logger.info("Version: " + root.getVersion());
 
         Map<String, Map<String, String>> sqlTypeMap = createSqlTypeMap(root);
-        List<MetaDataCatlog> existingMetaDataCatlog = metaDataCatlogService.findAll();
+        List<MetaDataCatlog> existingMetaDataCatlog = metaDataCatlogService.findAllByDbIdentifier(dbIdentifier);
         Set<String> existingTables = new HashSet<String>();
 
         for (MetaDataCatlog catalog : existingMetaDataCatlog) {
@@ -125,20 +125,21 @@ public class ParseModelJson {
                 String dataFrame = values.get("dataFrame");
                 String selectQuery = values.get("selectQuery");
                 String columnNames = values.get("columnNames");
-                jDBCTemplateUtiltiy.createTableIfNotExists(tablename, dataFrame);
-                loadMetaDataCatlog(tablename, selectQuery, dataFrame, columnNames);
+                jDBCTemplateUtiltiy.createTableIfNotExists(tablename, dataFrame, dbIdentifier);
+                loadMetaDataCatlog(tablename, selectQuery, dataFrame, columnNames, dbIdentifier);
             }
         }
         return resultTable;
     }
 
     private MetaDataCatlog loadMetaDataCatlog(String tablename, String selectQuery, String dataFrame,
-            String columnNames) {
+            String columnNames, String dbIdentifier) {
         MetaDataCatlog catalog = new MetaDataCatlog();
         catalog.setTableName(tablename);
         catalog.setColumnNames(columnNames);
         catalog.setDataFrame(dataFrame);
         catalog.setSelectColumn(selectQuery);
+        catalog.setDbIdentifier(dbIdentifier);
         catalog = metaDataCatlogService.save(catalog);
         return catalog;
     }

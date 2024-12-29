@@ -5,9 +5,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
+import com.datapig.component.DynamicDataSourceManager;
+
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+
+import javax.sql.DataSource;
 
 import org.slf4j.Logger;
 
@@ -19,9 +23,19 @@ public class JDBCTemplateUtiltiy {
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
 
+	@Autowired
+	private DynamicDataSourceManager dynamicDataSourceManager;
+
+	public JdbcTemplate getJdbcTemplate(String dbIdentifier) {
+		// Get the DataSource from DynamicDataSourceManager
+		DataSource dataSource = dynamicDataSourceManager.getDataSource(dbIdentifier);
+		// Create and return a new JdbcTemplate based on the DataSource
+		return new JdbcTemplate(dataSource);
+	}
+
 	public Set<String> getTableInFolder(String folderName, String DATA_SOURCE) {
 		Set<String> tables = new LinkedHashSet<>();
-		List<String> tableNames =null;
+		List<String> tableNames = null;
 		try {
 			String sql = "SELECT tablename\r\n"
 					+ "			FROM\r\n"
@@ -47,7 +61,7 @@ public class JDBCTemplateUtiltiy {
 			// table_schema = ?";
 			logger.debug("Executing SQL query: {}", sql);
 			tableNames = jdbcTemplate.query(sql, (rs, rowNum) -> rs.getString("tablename"));
-			
+
 			logger.info("Tables retrieved for folder {}: {}", folderName, tables);
 		} catch (Exception e) {
 			logger.error("An error occurred while retrieving tables for folder {}: {}", folderName, e.getMessage(), e);
@@ -55,7 +69,8 @@ public class JDBCTemplateUtiltiy {
 		return new LinkedHashSet<>(tableNames);
 	}
 
-	public void dropStagingTable(String tableName) {
+	public void dropStagingTable(String tableName, String dbIdentifier) {
+		jdbcTemplate = getJdbcTemplate(dbIdentifier);
 		String dropTableSQL = "IF EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = '_staging_"
 				+ tableName + "') " +
 				"BEGIN " +
@@ -66,7 +81,8 @@ public class JDBCTemplateUtiltiy {
 
 	}
 
-	public void createTableIfNotExists(String tableName, String dataFrame) {
+	public void createTableIfNotExists(String tableName, String dataFrame, String dbIdentifier) {
+		jdbcTemplate = getJdbcTemplate(dbIdentifier);
 		String checkTableSQL = "SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = ?";
 		String createTableSQL = "CREATE TABLE dbo." + tableName + " (" + dataFrame + ")";
 
@@ -79,13 +95,14 @@ public class JDBCTemplateUtiltiy {
 			logger.info("Table created: {}", tableName);
 
 			// Create indexes
-			createIndexes(tableName);
+			createIndexes(tableName, dbIdentifier);
 		} else {
 			logger.info("Table already exists: {}", tableName);
 		}
 	}
 
-	private void createIndexes(String tableName) {
+	private void createIndexes(String tableName, String dbIdentifier) {
+		jdbcTemplate = getJdbcTemplate(dbIdentifier);
 		String createIdIndexSQL = "CREATE UNIQUE INDEX dbo_" + tableName + "_Id_idx ON dbo." + tableName
 				+ "(Id) WITH (ONLINE=ON)";
 		String createRecIdIndexSQL = "CREATE UNIQUE INDEX dbo_" + tableName + "_RecId_idx ON dbo." + tableName

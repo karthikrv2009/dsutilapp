@@ -16,12 +16,15 @@ public class FolderSyncStatus {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id; // Added ID to uniquely identify rows
 
+    @Column(name = "db_identifier", nullable = false, length = 50)
+    private String dbIdentifier;
+
     @Column(name = "folder", length = 50)
     private String folder;
 
     @Column(name = "tablename", length = 50)
     private String tableName;
- 
+
     @Column(name = "copystatus")
     private Short copyStatus;
 
@@ -57,6 +60,13 @@ public class FolderSyncStatus {
         this.copyStatus = copyStatus;
     }
 
+    public String getDbIdentifier() {
+        return dbIdentifier;
+    }
+
+    public void setDbIdentifier(String dbIdentifier) {
+        this.dbIdentifier = dbIdentifier;
+    }
+
     // Getters and Setters
 }
-

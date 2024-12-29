@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
-
 import java.util.List;
 import java.util.TreeSet;
 import java.util.Comparator;
@@ -26,9 +25,10 @@ public class MetaDataPointerService {
     @Autowired
     private FolderSyncStatusRepository folderSyncStatusRepository;
 
-    public Long count(){
+    public Long count() {
         return metaDataPointerRepository.count();
     }
+
     public List<MetaDataPointer> findAll() {
         return metaDataPointerRepository.findAll();
     }
@@ -39,29 +39,29 @@ public class MetaDataPointerService {
 
     public MetaDataPointer getFirstRecordByStageStatus(Short stageStatus) {
         Pageable pageable = PageRequest.of(0, 1); // Fetch only one record
-        List<MetaDataPointer> results = metaDataPointerRepository.findByStageStatusOrderByAdlsCreationTimestampAsc(stageStatus, pageable);
+        List<MetaDataPointer> results = metaDataPointerRepository
+                .findByStageStatusOrderByAdlsCreationTimestampAsc(stageStatus, pageable);
         return results.isEmpty() ? null : results.get(0); // Return the first record or null if no result
     }
 
-    public DBSnapshotWidget getDBSnapshotWidget(){
-        DBSnapshotWidget dbSnapshotWidget =new DBSnapshotWidget();
-        Short stagestatus=1;
+    public DBSnapshotWidget getDBSnapshotWidget() {
+        DBSnapshotWidget dbSnapshotWidget = new DBSnapshotWidget();
+        Short stagestatus = 1;
         MetaDataPointer currentpointer = getFirstRecordByStageStatus(stagestatus);
         MetaDataPointer latestpointer = metaDataPointerRepository.findMaxAdlsCreationTimestamp();
-        long pendingPackages=metaDataPointerRepository.countByStageStatus(stagestatus);
-        Short copystatus=0;
-        long pendingTables=folderSyncStatusRepository.countByCopyStatus(copystatus);
-        stagestatus=2;
-        long completedPackages=metaDataPointerRepository.countByStageStatus(stagestatus);
-        if(currentpointer!=null){
+        long pendingPackages = metaDataPointerRepository.countByStageStatus(stagestatus);
+        Short copystatus = 0;
+        long pendingTables = folderSyncStatusRepository.countByCopyStatus(copystatus);
+        stagestatus = 2;
+        long completedPackages = metaDataPointerRepository.countByStageStatus(stagestatus);
+        if (currentpointer != null) {
             dbSnapshotWidget.setLastProcessedfolder(currentpointer.getFolderName());
         }
-        
-        if(latestpointer!=null){
+
+        if (latestpointer != null) {
             dbSnapshotWidget.setLatestADLSFolderAvailable(latestpointer.getFolderName());
             dbSnapshotWidget.setLastProcessedfolder(latestpointer.getFolderName());
-        }
-        else{
+        } else {
             dbSnapshotWidget.setLatestADLSFolderAvailable("None");
         }
         dbSnapshotWidget.setPendingNumberPackages(pendingPackages);
@@ -71,18 +71,35 @@ public class MetaDataPointerService {
     }
 
     public TreeSet<MetaDataPointer> getMetaDataPointerBystageStatus(Short stageStatus) {
-        TreeSet<MetaDataPointer> metaDataPointer=null;
+        TreeSet<MetaDataPointer> metaDataPointer = null;
         List<MetaDataPointer> entityOptional = metaDataPointerRepository.findBystageStatus(stageStatus);
-        if(entityOptional!=null){
-            metaDataPointer=new TreeSet<>(Comparator.comparing(MetaDataPointer::getAdlscreationtimestamp).thenComparing(MetaDataPointer::getFolderName));
+        if (entityOptional != null) {
+            metaDataPointer = new TreeSet<>(Comparator.comparing(MetaDataPointer::getAdlscreationtimestamp)
+                    .thenComparing(MetaDataPointer::getFolderName));
             metaDataPointer.addAll(entityOptional);
         }
         return metaDataPointer;
     }
 
-    public MetaDataPointer getMetaDataPointer(String folder){
-       return metaDataPointerRepository.findByfolderName(folder);
+    public TreeSet<MetaDataPointer> getMetaDataPointerBystageStatusandDbidentifier(Short stageStatus,
+            String dbIdentifier) {
+        TreeSet<MetaDataPointer> metaDataPointer = null;
+        List<MetaDataPointer> entityOptional = metaDataPointerRepository.findBystageStatusAndDbIdentifier(stageStatus,
+                dbIdentifier);
+        if (entityOptional != null) {
+            metaDataPointer = new TreeSet<>(Comparator.comparing(MetaDataPointer::getAdlscreationtimestamp)
+                    .thenComparing(MetaDataPointer::getFolderName));
+            metaDataPointer.addAll(entityOptional);
+        }
+        return metaDataPointer;
+    }
+
+    public MetaDataPointer getMetaDataPointer(String folder) {
+        return metaDataPointerRepository.findByfolderName(folder);
+    }
+
+    public MetaDataPointer getMetaDataPointerBydbIdentifierAndFolder(String dbIdentifier, String folder) {
+        return metaDataPointerRepository.findBydbIdentifierAndFolderName(dbIdentifier, folder);
     }
 
 }
-

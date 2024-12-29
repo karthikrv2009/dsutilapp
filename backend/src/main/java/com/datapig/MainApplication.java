@@ -25,7 +25,7 @@ public class MainApplication implements CommandLineRunner {
 
     @Autowired
     private InitialLoadService initialLoadService;
-    
+
     @Autowired
     private ParseModelJson parseModelJson;
 
@@ -34,36 +34,37 @@ public class MainApplication implements CommandLineRunner {
 
     @Autowired
     private AzureQueueListenerService azureQueueListenerService;
-    
+
     @Autowired
     private ModelJsonDownloader modelJsonDownloader;
 
     @Override
     public void run(String... args) {
-    
-        
-        IntialLoad initialLoad=initialLoadService.getIntialLoad("DBSynctUtilInitalLoad");
-        if(initialLoad==null){
-        if(modelJsonDownloader.downloadFile()){
-            parseModelJson.parseModelJson();
-            initialLoad=new IntialLoad();
-            initialLoad.setName("DBSynctUtilInitalLoad");
-            initialLoad.setStatus(0);
-            initialLoadService.save(initialLoad);
-        }
-       }
 
-        if(initialLoad!=null){
-            if((initialLoad.getStatus() == 0) || (initialLoad.getStatus() == 1) ){
-                aldsMetaDataPointerLoadService.load();    
-            }
-        }
-        initialLoad=initialLoadService.getIntialLoad("DBSynctUtilInitalLoad");
-        if(initialLoad.getStatus()==2){
-           // azureQueueListenerService.startQueueListener();
-        }
+        /*
+         * IntialLoad
+         * initialLoad=initialLoadService.getIntialLoad("DBSynctUtilInitalLoad");
+         * if(initialLoad==null){
+         * if(modelJsonDownloader.downloadFile()){
+         * parseModelJson.parseModelJson();
+         * initialLoad=new IntialLoad();
+         * initialLoad.setName("DBSynctUtilInitalLoad");
+         * initialLoad.setStatus(0);
+         * initialLoadService.save(initialLoad);
+         * }
+         * }
+         * 
+         * if(initialLoad!=null){
+         * if((initialLoad.getStatus() == 0) || (initialLoad.getStatus() == 1) ){
+         * aldsMetaDataPointerLoadService.load();
+         * }
+         * }
+         * initialLoad=initialLoadService.getIntialLoad("DBSynctUtilInitalLoad");
+         * if(initialLoad.getStatus()==2){
+         * // azureQueueListenerService.startQueueListener();
+         * }
+         */
     }
-    
 
     public static void main(String[] args) {
         SpringApplication.run(MainApplication.class, args);

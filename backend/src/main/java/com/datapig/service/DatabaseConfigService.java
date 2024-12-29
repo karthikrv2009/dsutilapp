@@ -26,10 +26,11 @@ public class DatabaseConfigService {
         return databaseConfigRepository.findByDbIdentifier(dbIdentifier);
     }
 
-    public void saveDatabaseConfig(DatabaseConfig databaseConfig) {
-        databaseConfigRepository.save(databaseConfig);
+    public DatabaseConfig saveDatabaseConfig(DatabaseConfig databaseConfig) {
+        DatabaseConfig newDatabaseConfig = databaseConfigRepository.save(databaseConfig);
         dynamicDataSourceManager.addDataSource(databaseConfig.getDbIdentifier(), databaseConfig.getUrl(),
                 databaseConfig.getUsername(), databaseConfig.getPassword());
+        return newDatabaseConfig;
 
     }
 

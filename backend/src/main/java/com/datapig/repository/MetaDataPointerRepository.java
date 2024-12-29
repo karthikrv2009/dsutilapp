@@ -11,19 +11,23 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
-
 @Repository
 public interface MetaDataPointerRepository extends JpaRepository<MetaDataPointer, String> {
 
     List<MetaDataPointer> findBystageStatus(Short stageStatus);
-    
+
+    List<MetaDataPointer> findBystageStatusAndDbIdentifier(Short stageStatus, String dbIdentifier);
+
     MetaDataPointer findByfolderName(String folderName);
 
     @Query("SELECT m FROM MetaDataPointer m WHERE m.adlscreationtimestamp = (SELECT MAX(m2.adlscreationtimestamp) FROM MetaDataPointer m2)")
     MetaDataPointer findMaxAdlsCreationTimestamp();
 
     @Query("SELECT m FROM MetaDataPointer m WHERE m.stageStatus = :stageStatus ORDER BY m.adlscreationtimestamp ASC")
-    List<MetaDataPointer> findByStageStatusOrderByAdlsCreationTimestampAsc(@Param("stageStatus") Short stageStatus, Pageable pageable);
-        
+    List<MetaDataPointer> findByStageStatusOrderByAdlsCreationTimestampAsc(@Param("stageStatus") Short stageStatus,
+            Pageable pageable);
+
+    MetaDataPointer findBydbIdentifierAndFolderName(String dbIdentifier, String folderName);
+
     int countByStageStatus(Short stageStatus);
 }

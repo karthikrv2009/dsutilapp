@@ -22,10 +22,23 @@ public class MetaDataCatlogService {
         return metaDataCatlogRepository.findAll();
     }
 
-    public Set<String> getAllTableName(){
-        List<MetaDataCatlog> metaDataCatlogs=metaDataCatlogRepository.findAll();
-        Set<String> tableNames=new HashSet<String>();
-        for(MetaDataCatlog metaDataCatlog:metaDataCatlogs){
+    public Set<String> getAllTableName() {
+        List<MetaDataCatlog> metaDataCatlogs = metaDataCatlogRepository.findAll();
+        Set<String> tableNames = new HashSet<String>();
+        for (MetaDataCatlog metaDataCatlog : metaDataCatlogs) {
+            tableNames.add(metaDataCatlog.getTableName());
+        }
+        return tableNames;
+    }
+
+    public List<MetaDataCatlog> findAllByDbIdentifier(String dbIdentifier) {
+        return metaDataCatlogRepository.findByDbIdentifier(dbIdentifier);
+    }
+
+    public Set<String> getAllTableNamesByDbIdentifier(String dbIdentifier) {
+        List<MetaDataCatlog> metaDataCatlogs = metaDataCatlogRepository.findByDbIdentifier(dbIdentifier);
+        Set<String> tableNames = new HashSet<String>();
+        for (MetaDataCatlog metaDataCatlog : metaDataCatlogs) {
             tableNames.add(metaDataCatlog.getTableName());
         }
         return tableNames;
@@ -40,13 +53,23 @@ public class MetaDataCatlogService {
         return entityOptional.orElse(null); // Return the entity or null if not found
     }
 
-    public List<MetaDataCatlog> findBylastCopyStatus(short lastCopyStatus){
-        List<MetaDataCatlog> metaDataCatlogs=metaDataCatlogRepository.findBylastCopyStatus(lastCopyStatus);
+    public MetaDataCatlog getMetaDataCatlogByTableNameAndDbIdentifier(String tableName, String dbIdentifier) {
+        Optional<MetaDataCatlog> entityOptional = metaDataCatlogRepository.findByTableNameAndDbIdentifier(tableName,
+                dbIdentifier);
+        return entityOptional.orElse(null); // Return the entity or null if not found
+    }
+
+    public List<MetaDataCatlog> findBylastCopyStatus(short lastCopyStatus) {
+        List<MetaDataCatlog> metaDataCatlogs = metaDataCatlogRepository.findBylastCopyStatus(lastCopyStatus);
         return metaDataCatlogs;
     }
 
     public Integer getRowCount(String tableName) {
         return metaDataCatlogRepository.getRowCountByTableName(tableName);
+    }
+
+    public List<MetaDataCatlog> findBylastCopyStatusAndDbIdentifier(short lastCopyStatus, String dbIdentifier) {
+        return metaDataCatlogRepository.findBylastCopyStatusAndDbIdentifier(lastCopyStatus, dbIdentifier);
     }
 
 }

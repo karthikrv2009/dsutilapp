@@ -1,6 +1,5 @@
 package com.datapig.entity;
 
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -37,6 +36,16 @@ public class MetaDataCatlog {
     @Column(name = "quarintine", nullable = false, columnDefinition = "int default 0")
     private int quarintine;
 
+    @Column(name = "db_identifier", nullable = false, length = 50)
+    private String dbIdentifier;
+
+    public String getDbIdentifier() {
+        return dbIdentifier;
+    }
+
+    public void setDbIdentifier(String dbIdentifier) {
+        this.dbIdentifier = dbIdentifier;
+    }
 
     public String getTableName() {
         return tableName;
@@ -78,8 +87,6 @@ public class MetaDataCatlog {
         this.lastUpdatedFolder = lastUpdatedFolder;
     }
 
-
-
     public LocalDateTime getLastStartCopyDate() {
         return lastStartCopyDate;
     }
@@ -95,7 +102,6 @@ public class MetaDataCatlog {
     public void setLastEndCopyDate(LocalDateTime lastEndCopyDate) {
         this.lastEndCopyDate = lastEndCopyDate;
     }
-
 
     @Column(name = "LastStartCopyDate")
     private LocalDateTime lastStartCopyDate;
@@ -126,5 +132,5 @@ public class MetaDataCatlog {
     public void setQuarintine(int quarintine) {
         this.quarintine = quarintine;
     }
-    
+
 }

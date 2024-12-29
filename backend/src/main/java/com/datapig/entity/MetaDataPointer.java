@@ -21,6 +21,17 @@ public class MetaDataPointer {
     @Column(name = "stageStatus", nullable = false)
     private Short stageStatus;
 
+    @Column(name = "db_identifier", nullable = false, length = 50)
+    private String dbIdentifier;
+
+    public String getDbIdentifier() {
+        return dbIdentifier;
+    }
+
+    public void setDbIdentifier(String dbIdentifier) {
+        this.dbIdentifier = dbIdentifier;
+    }
+
     public String getEnvironment() {
         return environment;
     }
@@ -42,7 +53,7 @@ public class MetaDataPointer {
 
     @Column(name = "StorageAccount", length = 100)
     private String storageAccount;
-    
+
     public String getFolderName() {
         return folderName;
     }
@@ -70,7 +81,6 @@ public class MetaDataPointer {
     @Column(name = "stagestarttime")
     private LocalDateTime stageStartTime;
 
-    
     @Column(name = "stageendtime")
     private LocalDateTime stageEndTime;
 
@@ -89,7 +99,5 @@ public class MetaDataPointer {
     public void setStageEndTime(LocalDateTime stageEndTime) {
         this.stageEndTime = stageEndTime;
     }
-
-
 
 }

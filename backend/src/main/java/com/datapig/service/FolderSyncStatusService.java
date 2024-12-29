@@ -48,14 +48,34 @@ public class FolderSyncStatusService {
         return entityOptional;
     }
 
+    public List<FolderSyncStatus> getFolderSyncStatusBycopyStatusandDbidentifier(Short copyStatus,
+            String dbIdentifier) {
+        List<FolderSyncStatus> entityOptional = folderSyncStatusRepository.findBycopyStatusAndDbIdentifier(copyStatus,
+                dbIdentifier);
+        return entityOptional;
+    }
+
     public List<FolderSyncStatus> getFolderSyncStatusByfolder(String folder) {
         List<FolderSyncStatus> entityOptional = folderSyncStatusRepository.findByfolder(folder);
+        return entityOptional;
+    }
+
+    public List<FolderSyncStatus> getFolderSyncStatusByfolderAndDbIdentifier(String folder, String dbIdentifier) {
+        List<FolderSyncStatus> entityOptional = folderSyncStatusRepository.findByfolderAndDbIdentifier(folder,
+                dbIdentifier);
         return entityOptional;
     }
 
     public FolderSyncStatus getFolderSyncStatusOnFolderAndTableName(String folder, String tableName) {
         FolderSyncStatus folderSyncStatus = folderSyncStatusRepository.getFolderSyncStatusOnFolderAndTableName(folder,
                 tableName);
+        return folderSyncStatus;
+    }
+
+    public FolderSyncStatus getFolderSyncStatusOnFolderAndTableNameAndDBIdentifier(String folder, String tableName,
+            String dbIdentifier) {
+        FolderSyncStatus folderSyncStatus = folderSyncStatusRepository
+                .getFolderSyncStatusOnFolderAndTableNameAndDBIdentifier(folder, tableName, dbIdentifier);
         return folderSyncStatus;
     }
 

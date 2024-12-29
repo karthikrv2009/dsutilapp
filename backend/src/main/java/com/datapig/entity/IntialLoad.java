@@ -8,13 +8,12 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.persistence.Column;
 
-
 @Entity
 @Table(name = "IntialLoad")
 public class IntialLoad {
-    
+
     @Id
-    @Column(name="name")
+    @Column(name = "name")
     private String name;
 
     @Column(name = "starttimestamp")
@@ -23,19 +22,29 @@ public class IntialLoad {
     @Column(name = "endtimestamp")
     private LocalDateTime endtimestamp;
 
-    @Column(name="status")
+    @Column(name = "status")
     private int status;
 
-    @Column(name="totalpackages")
+    @Column(name = "totalpackages")
     private long totalpackages;
 
-    @Column (name="stagestarttime")
+    @Column(name = "stagestarttime")
     private LocalDateTime stagestarttime;
 
-    @Column (name="stageendtime")
+    @Column(name = "stageendtime")
     private LocalDateTime stageendtime;
 
-    
+    @Column(name = "db_identifier", nullable = false, length = 50)
+    private String dbIdentifier;
+
+    public void setDbIdentifier(String dbIdentifier) {
+        this.dbIdentifier = dbIdentifier;
+    }
+
+    public String getDbIdentifier() {
+        return dbIdentifier;
+    }
+
     public LocalDateTime getStarttimestamp() {
         return starttimestamp;
     }
@@ -60,7 +69,6 @@ public class IntialLoad {
         this.status = status;
     }
 
-
     public LocalDateTime getStagestarttime() {
         return stagestarttime;
     }
@@ -77,12 +85,9 @@ public class IntialLoad {
         this.stageendtime = stageendtime;
     }
 
-
-    @Column (name="stagestatus")
+    @Column(name = "stagestatus")
     private int stagestatus;
 
-
-    
     public String getName() {
         return name;
     }
@@ -106,7 +111,5 @@ public class IntialLoad {
     public void setTotalpackages(long totalpackages) {
         this.totalpackages = totalpackages;
     }
-
-
 
 }

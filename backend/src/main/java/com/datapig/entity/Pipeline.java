@@ -17,9 +17,9 @@ public class Pipeline {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id; 
+    private Long id;
 
-    @Column(name = "pipelineid",columnDefinition = "uniqueidentifier", nullable = false)
+    @Column(name = "pipelineid", columnDefinition = "uniqueidentifier", nullable = false)
     private String pipelineid;
 
     @Column(name = "foldername", length = 50)
@@ -33,7 +33,18 @@ public class Pipeline {
 
     @Column(name = "staus")
     private int status;
-    
+
+    @Column(name = "db_identifier", nullable = false, length = 50)
+    private String dbIdentifier;
+
+    public String getDbIdentifier() {
+        return dbIdentifier;
+    }
+
+    public void setDbIdentifier(String dbIdentifier) {
+        this.dbIdentifier = dbIdentifier;
+    }
+
     public Long getId() {
         return id;
     }
@@ -49,7 +60,6 @@ public class Pipeline {
     public void setPipelineid(String pipelineid) {
         this.pipelineid = pipelineid;
     }
-
 
     public LocalDateTime getPipelineStartTime() {
         return pipelineStartTime;
@@ -67,7 +77,6 @@ public class Pipeline {
         this.pipelineEndTime = pipelineEndTime;
     }
 
-    
     public int getStatus() {
         return status;
     }
@@ -84,5 +93,4 @@ public class Pipeline {
         this.folderName = folderName;
     }
 
-    
 }

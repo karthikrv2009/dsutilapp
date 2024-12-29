@@ -16,11 +16,22 @@ public class HealthMetrics {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id; // Added ID to uniquely identify rows
 
-    @Column(name = "pipelineid",columnDefinition = "uniqueidentifier", nullable = false)
+    @Column(name = "db_identifier", nullable = false, length = 50)
+    private String dbIdentifier;
+
+    @Column(name = "pipelineid", columnDefinition = "uniqueidentifier", nullable = false)
     private String pipelineId;
 
     @Column(name = "foldername", length = 50)
     private String folderName;
+
+    public String getDbIdentifier() {
+        return dbIdentifier;
+    }
+
+    public void setDbIdentifier(String dbIdentifier) {
+        this.dbIdentifier = dbIdentifier;
+    }
 
     @Column(name = "tablename", length = 50)
     private String tableName;
@@ -28,13 +39,13 @@ public class HealthMetrics {
     @Column(name = "methodname", length = 50)
     private String methodname;
 
-    @Column(name="timespent")
+    @Column(name = "timespent")
     private Long timespent;
 
     @Column(name = "status")
     private int status;
 
-    @Column (name="rcount")
+    @Column(name = "rcount")
     private Long rcount;
 
     public Long getId() {
@@ -45,13 +56,10 @@ public class HealthMetrics {
         this.id = id;
     }
 
-    
-
     public String getTableName() {
         return tableName;
     }
 
-    
     public String getFolderName() {
         return folderName;
     }
@@ -87,7 +95,7 @@ public class HealthMetrics {
     public void setStatus(int status) {
         this.status = status;
     }
-    
+
     public void setTimespent(Long timespent) {
         this.timespent = timespent;
     }

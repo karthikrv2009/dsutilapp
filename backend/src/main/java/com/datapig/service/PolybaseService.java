@@ -56,7 +56,8 @@ public class PolybaseService {
 
         int maxCount = Integer.parseInt(encryptedPropertyReader.getProperty("MAX_THREAD_COUNT"));
         List<FolderSyncStatus> setfolderSyncStatus = folderSyncStatusService
-                .getFolderSyncStatusByfolder(metaDataPointer.getFolderName());
+                .getFolderSyncStatusByfolderAndDbIdentifier(metaDataPointer.getFolderName(),
+                        metaDataPointer.getDbIdentifier());
 
         List<FolderSyncStatus> folderNeedsToBeProcessed = new ArrayList<FolderSyncStatus>();
         for (FolderSyncStatus folderSyncStatus1 : setfolderSyncStatus) {
@@ -162,7 +163,7 @@ public class PolybaseService {
     }
 
     private MetaDataCatlog preMergeActionFolderSyncStatus(FolderSyncStatus folderSyncStatus) {
-        jdbcTemplateUtiltiy.dropStagingTable(folderSyncStatus.getTableName());
+        jdbcTemplateUtiltiy.dropStagingTable(folderSyncStatus.getTableName(), folderSyncStatus.getDbIdentifier());
         Short copyStatus = 2;
         String tableName = folderSyncStatus.getTableName();
         MetaDataCatlog metaDataCatlog = metaDataCatlogService.getmetaDataCatlogServiceBytableName(tableName);

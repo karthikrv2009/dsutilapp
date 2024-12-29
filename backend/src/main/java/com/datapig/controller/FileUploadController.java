@@ -1,5 +1,4 @@
-package com.datapig.controller; 
-
+package com.datapig.controller;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,7 +26,8 @@ public class FileUploadController {
     private ParseModelJson parseModelJsonService;
 
     @PostMapping("/uploadModel")
-    public ResponseEntity<List<ModelTable>> uploadModelFile(@RequestParam("file") MultipartFile file, HttpServletRequest request) {
+    public ResponseEntity<List<ModelTable>> uploadModelFile(@RequestParam("file") MultipartFile file,
+            HttpServletRequest request) {
         // Log request information
         logger.info("Request received from: {}", request.getRemoteAddr());
 
@@ -41,9 +41,9 @@ public class FileUploadController {
             String jsonString = new BufferedReader(new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8))
                     .lines().collect(Collectors.joining("\n"));
             // Invoke the service to parse the file and return the table data
-            List<ModelTable> parsedTables = parseModelJsonService.parseModelJson();
+            // List<ModelTable> parsedTables = parseModelJsonService.parseModelJson();
 
-            return ResponseEntity.ok(parsedTables);
+            return ResponseEntity.ok(null);
         } catch (Exception e) {
             logger.error("Error occurred while processing the file: {}", e.getMessage());
             return ResponseEntity.status(500).body(null);

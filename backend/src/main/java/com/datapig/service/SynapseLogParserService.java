@@ -89,7 +89,7 @@ public class SynapseLogParserService {
                 for (String tableName : tableNamesInAdls) {
                     if (!tableNamesInMetadataCatalogDB.contains(tableName)) {
                         if (modelJsonDownloader.downloadFile()) {
-                            parseModelJson.parseModelJson();
+                            parseModelJson.parseModelJson(metaDataPointer.getDbIdentifier());
                         }
                     }
                     if (!tablesInDB.contains(tableName)) {
@@ -109,7 +109,7 @@ public class SynapseLogParserService {
             if (doesFileExist(directoryClient, targetFileName)) {
 
                 Set<String> tableNamesInAdls = jdbcTemplateUtiltiy
-                        .getTableInFolder(metaDataPointer.getFolderName(),fileSystemName);
+                        .getTableInFolder(metaDataPointer.getFolderName(), fileSystemName);
                 for (String tableName : tableNamesInAdls) {
                     loadFolderSyncStatus(metaDataPointer, tableName);
                 }
