@@ -55,9 +55,9 @@ public class SynapseLogParserService {
     @Autowired
     private MetaDataCatlogService metaDataCatlogService;
 
-    public void startParse(String folderName) {
+    public void startParse(String folderName, String dbIdentifier) {
 
-        Set<String> tableNamesInMetadataCatalogDB = metaDataCatlogService.getAllTableName();
+        Set<String> tableNamesInMetadataCatalogDB = metaDataCatlogService.getAllTableNamesByDbIdentifier(dbIdentifier);
         String fileSystemName = encryptedPropertyReader.getProperty("STORAGE_ACCOUNT");
         String targetFileName = encryptedPropertyReader.getProperty("TARGET_FILENAME");
 
@@ -75,7 +75,7 @@ public class SynapseLogParserService {
                 .buildClient();
 
         // Existing Folder but not staged in FolderSyncStatus
-        TreeSet<MetaDataPointer> existingFoldersNotStaged = existingFolderNotStaged();
+        TreeSet<MetaDataPointer> existingFoldersNotStaged = existingFolderNotStaged(dbIdentifier);
 
         for (MetaDataPointer metaDataPointer : existingFoldersNotStaged) {
             // Get a reference to the directory
@@ -100,7 +100,8 @@ public class SynapseLogParserService {
             }
         }
 
-        MetaDataPointer metaDataPointerInDB = metaDataPointerService.getMetaDataPointer(folderName);
+        MetaDataPointer metaDataPointerInDB = metaDataPointerService
+                .getMetaDataPointerBydbIdentifierAndFolder(dbIdentifier, folderName);
 
         if (metaDataPointerInDB == null) {
             DataLakeDirectoryClient directoryClient = fileSystemClient.getDirectoryClient(folderName);
@@ -123,7 +124,7 @@ public class SynapseLogParserService {
             polybaseService.startSyncInFolder(metaDataPointer);
         }
 
-        TreeSet<MetaDataPointer> metaDataPointers = existingFolderStagedNotComplete();
+        TreeSet<MetaDataPointer> metaDataPointers = existingFolderStagedNotComplete(dbIdentifier);
         for (MetaDataPointer metaDataPointer : metaDataPointers) {
             polybaseService.startSyncInFolder(metaDataPointer);
         }
@@ -184,7 +185,8 @@ public class SynapseLogParserService {
     private List<String> getTablesPerFolderInDB(MetaDataPointer metaDataPointer) {
         List<String> tables = new ArrayList<String>();
         List<FolderSyncStatus> folderSyncStatuss = folderSyncStatusService
-                .getFolderSyncStatusByfolder(metaDataPointer.getFolderName());
+                .getFolderSyncStatusByfolderAndDbIdentifier(metaDataPointer.getFolderName(),
+                        metaDataPointer.getDbIdentifier());
         for (FolderSyncStatus folderSyncStatus : folderSyncStatuss) {
             tables.add(folderSyncStatus.getTableName());
         }
@@ -252,6 +254,7 @@ public class SynapseLogParserService {
         folderSyncStatus.setFolder(metaDataPointer.getFolderName());
         folderSyncStatus.setTableName(tableName);
         folderSyncStatus.setCopyStatus(copyStatus);
+        folderSyncStatus.setDbIdentifier(metaDataPointer.getDbIdentifier());
         folderSyncStatus = folderSyncStatusService.save(folderSyncStatus);
         return folderSyncStatus;
     }
@@ -263,15 +266,17 @@ public class SynapseLogParserService {
         metaDataPointerService.save(metaDataPointer);
     }
 
-    private TreeSet<MetaDataPointer> existingFolderNotStaged() {
+    private TreeSet<MetaDataPointer> existingFolderNotStaged(String dbIdentifier) {
         Short copyStatus = 0;
-        TreeSet<MetaDataPointer> metaDataPointers = metaDataPointerService.getMetaDataPointerBystageStatus(copyStatus);
+        TreeSet<MetaDataPointer> metaDataPointers = metaDataPointerService
+                .getMetaDataPointerBystageStatusandDbidentifier(copyStatus, dbIdentifier);
         return metaDataPointers;
     }
 
-    private TreeSet<MetaDataPointer> existingFolderStagedNotComplete() {
+    private TreeSet<MetaDataPointer> existingFolderStagedNotComplete(String dbIdentifier) {
         Short copyStatus = 1;
-        TreeSet<MetaDataPointer> metaDataPointers = metaDataPointerService.getMetaDataPointerBystageStatus(copyStatus);
+        TreeSet<MetaDataPointer> metaDataPointers = metaDataPointerService
+                .getMetaDataPointerBystageStatusandDbidentifier(copyStatus, dbIdentifier);
         return metaDataPointers;
     }
 

@@ -61,9 +61,11 @@ public class InitialLoadService {
             }
         }
 
-        initialLoad = intitalLoadRepository.findByName(dbIdentifier);
-        if (initialLoad.getStatus() == 2) {
-            azureQueueListenerService.startQueueListener();
-        }
+        /*
+         * initialLoad = intitalLoadRepository.findByName(dbIdentifier);
+         * if (initialLoad.getStatus() == 2) {
+         * azureQueueListenerService.startQueueListener();
+         * }
+         */
     }
 }

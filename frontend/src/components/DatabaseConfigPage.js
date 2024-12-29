@@ -90,10 +90,23 @@ const DatabaseConfigPage = () => {
   ]);
   const [open, setOpen] = useState(false);
   const [newConfig, setNewConfig] = useState({
-    name: "",
+    dbIdentifier: "",
     url: "",
     username: "",
     password: "",
+    driverClassName: "com.microsoft.sqlserver.jdbc.SQLServerDriver",
+    queueName: "",
+    queueSasToken: "",
+    queueEndpoint: "",
+    adlsStorageAccountName: "",
+    adlsStorageAccountEndpoint: "",
+    adlsStorageAccountSasKey: "",
+    adlsContainerName: "",
+    adlsFolderName: "",
+    adlsCdmFileName: "",
+    adlsCdmFilePath: "",
+    localCdmFilePath: "",
+    maxThreads: 0,
   });
 
   const getToken = useCallback(async () => {
@@ -201,7 +214,7 @@ const DatabaseConfigPage = () => {
       <Header /> {/* Include the Header component */}
       <Container>
         <Typography variant="h4" className={classes.title}>
-          Database Configurations
+          SynapseLink and Target Database Configurations
         </Typography>
         <Button variant="contained" color="primary" onClick={handleClickOpen}>
           Add New Configuration
@@ -210,10 +223,26 @@ const DatabaseConfigPage = () => {
           <Table>
             <TableHead className={classes.tableHead}>
               <TableRow>
-                <TableCell className={classes.tableCellHead}>Name</TableCell>
+                <TableCell className={classes.tableCellHead}>
+                  SynapseLink Profile
+                </TableCell>
                 <TableCell className={classes.tableCellHead}>URL</TableCell>
                 <TableCell className={classes.tableCellHead}>
                   Username
+                </TableCell>
+                <TableCell className={classes.tableCellHead}>
+                  Queue Name
+                </TableCell>
+                <TableCell className={classes.tableCellHead}>
+                  ADLS Storage Account Name
+                </TableCell>
+
+                <TableCell className={classes.tableCellHead}>
+                  ADLS Container Name
+                </TableCell>
+
+                <TableCell className={classes.tableCellHead}>
+                  Max Threads
                 </TableCell>
                 <TableCell className={classes.tableCellHead}>
                   Initial Load Status
@@ -228,13 +257,26 @@ const DatabaseConfigPage = () => {
                 configs.map((config, index) => (
                   <TableRow key={index}>
                     <TableCell className={classes.tableCellBody}>
-                      {config.name}
+                      {config.dbIdentifier}
                     </TableCell>
                     <TableCell className={classes.tableCellBody}>
                       {config.url}
                     </TableCell>
                     <TableCell className={classes.tableCellBody}>
                       {config.username}
+                    </TableCell>
+                    <TableCell className={classes.tableCellBody}>
+                      {config.queueName}
+                    </TableCell>
+
+                    <TableCell className={classes.tableCellBody}>
+                      {config.adlsStorageAccountName}
+                    </TableCell>
+                    <TableCell className={classes.tableCellBody}>
+                      {config.adlsContainerName}
+                    </TableCell>
+                    <TableCell className={classes.tableCellBody}>
+                      {config.maxThreads}
                     </TableCell>
                     <TableCell className={classes.tableCellBody}>
                       {config.initialLoadStatus === 0 ? (
@@ -264,7 +306,7 @@ const DatabaseConfigPage = () => {
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={6} className={classes.tableCellBody}>
+                  <TableCell colSpan={19} className={classes.tableCellBody}>
                     No data available
                   </TableCell>
                 </TableRow>
@@ -281,10 +323,10 @@ const DatabaseConfigPage = () => {
             </DialogContentText>
             <form className={classes.form} noValidate autoComplete="off">
               <TextField
-                label="Name"
+                label="DB Identifier"
                 variant="outlined"
-                name="name"
-                value={newConfig.name}
+                name="dbIdentifier"
+                value={newConfig.dbIdentifier}
                 onChange={handleChange}
                 fullWidth
               />
@@ -310,6 +352,111 @@ const DatabaseConfigPage = () => {
                 name="password"
                 type="password"
                 value={newConfig.password}
+                onChange={handleChange}
+                fullWidth
+              />
+              <TextField
+                label="Driver Class Name"
+                variant="outlined"
+                name="driverClassName"
+                value={newConfig.driverClassName}
+                onChange={handleChange}
+                fullWidth
+              />
+              <TextField
+                label="Queue Name"
+                variant="outlined"
+                name="queueName"
+                value={newConfig.queueName}
+                onChange={handleChange}
+                fullWidth
+              />
+              <TextField
+                label="Queue SAS Token"
+                variant="outlined"
+                name="queueSasToken"
+                value={newConfig.queueSasToken}
+                onChange={handleChange}
+                fullWidth
+              />
+              <TextField
+                label="Queue Endpoint"
+                variant="outlined"
+                name="queueEndpoint"
+                value={newConfig.queueEndpoint}
+                onChange={handleChange}
+                fullWidth
+              />
+              <TextField
+                label="ADLS Storage Account Name"
+                variant="outlined"
+                name="adlsStorageAccountName"
+                value={newConfig.adlsStorageAccountName}
+                onChange={handleChange}
+                fullWidth
+              />
+              <TextField
+                label="ADLS Storage Account Endpoint"
+                variant="outlined"
+                name="adlsStorageAccountEndpoint"
+                value={newConfig.adlsStorageAccountEndpoint}
+                onChange={handleChange}
+                fullWidth
+              />
+              <TextField
+                label="ADLS Storage Account SAS Key"
+                variant="outlined"
+                name="adlsStorageAccountSasKey"
+                value={newConfig.adlsStorageAccountSasKey}
+                onChange={handleChange}
+                fullWidth
+              />
+              <TextField
+                label="ADLS Container Name"
+                variant="outlined"
+                name="adlsContainerName"
+                value={newConfig.adlsContainerName}
+                onChange={handleChange}
+                fullWidth
+              />
+              <TextField
+                label="ADLS Folder Name"
+                variant="outlined"
+                name="adlsFolderName"
+                value={newConfig.adlsFolderName}
+                onChange={handleChange}
+                fullWidth
+              />
+              <TextField
+                label="ADLS CDM File Name"
+                variant="outlined"
+                name="adlsCdmFileName"
+                value={newConfig.adlsCdmFileName}
+                onChange={handleChange}
+                fullWidth
+              />
+              <TextField
+                label="ADLS CDM File Path"
+                variant="outlined"
+                name="adlsCdmFilePath"
+                value={newConfig.adlsCdmFilePath}
+                onChange={handleChange}
+                fullWidth
+              />
+              <TextField
+                label="Local CDM File Path"
+                variant="outlined"
+                name="localCdmFilePath"
+                value={newConfig.localCdmFilePath}
+                onChange={handleChange}
+                fullWidth
+              />
+              <TextField
+                label="Max Threads"
+                variant="outlined"
+                name="maxThreads"
+                type="number"
+                value={newConfig.maxThreads}
                 onChange={handleChange}
                 fullWidth
               />

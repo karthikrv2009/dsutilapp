@@ -2,6 +2,7 @@ package com.datapig.controller;
 
 import com.datapig.component.DynamicDataSourceManager;
 import com.datapig.entity.DatabaseConfig;
+import com.datapig.service.AzureQueueListenerService;
 import com.datapig.service.DatabaseConfigService;
 import com.datapig.service.InitialLoadService;
 
@@ -23,6 +24,9 @@ public class DatabaseConfigController {
 
     @Autowired
     private DynamicDataSourceManager dynamicDataSourceManager;
+
+    @Autowired
+    private AzureQueueListenerService azureQueueListenerService;
 
     @GetMapping
     public ResponseEntity<List<DatabaseConfig>> getAllDatabaseConfigs() {
@@ -46,7 +50,8 @@ public class DatabaseConfigController {
 
     @PostMapping("/start-queue-listener")
     public ResponseEntity<String> startQueueListener(@RequestBody String dbIdentifier) {
-        // databaseConfigService.startQueueListener(dbIdentifier);
+        azureQueueListenerService.startQueueListener(dbIdentifier);
+
         return ResponseEntity.ok("Queue Listener started successfully");
     }
 }

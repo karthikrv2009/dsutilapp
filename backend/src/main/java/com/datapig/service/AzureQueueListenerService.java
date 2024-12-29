@@ -33,14 +33,14 @@ public class AzureQueueListenerService {
 
     private Thread listenerThread;
 
-    public void startQueueListener() {
+    public void startQueueListener(String dbIdentifier) {
         String queueName = propertyReader.getProperty("QUEUE_NAME");
         String queueSasToken = propertyReader.getProperty("Queue_SAS_TOKEN");
         String sasQueueUrl = propertyReader.getProperty("SAS_QUEUE_URL");
         String changeLog = propertyReader.getProperty("LOCAL_CHANGE_LOG");
 
         running = true;
-        listenerThread = new Thread(() -> listen(queueName, queueSasToken, sasQueueUrl, changeLog));
+        listenerThread = new Thread(() -> listen(queueName, queueSasToken, sasQueueUrl, changeLog, dbIdentifier));
         listenerThread.start();
         logger.info("Azure Queue Listener started.");
     }
@@ -54,7 +54,8 @@ public class AzureQueueListenerService {
         logger.info("Azure Queue Listener stopped.");
     }
 
-    private void listen(String queueName, String queueSasToken, String sasQueueUrl, String changeLog) {
+    private void listen(String queueName, String queueSasToken, String sasQueueUrl, String changeLog,
+            String dbIdentifier) {
 
         QueueClient queueClient = new QueueClientBuilder()
                 .endpoint(sasQueueUrl)
@@ -65,7 +66,7 @@ public class AzureQueueListenerService {
         while (running) {
             QueueMessageItem message = queueClient.receiveMessage();
             if (message != null) {
-                processMessage(message, changeLog);
+                processMessage(message, changeLog, dbIdentifier);
                 queueClient.deleteMessage(message.getMessageId(), message.getPopReceipt());
             }
 
@@ -78,7 +79,7 @@ public class AzureQueueListenerService {
         }
     }
 
-    private void processMessage(QueueMessageItem message, String changeLog) {
+    private void processMessage(QueueMessageItem message, String changeLog, String dbIdentifier) {
 
         // Decode the binary message to a string
         message.getBody().toString();
@@ -101,7 +102,7 @@ public class AzureQueueListenerService {
                 int endIndex = ("/model.json").length();
                 logger.info("Processing blob: ", blobUrl);
                 String folderName = blobUrl.substring(startIndex, blobUrl.length() - endIndex);
-                synapseLogParserService.startParse(folderName);
+                synapseLogParserService.startParse(folderName, dbIdentifier);
                 // Add your processing logic here
             } else {
                 logger.info("Blob does not match expected pattern: ", blobUrl);

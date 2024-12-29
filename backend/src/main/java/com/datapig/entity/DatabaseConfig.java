@@ -31,6 +31,130 @@ public class DatabaseConfig {
     @Column(name = "driver_class_name", length = 100)
     private String driverClassName = "com.microsoft.sqlserver.jdbc.SQLServerDriver";
 
+    @Column(name = "queue_name", length = 100)
+    private String queueName;
+
+    @Column(name = "queue_sas_token", length = 100)
+    private String queueSasToken;
+
+    @Column(name = "queue_endpoint", length = 100)
+    private String queueEndpoint;
+
+    @Column(name = "adls_storage_account_name", length = 100)
+    private String adlsStorageAccountName;
+
+    @Column(name = "adls_storage_account_endpoint", length = 100)
+    private String adlsStorageAccountEndpoint;
+
+    @Column(name = "adls_storage_account_sas_key", length = 100)
+    private String adlsStorageAccountSasKey;
+
+    @Column(name = "adls_container_name", length = 100)
+    private String adlsContainerName;
+
+    @Column(name = "adls_folder_name", length = 100)
+    private String adlsFolderName;
+
+    @Column(name = "adls_cdm_file_name", length = 100)
+    private String adlsCdmFileName;
+
+    @Column(name = "adls_cdm_file_path", length = 100)
+    private String adlsCdmFilePath;
+
+    @Column(name = "local_cdm_file_path", length = 100)
+    private String localCdmFilePath;
+
+    @Column(name = "max_threads")
+    private int maxThreads;
+
+    public String getQueueName() {
+        return queueName;
+    }
+
+    public void setQueueName(String queueName) {
+        this.queueName = queueName;
+    }
+
+    public String getQueueSasToken() {
+        return queueSasToken;
+    }
+
+    public void setQueueSasToken(String queueSasToken) {
+        this.queueSasToken = queueSasToken;
+    }
+
+    public String getQueueEndpoint() {
+        return queueEndpoint;
+    }
+
+    public void setQueueEndpoint(String queueEndpoint) {
+        this.queueEndpoint = queueEndpoint;
+    }
+
+    public String getAdlsStorageAccountName() {
+        return adlsStorageAccountName;
+    }
+
+    public void setAdlsStorageAccountName(String adlsStorageAccountName) {
+        this.adlsStorageAccountName = adlsStorageAccountName;
+    }
+
+    public String getAdlsStorageAccountEndpoint() {
+        return adlsStorageAccountEndpoint;
+    }
+
+    public void setAdlsStorageAccountEndpoint(String adlsStorageAccountEndpoint) {
+        this.adlsStorageAccountEndpoint = adlsStorageAccountEndpoint;
+    }
+
+    public String getAdlsStorageAccountSasKey() {
+        return adlsStorageAccountSasKey;
+    }
+
+    public void setAdlsStorageAccountSasKey(String adlsStorageAccountSasKey) {
+        this.adlsStorageAccountSasKey = adlsStorageAccountSasKey;
+    }
+
+    public String getAdlsContainerName() {
+        return adlsContainerName;
+    }
+
+    public void setAdlsContainerName(String adlsContainerName) {
+        this.adlsContainerName = adlsContainerName;
+    }
+
+    public String getAdlsFolderName() {
+        return adlsFolderName;
+    }
+
+    public void setAdlsFolderName(String adlsFolderName) {
+        this.adlsFolderName = adlsFolderName;
+    }
+
+    public String getAdlsCdmFileName() {
+        return adlsCdmFileName;
+    }
+
+    public void setAdlsCdmFileName(String adlsCdmFileName) {
+        this.adlsCdmFileName = adlsCdmFileName;
+    }
+
+    public String getAdlsCdmFilePath() {
+        return adlsCdmFilePath;
+    }
+
+    public void setAdlsCdmFilePath(String adlsCdmFilePath) {
+        this.adlsCdmFilePath = adlsCdmFilePath;
+    }
+
+    public String getLocalCdmFilePath() {
+        return localCdmFilePath;
+    }
+
+    public void setLocalCdmFilePath(String localCdmFilePath) {
+        this.localCdmFilePath = localCdmFilePath;
+    }
+
     public Long getId() {
         return id;
     }
@@ -77,6 +201,14 @@ public class DatabaseConfig {
 
     public void setDriverClassName(String driverClassName) {
         this.driverClassName = driverClassName;
+    }
+
+    public int getMaxThreads() {
+        return maxThreads;
+    }
+
+    public void setMaxThreads(int maxThreads) {
+        this.maxThreads = maxThreads;
     }
 
 }

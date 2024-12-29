@@ -7,9 +7,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 
 import com.datapig.component.EncryptedPropertyReader;
+import com.datapig.entity.EnvironmentConfig;
 import com.datapig.entity.HealthMetrics;
 import com.datapig.entity.MetaDataCatlog;
 import com.datapig.entity.Pipeline;
+import com.datapig.service.EnvironmentConfigService;
 import com.datapig.service.FolderSyncStatusService;
 import com.datapig.service.HealthMetricsService;
 import com.datapig.service.MetaDataCatlogService;
@@ -32,7 +34,6 @@ public class DashboardController {
   @Autowired
   MetaDataPointerService metaDataPointerService;
 
-  
   @Autowired
   FolderSyncStatusService folderSyncStatusService;
 
@@ -48,6 +49,8 @@ public class DashboardController {
   @Autowired
   MetaDataCatlogService metaDataCatlogService;
 
+  @Autowired
+  EnvironmentConfigService environmentConfigService;
 
   // Overall MetaDataPointer Snapshot
   @GetMapping("/getDashboardData")
@@ -60,8 +63,8 @@ public class DashboardController {
   @GetMapping("/getCurrentFolderStatus")
   public ResponseEntity<FolderSyncStatusDTO> getCurrentFolerStatus() {
     FolderSyncStatusDTO folderSyncStatusDTO = folderSyncStatusService.getFolerStatusDTO();
-    if(folderSyncStatusDTO==null){
-      folderSyncStatusDTO=new FolderSyncStatusDTO();
+    if (folderSyncStatusDTO == null) {
+      folderSyncStatusDTO = new FolderSyncStatusDTO();
     }
     return ResponseEntity.ok(folderSyncStatusDTO);
   }
@@ -75,7 +78,7 @@ public class DashboardController {
       if (error && pipeline.getStatus() == 3) {
         pipelines.add(pipeline);
       }
-      if (success  && pipeline.getStatus() == 2) {
+      if (success && pipeline.getStatus() == 2) {
         pipelines.add(pipeline);
       }
       if (inprogress && pipeline.getStatus() == 1) {
@@ -97,17 +100,15 @@ public class DashboardController {
   @GetMapping("/getEnvironmentInformation")
   public ResponseEntity<EnvironmentDTO> getEnviormentInformation() {
     EnvironmentDTO environmentDTO = new EnvironmentDTO();
-    environmentDTO.setD365Environment(encryptedPropertyReader.getProperty("D365_ENVIRONMENT"));
-    environmentDTO.setD365EnvironmentURL(encryptedPropertyReader.getProperty("D365_ENVIRONMENT_URL"));
-    environmentDTO.setAdlsStorageAccount(encryptedPropertyReader.getProperty("STRORAGE_ACCOUNT_URL"));
-    environmentDTO.setContainerName(encryptedPropertyReader.getProperty("STORAGE_ACCOUNT"));
-    environmentDTO.setMax_thread_count(Integer.parseInt(encryptedPropertyReader.getProperty("MAX_THREAD_COUNT")));
+    EnvironmentConfig environmentConfig = environmentConfigService.getEnvironmentConfig();
+    environmentDTO.setD365Environment(environmentConfig.getD365Environment());
+    environmentDTO.setD365EnvironmentURL(environmentConfig.getD365EnvironmentUrl());
     return ResponseEntity.ok(environmentDTO);
   }
 
   // Get MetaDataCatalog Information
   @GetMapping("/getMetaDataCatalogInfo")
-  
+
   public ResponseEntity<List<MetaDataCatalogDTO>> getMetaDataCatalogInfo() {
     List<MetaDataCatalogDTO> metaDataCatalogDTOs = new ArrayList<MetaDataCatalogDTO>();
     List<MetaDataCatlog> metaDataCatlogs = metaDataCatlogService.findAll();
