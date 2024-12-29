@@ -62,7 +62,8 @@ public class PolybaseService {
         List<FolderSyncStatus> folderNeedsToBeProcessed = new ArrayList<FolderSyncStatus>();
         for (FolderSyncStatus folderSyncStatus1 : setfolderSyncStatus) {
             MetaDataCatlog metaDataCatlog = metaDataCatlogService
-                    .getmetaDataCatlogServiceBytableName(folderSyncStatus1.getTableName());
+                    .getMetaDataCatlogByTableNameAndDbIdentifier(folderSyncStatus1.getTableName(),
+                            folderSyncStatus1.getDbIdentifier());
             if ((metaDataCatlog.getLastCopyStatus() != 3) && (metaDataCatlog.getQuarintine() != 1)) {
                 if (folderSyncStatus1.getCopyStatus() == 0) {
                     folderNeedsToBeProcessed.add(folderSyncStatus1);
@@ -74,7 +75,7 @@ public class PolybaseService {
 
         for (List<FolderSyncStatus> chunk : chunksofFolderSyncStatus) {
 
-            Pipeline pipeline = createNewPipeline(metaDataPointer.getFolderName());
+            Pipeline pipeline = createNewPipeline(metaDataPointer.getFolderName(), metaDataPointer.getDbIdentifier());
             // Create an ExecutorService with a fixed thread pool
             ExecutorService executorService = Executors.newFixedThreadPool(chunk.size());
             for (FolderSyncStatus folderSyncStatus : chunk) {
@@ -145,12 +146,13 @@ public class PolybaseService {
         return chunks;
     }
 
-    private Pipeline createNewPipeline(String foldername) {
+    private Pipeline createNewPipeline(String foldername, String dbIdentifier) {
         Pipeline pipeline = new Pipeline();
         pipeline.setPipelineid(java.util.UUID.randomUUID().toString());
         pipeline.setFolderName(foldername);
         pipeline.setStatus(1);
         pipeline.setPipelineStartTime(LocalDateTime.now());
+        pipeline.setDbIdentifier(dbIdentifier);
         pipeline = pipelineService.save(pipeline);
         return pipeline;
     }

@@ -66,7 +66,6 @@ public class PolybaseThreadService implements Runnable {
         String dataFrame = metaDataCatlog.getDataFrame();
         String selectColumn = metaDataCatlog.getSelectColumn();
         String columnNames = metaDataCatlog.getColumnNames();
-        String dbIdentifier = metaDataPointer.getDbIdentifier();
         String data_source = metaDataPointer.getStorageAccount();
         boolean flag = true;
         int errorFlag = 0;
@@ -124,6 +123,7 @@ public class PolybaseThreadService implements Runnable {
         healthMetrics.setTimespent(timeTaken);
         healthMetrics.setRcount(rowCount);
         healthMetrics.setStatus(status);
+        healthMetrics.setDbIdentifier(folderSyncStatus.getDbIdentifier());
         return healthMetricsService.save(healthMetrics);
     }
 

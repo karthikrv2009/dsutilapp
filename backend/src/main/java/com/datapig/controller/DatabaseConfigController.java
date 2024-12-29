@@ -1,5 +1,6 @@
 package com.datapig.controller;
 
+import com.datapig.component.DynamicDataSourceManager;
 import com.datapig.entity.DatabaseConfig;
 import com.datapig.service.DatabaseConfigService;
 import com.datapig.service.InitialLoadService;
@@ -21,9 +22,7 @@ public class DatabaseConfigController {
     private InitialLoadService initialLoadService;
 
     @Autowired
-    public DatabaseConfigController(DatabaseConfigService databaseConfigService) {
-        this.databaseConfigService = databaseConfigService;
-    }
+    private DynamicDataSourceManager dynamicDataSourceManager;
 
     @GetMapping
     public ResponseEntity<List<DatabaseConfig>> getAllDatabaseConfigs() {
@@ -34,6 +33,8 @@ public class DatabaseConfigController {
     @PostMapping("/save")
     public ResponseEntity<DatabaseConfig> saveDatabaseConfig(@RequestBody DatabaseConfig databaseConfig) {
         DatabaseConfig savedConfig = databaseConfigService.saveDatabaseConfig(databaseConfig);
+        dynamicDataSourceManager.addDataSource(databaseConfig.getDbIdentifier(), databaseConfig.getUrl(),
+                databaseConfig.getUsername(), databaseConfig.getPassword());
         return ResponseEntity.ok(savedConfig);
     }
 
