@@ -6,7 +6,6 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 
-import com.datapig.component.EncryptedPropertyReader;
 import com.datapig.entity.EnvironmentConfig;
 import com.datapig.entity.HealthMetrics;
 import com.datapig.entity.MetaDataCatlog;
@@ -42,9 +41,6 @@ public class DashboardController {
 
   @Autowired
   HealthMetricsService healthMetricsService;
-
-  @Autowired
-  EncryptedPropertyReader encryptedPropertyReader;
 
   @Autowired
   MetaDataCatlogService metaDataCatlogService;

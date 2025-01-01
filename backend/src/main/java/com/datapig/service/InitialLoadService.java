@@ -8,15 +8,10 @@ import com.datapig.entity.IntialLoad;
 import com.datapig.repository.IntitalLoadRepository;
 import com.datapig.utility.ModelJsonDownloader;
 
-import jakarta.persistence.criteria.CriteriaBuilder.In;
-
 @Service
 public class InitialLoadService {
     @Autowired
     IntitalLoadRepository intitalLoadRepository;
-
-    @Autowired
-    private InitialLoadService initialLoadService;
 
     @Autowired
     private ParseModelJson parseModelJson;
@@ -46,7 +41,7 @@ public class InitialLoadService {
         DatabaseConfig databaseConfig = databaseConfigService.getDatabaseConfigByIdentifier(dbIdentifier);
         IntialLoad initialLoad = intitalLoadRepository.findByName(dbIdentifier);
         if (initialLoad == null) {
-            if (modelJsonDownloader.downloadFile()) {
+            if (modelJsonDownloader.downloadFile(databaseConfig.getDbIdentifier())) {
                 parseModelJson.parseModelJson(dbIdentifier);
                 initialLoad = new IntialLoad();
                 initialLoad.setName(dbIdentifier);
@@ -61,11 +56,11 @@ public class InitialLoadService {
             }
         }
 
-        /*
-         * initialLoad = intitalLoadRepository.findByName(dbIdentifier);
-         * if (initialLoad.getStatus() == 2) {
-         * azureQueueListenerService.startQueueListener();
-         * }
-         */
+        
+         initialLoad = intitalLoadRepository.findByName(dbIdentifier);
+         if (initialLoad.getStatus() == 2) {
+          azureQueueListenerService.startQueueListener(databaseConfig.getDbIdentifier());
+          }
+         
     }
 }

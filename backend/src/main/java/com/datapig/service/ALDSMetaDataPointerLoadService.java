@@ -10,7 +10,8 @@ import com.azure.storage.file.datalake.DataLakeFileSystemClient;
 import com.azure.storage.file.datalake.DataLakeFileSystemClientBuilder;
 import com.azure.storage.file.datalake.models.PathItem;
 import com.azure.storage.file.datalake.models.PathProperties;
-import com.datapig.component.EncryptedPropertyReader;
+
+import com.datapig.entity.DatabaseConfig;
 import com.datapig.entity.FolderSyncStatus;
 import com.datapig.entity.IntialLoad;
 import com.datapig.entity.MetaDataCatlog;
@@ -44,9 +45,6 @@ public class ALDSMetaDataPointerLoadService {
     private MetaDataCatlogService metaDataCatlogService;
 
     @Autowired
-    private final EncryptedPropertyReader encryptedPropertyReader;
-
-    @Autowired
     private MetaDataPointerService metaDataPointerService;
 
     @Autowired
@@ -59,22 +57,22 @@ public class ALDSMetaDataPointerLoadService {
     private JDBCTemplateUtiltiy jDBCTemplateUtiltiy;
 
     @Autowired
-    public ALDSMetaDataPointerLoadService(EncryptedPropertyReader encryptedPropertyReader) {
-        this.encryptedPropertyReader = encryptedPropertyReader;
-    }
+    private DatabaseConfigService databaseConfigService;
 
     @Autowired
     InitialLoadService initialLoadService;
 
     public void load(String dbIdentifier) {
 
+        DatabaseConfig databaseConfig=databaseConfigService.getDatabaseConfigByIdentifier(dbIdentifier);
+        
         // Define the filesystem name and directory to search
-        String fileSystemName = encryptedPropertyReader.getProperty("STORAGE_ACCOUNT");
-        String targetFileName = encryptedPropertyReader.getProperty("TARGET_FILENAME");
+        String fileSystemName = databaseConfig.getAdlsStorageAccountName();
+        String targetFileName = databaseConfig.getAdlsCdmFileName();
 
-        String storageAccountUrl = encryptedPropertyReader.getProperty("STRORAGE_ACCOUNT_URL");
+        String storageAccountUrl = databaseConfig.getAdlsStorageAccountEndpoint();
 
-        String saskey = encryptedPropertyReader.getProperty("Storage_SAS_TOKEN");
+        String saskey = databaseConfig.getAdlsStorageAccountSasKey();
 
         // ADLS Gen2 endpoint with SAS token
         String endpointWithSAS = storageAccountUrl + "/" + fileSystemName + "/?" + saskey;
@@ -129,7 +127,7 @@ public class ALDSMetaDataPointerLoadService {
 
                                     for (String tableName : tableNames) {
                                         if (!tableNamesInDB.contains(tableName)) {
-                                            if (modelJsonDownloader.downloadFile()) {
+                                            if (modelJsonDownloader.downloadFile(databaseConfig.getDbIdentifier())) {
                                                 parseModelJson.parseModelJson(dbIdentifier);
                                             }
                                         }
@@ -152,7 +150,7 @@ public class ALDSMetaDataPointerLoadService {
         TreeSet<MetaDataPointer> metaDataPointers = metaDataPointerService
                 .getMetaDataPointerBystageStatusandDbidentifier(pointerCopyStatus, dbIdentifier);
         for (MetaDataPointer metaDataPointer : metaDataPointers) {
-            startProcessing(metaDataPointer);
+            startProcessing(metaDataPointer,databaseConfig);
         }
         Short copyStatus = 0;
         List<FolderSyncStatus> pendingTablesInFolder = folderSyncStatusService
@@ -296,13 +294,13 @@ public class ALDSMetaDataPointerLoadService {
         }
     }
 
-    private void startProcessing(MetaDataPointer metaDataPointer) {
+    private void startProcessing(MetaDataPointer metaDataPointer,DatabaseConfig databaseConfig) {
         // Retry Error logic
         TreeSet<MetaDataPointer> failedMetaDataPointers = errorHandle(metaDataPointer.getDbIdentifier());
         for (MetaDataPointer failMetaDataPointer : failedMetaDataPointers) {
-            polybaseService.startSyncInFolder(failMetaDataPointer);
+            polybaseService.startSyncInFolder(failMetaDataPointer,databaseConfig);
         }
-        polybaseService.startSyncInFolder(metaDataPointer);
+        polybaseService.startSyncInFolder(metaDataPointer,databaseConfig);
 
     }
 }

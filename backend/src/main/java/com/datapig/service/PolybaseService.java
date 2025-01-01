@@ -5,7 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
-import com.datapig.component.EncryptedPropertyReader;
+import com.datapig.entity.DatabaseConfig;
 import com.datapig.entity.FolderSyncStatus;
 import com.datapig.entity.HealthMetrics;
 import com.datapig.entity.MetaDataCatlog;
@@ -49,21 +49,18 @@ public class PolybaseService {
     @Autowired
     private PipelineService pipelineService;
 
-    @Autowired
-    private EncryptedPropertyReader encryptedPropertyReader;
+    public void startSyncInFolder(MetaDataPointer metaDataPointer,DatabaseConfig databaseConfig) {
 
-    public void startSyncInFolder(MetaDataPointer metaDataPointer) {
-
-        int maxCount = Integer.parseInt(encryptedPropertyReader.getProperty("MAX_THREAD_COUNT"));
+        int maxCount = databaseConfig.getMaxThreads();
         List<FolderSyncStatus> setfolderSyncStatus = folderSyncStatusService
                 .getFolderSyncStatusByfolderAndDbIdentifier(metaDataPointer.getFolderName(),
-                        metaDataPointer.getDbIdentifier());
+                        databaseConfig.getDbIdentifier());
 
         List<FolderSyncStatus> folderNeedsToBeProcessed = new ArrayList<FolderSyncStatus>();
         for (FolderSyncStatus folderSyncStatus1 : setfolderSyncStatus) {
             MetaDataCatlog metaDataCatlog = metaDataCatlogService
                     .getMetaDataCatlogByTableNameAndDbIdentifier(folderSyncStatus1.getTableName(),
-                            folderSyncStatus1.getDbIdentifier());
+                            databaseConfig.getDbIdentifier());
             if ((metaDataCatlog.getLastCopyStatus() != 3) && (metaDataCatlog.getQuarintine() != 1)) {
                 if (folderSyncStatus1.getCopyStatus() == 0) {
                     folderNeedsToBeProcessed.add(folderSyncStatus1);
@@ -75,7 +72,7 @@ public class PolybaseService {
 
         for (List<FolderSyncStatus> chunk : chunksofFolderSyncStatus) {
 
-            Pipeline pipeline = createNewPipeline(metaDataPointer.getFolderName(), metaDataPointer.getDbIdentifier());
+            Pipeline pipeline = createNewPipeline(metaDataPointer.getFolderName(), databaseConfig.getDbIdentifier());
             // Create an ExecutorService with a fixed thread pool
             ExecutorService executorService = Executors.newFixedThreadPool(chunk.size());
             for (FolderSyncStatus folderSyncStatus : chunk) {

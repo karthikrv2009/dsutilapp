@@ -8,7 +8,7 @@ import com.azure.storage.file.datalake.DataLakeFileClient;
 import com.azure.storage.file.datalake.DataLakeFileSystemClient;
 import com.azure.storage.file.datalake.DataLakeFileSystemClientBuilder;
 import com.azure.storage.file.datalake.models.PathProperties;
-import com.datapig.component.EncryptedPropertyReader;
+import com.datapig.entity.DatabaseConfig;
 import com.datapig.entity.FolderSyncStatus;
 import com.datapig.entity.MetaDataCatlog;
 import com.datapig.entity.MetaDataPointer;
@@ -38,9 +38,6 @@ public class SynapseLogParserService {
     private ModelJsonDownloader modelJsonDownloader;
 
     @Autowired
-    private EncryptedPropertyReader encryptedPropertyReader;
-
-    @Autowired
     private JDBCTemplateUtiltiy jdbcTemplateUtiltiy;
 
     @Autowired
@@ -55,15 +52,15 @@ public class SynapseLogParserService {
     @Autowired
     private MetaDataCatlogService metaDataCatlogService;
 
-    public void startParse(String folderName, String dbIdentifier) {
+    public void startParse(String folderName, DatabaseConfig databaseConfig) {
 
-        Set<String> tableNamesInMetadataCatalogDB = metaDataCatlogService.getAllTableNamesByDbIdentifier(dbIdentifier);
-        String fileSystemName = encryptedPropertyReader.getProperty("STORAGE_ACCOUNT");
-        String targetFileName = encryptedPropertyReader.getProperty("TARGET_FILENAME");
+        Set<String> tableNamesInMetadataCatalogDB = metaDataCatlogService.getAllTableNamesByDbIdentifier(databaseConfig.getDbIdentifier());
+        String fileSystemName = databaseConfig.getAdlsStorageAccountName();
+        String targetFileName = databaseConfig.getAdlsCdmFileName();
 
-        String storageAccountUrl = encryptedPropertyReader.getProperty("STRORAGE_ACCOUNT_URL");
+        String storageAccountUrl = databaseConfig.getAdlsStorageAccountEndpoint();
 
-        String saskey = encryptedPropertyReader.getProperty("Storage_SAS_TOKEN");
+        String saskey = databaseConfig.getAdlsStorageAccountSasKey();
 
         // ADLS Gen2 endpoint with SAS token
         String endpointWithSAS = storageAccountUrl + "/" + fileSystemName + "/?" + saskey;
@@ -75,7 +72,7 @@ public class SynapseLogParserService {
                 .buildClient();
 
         // Existing Folder but not staged in FolderSyncStatus
-        TreeSet<MetaDataPointer> existingFoldersNotStaged = existingFolderNotStaged(dbIdentifier);
+        TreeSet<MetaDataPointer> existingFoldersNotStaged = existingFolderNotStaged(databaseConfig.getDbIdentifier());
 
         for (MetaDataPointer metaDataPointer : existingFoldersNotStaged) {
             // Get a reference to the directory
@@ -88,7 +85,7 @@ public class SynapseLogParserService {
 
                 for (String tableName : tableNamesInAdls) {
                     if (!tableNamesInMetadataCatalogDB.contains(tableName)) {
-                        if (modelJsonDownloader.downloadFile()) {
+                        if (modelJsonDownloader.downloadFile(databaseConfig.getDbIdentifier())) {
                             parseModelJson.parseModelJson(metaDataPointer.getDbIdentifier());
                         }
                     }
@@ -101,7 +98,7 @@ public class SynapseLogParserService {
         }
 
         MetaDataPointer metaDataPointerInDB = metaDataPointerService
-                .getMetaDataPointerBydbIdentifierAndFolder(dbIdentifier, folderName);
+                .getMetaDataPointerBydbIdentifierAndFolder(databaseConfig.getDbIdentifier(), folderName);
 
         if (metaDataPointerInDB == null) {
             DataLakeDirectoryClient directoryClient = fileSystemClient.getDirectoryClient(folderName);
@@ -121,12 +118,12 @@ public class SynapseLogParserService {
         // Retry Error logic
         TreeSet<MetaDataPointer> failedMetaDataPointers = errorHandle();
         for (MetaDataPointer metaDataPointer : failedMetaDataPointers) {
-            polybaseService.startSyncInFolder(metaDataPointer);
+            polybaseService.startSyncInFolder(metaDataPointer,databaseConfig);
         }
 
-        TreeSet<MetaDataPointer> metaDataPointers = existingFolderStagedNotComplete(dbIdentifier);
+        TreeSet<MetaDataPointer> metaDataPointers = existingFolderStagedNotComplete(databaseConfig.getDbIdentifier());
         for (MetaDataPointer metaDataPointer : metaDataPointers) {
-            polybaseService.startSyncInFolder(metaDataPointer);
+            polybaseService.startSyncInFolder(metaDataPointer,databaseConfig);
         }
     }
 

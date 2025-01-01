@@ -6,7 +6,7 @@ import java.util.Base64;
 import com.azure.storage.queue.QueueClient;
 import com.azure.storage.queue.QueueClientBuilder;
 import com.azure.storage.queue.models.QueueMessageItem;
-import com.datapig.component.EncryptedPropertyReader;
+import com.datapig.entity.DatabaseConfig;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -24,23 +24,23 @@ public class AzureQueueListenerService {
     private static final Logger logger = LoggerFactory.getLogger(AzureQueueListenerService.class);
 
     @Autowired
-    private EncryptedPropertyReader propertyReader;
+    private SynapseLogParserService synapseLogParserService;
 
     @Autowired
-    private SynapseLogParserService synapseLogParserService;
+    private DatabaseConfigService databaseConfigService;
 
     private volatile boolean running = false;
 
     private Thread listenerThread;
 
     public void startQueueListener(String dbIdentifier) {
-        String queueName = propertyReader.getProperty("QUEUE_NAME");
-        String queueSasToken = propertyReader.getProperty("Queue_SAS_TOKEN");
-        String sasQueueUrl = propertyReader.getProperty("SAS_QUEUE_URL");
-        String changeLog = propertyReader.getProperty("LOCAL_CHANGE_LOG");
+        DatabaseConfig databaseConfig=databaseConfigService.getDatabaseConfigByIdentifier(dbIdentifier);
+        String queueName = databaseConfig.getQueueName();
+        String queueSasToken = databaseConfig.getQueueSasToken();
+        String sasQueueUrl = databaseConfig.getQueueEndpoint();
 
         running = true;
-        listenerThread = new Thread(() -> listen(queueName, queueSasToken, sasQueueUrl, changeLog, dbIdentifier));
+        listenerThread = new Thread(() -> listen(queueName, queueSasToken, sasQueueUrl, databaseConfig));
         listenerThread.start();
         logger.info("Azure Queue Listener started.");
     }
@@ -54,8 +54,8 @@ public class AzureQueueListenerService {
         logger.info("Azure Queue Listener stopped.");
     }
 
-    private void listen(String queueName, String queueSasToken, String sasQueueUrl, String changeLog,
-            String dbIdentifier) {
+    private void listen(String queueName, String queueSasToken, String sasQueueUrl, 
+            DatabaseConfig databaseConfig) {
 
         QueueClient queueClient = new QueueClientBuilder()
                 .endpoint(sasQueueUrl)
@@ -66,7 +66,7 @@ public class AzureQueueListenerService {
         while (running) {
             QueueMessageItem message = queueClient.receiveMessage();
             if (message != null) {
-                processMessage(message, changeLog, dbIdentifier);
+                processMessage(message , databaseConfig);
                 queueClient.deleteMessage(message.getMessageId(), message.getPopReceipt());
             }
 
@@ -79,7 +79,7 @@ public class AzureQueueListenerService {
         }
     }
 
-    private void processMessage(QueueMessageItem message, String changeLog, String dbIdentifier) {
+    private void processMessage(QueueMessageItem message, DatabaseConfig databaseConfig) {
 
         // Decode the binary message to a string
         message.getBody().toString();
@@ -92,17 +92,17 @@ public class AzureQueueListenerService {
         JsonNode jsonNode;
         try {
             jsonNode = objectMapper.readTree(decodedMessage);
-            String rootModelJsonPath = propertyReader.getProperty("ROOT_MODEL_JSON_PATH");
+            String rootModelJsonPath = databaseConfig.getAdlsCdmFilePath();
             // Extract the blob URL
             String blobUrl = jsonNode.path("data").path("blobUrl").asText();
             if (!blobUrl.equalsIgnoreCase(rootModelJsonPath)) {
-                String initialURL = propertyReader.getProperty("STRORAGE_ACCOUNT_URL") + "/"
-                        + propertyReader.getProperty("STORAGE_ACCOUNT") + "/";
+                String initialURL = databaseConfig.getAdlsStorageAccountEndpoint() + "/"
+                        + databaseConfig.getAdlsContainerName() + "/";
                 int startIndex = initialURL.length();
                 int endIndex = ("/model.json").length();
                 logger.info("Processing blob: ", blobUrl);
                 String folderName = blobUrl.substring(startIndex, blobUrl.length() - endIndex);
-                synapseLogParserService.startParse(folderName, dbIdentifier);
+                synapseLogParserService.startParse(folderName, databaseConfig);
                 // Add your processing logic here
             } else {
                 logger.info("Blob does not match expected pattern: ", blobUrl);

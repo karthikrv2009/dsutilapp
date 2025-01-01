@@ -22,7 +22,8 @@ import org.slf4j.LoggerFactory;
 
 import com.datapig.service.dto.ModelRoot;
 import com.datapig.service.dto.ModelEntity;
-import com.datapig.component.EncryptedPropertyReader;
+import com.datapig.entity.DatabaseConfig;
+import com.datapig.entity.EnvironmentConfig;
 import com.datapig.entity.MetaDataCatlog;
 import com.datapig.service.dto.ModelAttribute;
 import com.datapig.service.dto.ModelTrait;
@@ -37,11 +38,6 @@ import org.springframework.stereotype.Service;
 @Service
 public class ParseModelJson {
 
-    private final EncryptedPropertyReader encryptedPropertyReader;
-
-    public ParseModelJson(EncryptedPropertyReader encryptedPropertyReader) {
-        this.encryptedPropertyReader = encryptedPropertyReader;
-    }
 
     @Autowired
     private MetaDataCatlogService metaDataCatlogService;
@@ -49,10 +45,19 @@ public class ParseModelJson {
     @Autowired
     private JDBCTemplateUtiltiy jDBCTemplateUtiltiy;
 
+    @Autowired
+    private DatabaseConfigService databaseConfigService;
+
+    @Autowired
+    private EnvironmentConfigService environmentConfigService;
+
     private static final Logger logger = LoggerFactory.getLogger(ParseModelJson.class);
 
     public List<ModelTable> parseModelJson(String dbIdentifier) {
-        String modelJSONPath = encryptedPropertyReader.getProperty("LOCAL_MOLDEL_JSON");
+        DatabaseConfig databaseConfig=databaseConfigService.getDatabaseConfigByIdentifier(dbIdentifier);
+        EnvironmentConfig environmentConfig=environmentConfigService.getEnvironmentConfig();
+
+        String modelJSONPath = databaseConfig.getLocalCdmFilePath();
         File file = new File(modelJSONPath);
         StringBuilder content = new StringBuilder(); // To accumulate the file content
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file)))) {
@@ -110,7 +115,7 @@ public class ParseModelJson {
         logger.info("Description: " + root.getDescription());
         logger.info("Version: " + root.getVersion());
 
-        Map<String, Map<String, String>> sqlTypeMap = createSqlTypeMap(root);
+        Map<String, Map<String, String>> sqlTypeMap = createSqlTypeMap(root,environmentConfig);
         List<MetaDataCatlog> existingMetaDataCatlog = metaDataCatlogService.findAllByDbIdentifier(dbIdentifier);
         Set<String> existingTables = new HashSet<String>();
 
@@ -144,11 +149,11 @@ public class ParseModelJson {
         return catalog;
     }
 
-    private HashMap<String, HashMap<String, String>> convertStringOutlier() {
+    private HashMap<String, HashMap<String, String>> convertStringOutlier(EnvironmentConfig environmentConfig) {
 
         HashMap<String, HashMap<String, String>> map = new HashMap<String, HashMap<String, String>>();
 
-        try (InputStream input = new FileInputStream(encryptedPropertyReader.getProperty("STRING_OUTLIER_PATH"))) {
+        try (InputStream input = new FileInputStream(environmentConfig.getStringOutlierPath())) {
             Properties properties = new Properties();
             properties.load(input);
             Set<String> keys = properties.stringPropertyNames();
@@ -174,13 +179,13 @@ public class ParseModelJson {
     }
 
     // Function to create a map from entity names to their SQL Server data types
-    private Map<String, Map<String, String>> createSqlTypeMap(ModelRoot root) {
+    private Map<String, Map<String, String>> createSqlTypeMap(ModelRoot root,EnvironmentConfig environmentConfig) {
         String sqlType = null;
-        HashMap<String, HashMap<String, String>> stringOutlier = convertStringOutlier();
+        HashMap<String, HashMap<String, String>> stringOutlier = convertStringOutlier(environmentConfig);
         Map<String, String> columns = null;
         Map<String, Map<String, String>> entities = new HashMap<>();
-        int offset = Integer.parseInt(encryptedPropertyReader.getProperty("STRING_OFFSET"));
-        int STRING_MAXLENGTH = Integer.parseInt(encryptedPropertyReader.getProperty("STRING_MAXLENGTH"));
+        int offset = Integer.parseInt(environmentConfig.getStringOffSet());
+        int STRING_MAXLENGTH = environmentConfig.getMaxLength();
         for (ModelEntity entity : root.getEntities()) {
             String columnNames = "";
             String dataFrame = "";
