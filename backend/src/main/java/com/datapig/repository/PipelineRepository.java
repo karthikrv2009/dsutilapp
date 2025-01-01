@@ -20,7 +20,7 @@ public interface PipelineRepository extends JpaRepository<Pipeline, Long> {
         List<Pipeline> findPipelinesWithinDateRange(@Param("startDate") LocalDateTime startDate,
                         @Param("endDate") LocalDateTime endDate);
 
-        @Query("SELECT p FROM Pipeline p WHERE p.dbIdentifier = :dbIdentifier AND p.startTime BETWEEN :startDate AND :endDate")
+        @Query("SELECT p FROM Pipeline p WHERE p.dbIdentifier = :dbIdentifier AND p.pipelineStartTime BETWEEN :startDate AND :endDate")
         List<Pipeline> findPipelinesWithinDateRangeByDbIdentifier(@Param("startDate") LocalDateTime startDate,
                         @Param("endDate") LocalDateTime endDate, @Param("dbIdentifier") String dbIdentifier);
 
