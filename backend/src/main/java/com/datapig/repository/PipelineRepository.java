@@ -3,6 +3,7 @@ package com.datapig.repository;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import org.antlr.v4.runtime.atn.SemanticContext.AND;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -19,11 +20,11 @@ public interface PipelineRepository extends JpaRepository<Pipeline, Long> {
     List<Pipeline> findPipelinesWithinDateRange(@Param("startDate") LocalDateTime startDate,
             @Param("endDate") LocalDateTime endDate);
 
-    List<Pipeline> findPipelinesWithinDateRangeByDbIdentifier(@Param("startDate") LocalDateTime startDate,
-            @Param("endDate") LocalDateTime endDate, @Param("dbIdentifier") String dbIdentifier);
+@Query("SELECT p FROM Pipeline p WHERE p.dbIdentifier = :dbIdentifier AND p.pipelineStartTime BETWEEN :startDate AND :endDate")
+List<Pipeline> findPipelinesWithinDateRangeByDbIdentifier(@Param("startDate")
+LocalDateTime startDate,
+@Param("endDate") LocalDateTime endDate, @Param("dbIdentifier") String
+dbIdentifier);
 
-    List<Pipeline> findPipelinesWithinDateRangeByDbIdentifierAndFolderName(@Param("startDate") LocalDateTime startDate,
-            @Param("endDate") LocalDateTime endDate, @Param("dbIdentifier") String dbIdentifier,
-            @Param("folderName") String folderName);
 
 }

@@ -2,6 +2,7 @@ package com.datapig.service;
 
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import com.azure.storage.file.datalake.DataLakeDirectoryClient;
@@ -59,6 +60,7 @@ public class ALDSMetaDataPointerLoadService {
     @Autowired
     private DatabaseConfigService databaseConfigService;
 
+    @Lazy
     @Autowired
     InitialLoadService initialLoadService;
 

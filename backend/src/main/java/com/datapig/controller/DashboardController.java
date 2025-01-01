@@ -66,7 +66,7 @@ public class DashboardController {
   }
 
   // PipeLine information based on Duration(maximum 1 month) and Status
-  @GetMapping("/getPipeline/}")
+  @GetMapping("/getPipeline/")
   public ResponseEntity<List<Pipeline>> getPipeline(int days, boolean error, boolean success, boolean inprogress,
       String dbProfile) {
     List<Pipeline> pipelines = new ArrayList<Pipeline>();

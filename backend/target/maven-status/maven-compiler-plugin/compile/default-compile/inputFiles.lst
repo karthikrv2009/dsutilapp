@@ -42,7 +42,6 @@ C:\Users\Administrator\Documents\GitHub\dsutilapp\backend\src\main\java\com\data
 C:\Users\Administrator\Documents\GitHub\dsutilapp\backend\src\main\java\com\datapig\entity\IntialLoad.java
 C:\Users\Administrator\Documents\GitHub\dsutilapp\backend\src\main\java\com\datapig\config\SecurityConfig.java
 C:\Users\Administrator\Documents\GitHub\dsutilapp\backend\src\main\java\com\datapig\repository\MetaDataCatlogRepository.java
-C:\Users\Administrator\Documents\GitHub\dsutilapp\backend\src\main\java\com\datapig\component\EncryptedPropertyReader.java
 C:\Users\Administrator\Documents\GitHub\dsutilapp\backend\src\main\java\com\datapig\service\dto\ModelTableAttributes.java
 C:\Users\Administrator\Documents\GitHub\dsutilapp\backend\src\main\java\com\datapig\service\PolybaseThreadService.java
 C:\Users\Administrator\Documents\GitHub\dsutilapp\backend\src\main\java\com\datapig\controller\LicenseKeyController.java
@@ -50,7 +49,6 @@ C:\Users\Administrator\Documents\GitHub\dsutilapp\backend\src\main\java\com\data
 C:\Users\Administrator\Documents\GitHub\dsutilapp\backend\src\main\java\com\datapig\service\dto\ConfigurationRequest.java
 C:\Users\Administrator\Documents\GitHub\dsutilapp\backend\src\main\java\com\datapig\service\dto\LicenseKeyDTO.java
 C:\Users\Administrator\Documents\GitHub\dsutilapp\backend\src\main\java\com\datapig\service\FolderSyncStatusService.java
-C:\Users\Administrator\Documents\GitHub\dsutilapp\backend\src\main\java\com\datapig\config\PropertiesFileReader.java
 C:\Users\Administrator\Documents\GitHub\dsutilapp\backend\src\main\java\com\datapig\service\dto\MetaDataCatalogDTO.java
 C:\Users\Administrator\Documents\GitHub\dsutilapp\backend\src\main\java\com\datapig\service\PolybaseService.java
 C:\Users\Administrator\Documents\GitHub\dsutilapp\backend\src\main\java\com\datapig\MainApplication.java

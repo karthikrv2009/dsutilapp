@@ -16,7 +16,6 @@ com\datapig\repository\MetaDataCatlogRepository.class
 com\datapig\entity\MetaDataCatlog.class
 com\datapig\service\dto\TableData.class
 com\datapig\service\dto\MetaDataCatalogDTO.class
-com\datapig\component\EncryptedPropertyReader.class
 com\datapig\controller\HomeController.class
 com\datapig\service\dto\ModelTableAttributes.class
 com\datapig\repository\IntitalLoadRepository.class
@@ -51,7 +50,6 @@ com\datapig\service\AzureQueueListenerService.class
 com\datapig\entity\FolderSyncStatus.class
 com\datapig\controller\LicenseKeyController.class
 com\datapig\service\PolybaseService.class
-com\datapig\config\PropertiesFileReader.class
 com\datapig\service\dto\ModelRoot.class
 com\datapig\entity\LicenseKey.class
 com\datapig\utility\ModelJsonDownloader.class
