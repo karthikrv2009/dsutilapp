@@ -1,35 +1,52 @@
 package com.datapig.controller;
 
-import com.datapig.service.dto.LicenseKeyDTO;
-import com.datapig.service.LicenseKeyService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import com.datapig.service.LicenseKeyService;
+import com.datapig.entity.LicenseKey;
+import com.datapig.entity.EnvironmentConfig;
+import com.datapig.service.EnvironmentConfigService;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/license")
 public class LicenseKeyController {
 
-    private static final Logger logger = LoggerFactory.getLogger(LicenseKeyController.class);
-    private final LicenseKeyService licenseKeyService;
+    @Autowired
+    private LicenseKeyService licenseKeyService;
 
-    public LicenseKeyController(LicenseKeyService licenseKeyService) {
-        this.licenseKeyService = licenseKeyService;
+    @Autowired
+    private EnvironmentConfigService environmentConfigService;
+
+    // GET method for /api/license
+    @GetMapping
+    public ResponseEntity<List<LicenseKey>> getAllLicenseKeys() {
+        List<LicenseKey> licenseKeys = licenseKeyService.getAllLicenseKeys();
+        return ResponseEntity.ok(licenseKeys);
     }
 
-    @PostMapping("/validate")
-    public ResponseEntity<?> validateLicenseKey(@RequestParam String licenseKey) {
-        // Log the received license key
-        logger.info("Received license key: {}", licenseKey);
+    // POST method for /api/license
+    @PostMapping
+    public ResponseEntity<LicenseKey> createLicenseKey(@RequestBody LicenseKey licenseKey) {
+        LicenseKey savedLicenseKey = licenseKeyService.saveLicenseKey(licenseKey);
 
-        // Validate license key
-        LicenseKeyDTO licenseKeyDTO = licenseKeyService.validateLicenseKey(licenseKey);
+        return ResponseEntity.ok(savedLicenseKey);
+    }
 
-        if (licenseKeyDTO != null) {
-            return ResponseEntity.ok(licenseKeyDTO);
-        } else {
-            return ResponseEntity.status(400).body("Invalid license key!");
-        }
+    // GET method for /api/license/environment
+    @GetMapping("/environment")
+    public ResponseEntity<List<EnvironmentConfig>> getAllEnvironmentConfigs() {
+        List<EnvironmentConfig> environmentConfigs = environmentConfigService.getAllEnvironmentConfigs();
+        return ResponseEntity.ok(environmentConfigs);
+    }
+
+    // POST method for /api/license/environment
+    @PostMapping("/environment")
+    public ResponseEntity<EnvironmentConfig> createEnvironmentConfig(@RequestBody EnvironmentConfig environmentConfig) {
+        EnvironmentConfig savedEnvironmentConfig = environmentConfigService.saveEnvironmentConfig(environmentConfig);
+        return ResponseEntity.ok(savedEnvironmentConfig);
     }
 }

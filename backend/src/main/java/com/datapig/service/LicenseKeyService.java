@@ -3,6 +3,9 @@ package com.datapig.service;
 import com.datapig.service.dto.LicenseKeyDTO;
 import com.datapig.entity.LicenseKey;
 import com.datapig.repository.LicenseKeyRepository;
+
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 
 @Service
@@ -12,6 +15,18 @@ public class LicenseKeyService {
 
     public LicenseKeyService(LicenseKeyRepository licenseKeyRepository) {
         this.licenseKeyRepository = licenseKeyRepository;
+    }
+
+    public LicenseKey saveLicenseKey(LicenseKey licenseKey) {
+        return licenseKeyRepository.save(licenseKey);
+    }
+
+    public LicenseKey getLicenseKeyById(Long id) {
+        return licenseKeyRepository.findById(id).orElse(null);
+    }
+
+    public List<LicenseKey> getAllLicenseKeys() {
+        return licenseKeyRepository.findAll();
     }
 
     public LicenseKeyDTO validateLicenseKey(String licenseKey) {
@@ -26,7 +41,6 @@ public class LicenseKeyService {
             // Convert entity to DTO
             LicenseKeyDTO licenseKeyDTO = new LicenseKeyDTO();
             licenseKeyDTO.setCompanyName(existingLicenseKey.getCompanyName());
-            licenseKeyDTO.setMachineName(existingLicenseKey.getMachineName());
             licenseKeyDTO.setLicenseType(existingLicenseKey.getLicenseType());
             licenseKeyDTO.setValidity(existingLicenseKey.getValidity());
             licenseKeyDTO.setLicenseKey(existingLicenseKey.getLicenseKey());
@@ -44,7 +58,6 @@ public class LicenseKeyService {
         // Convert DTO to entity
         LicenseKey newLicenseKey = new LicenseKey();
         newLicenseKey.setCompanyName(licenseKeyDTO.getCompanyName());
-        newLicenseKey.setMachineName(licenseKeyDTO.getMachineName());
         newLicenseKey.setLicenseType(licenseKeyDTO.getLicenseType());
         newLicenseKey.setValidity(licenseKeyDTO.getValidity());
         newLicenseKey.setLicenseKey(licenseKeyDTO.getLicenseKey());

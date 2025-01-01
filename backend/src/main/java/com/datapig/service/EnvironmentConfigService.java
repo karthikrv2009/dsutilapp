@@ -1,5 +1,7 @@
 package com.datapig.service;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -24,4 +26,7 @@ public class EnvironmentConfigService {
         environmentConfigRepository.deleteById(id);
     }
 
+    public List<EnvironmentConfig> getAllEnvironmentConfigs() {
+        return environmentConfigRepository.findAll();
+    }
 }
