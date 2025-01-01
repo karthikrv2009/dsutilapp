@@ -79,17 +79,17 @@ public class FolderSyncStatusService {
         return folderSyncStatus;
     }
 
-    public FolderSyncStatusDTO getFolerStatusDTO() {
+    public FolderSyncStatusDTO getFolerStatusDTO(String dbIdentifier) {
         FolderSyncStatusDTO folderSyncStatusDTO = new FolderSyncStatusDTO();
         Short copyStatus = 1;
         // Pending Package logic
-        TreeSet<MetaDataPointer> pendingPackages = metaDataPointerService.getMetaDataPointerBystageStatus(copyStatus);
-
+        TreeSet<MetaDataPointer> pendingPackages = metaDataPointerService
+                .getMetaDataPointerBystageStatusandDbidentifier(copyStatus, dbIdentifier);
         if (pendingPackages != null && pendingPackages.size() > 0) {
             MetaDataPointer currentPackage = pendingPackages.first();
             folderSyncStatusDTO.setCurrentPackageName(currentPackage.getFolderName());
             List<FolderSyncStatus> inProgressFolderSyncStatusList = folderSyncStatusRepository
-                    .findByfolder(currentPackage.getFolderName());
+                    .findByfolderAndDbIdentifier(currentPackage.getFolderName(), dbIdentifier);
             folderSyncStatusDTO.setInProgressTables(inProgressFolderSyncStatusList.size());
 
         } else {
@@ -100,7 +100,8 @@ public class FolderSyncStatusService {
 
         // completed tables count
         Short folderCopyStatus = 1;
-        List<FolderSyncStatus> completedTables = folderSyncStatusRepository.findBycopyStatus(folderCopyStatus);
+        List<FolderSyncStatus> completedTables = folderSyncStatusRepository
+                .findBycopyStatusAndDbIdentifier(folderCopyStatus, dbIdentifier);
 
         if (completedTables != null && completedTables.size() > 0) {
             folderSyncStatusDTO.setCompletedTables(completedTables.size());
@@ -110,7 +111,8 @@ public class FolderSyncStatusService {
 
         // Pending Tables
         folderCopyStatus = 0;
-        List<FolderSyncStatus> pendingTables = folderSyncStatusRepository.findBycopyStatus(folderCopyStatus);
+        List<FolderSyncStatus> pendingTables = folderSyncStatusRepository
+                .findBycopyStatusAndDbIdentifier(folderCopyStatus, dbIdentifier);
 
         if (pendingTables != null && pendingTables.size() > 0) {
             folderSyncStatusDTO.setPendingTables(pendingTables.size());

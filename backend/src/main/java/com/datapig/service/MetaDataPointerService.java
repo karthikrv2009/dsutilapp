@@ -37,23 +37,26 @@ public class MetaDataPointerService {
         return metaDataPointerRepository.save(metaDataPointer);
     }
 
-    public MetaDataPointer getFirstRecordByStageStatus(Short stageStatus) {
+    public MetaDataPointer getFirstRecordByStageStatus(Short stageStatus, String dbIdentifier) {
         Pageable pageable = PageRequest.of(0, 1); // Fetch only one record
+        // List<MetaDataPointer> results = metaDataPointerRepository
+        // .findByStageStatusOrderByAdlsCreationTimestampAsc(stageStatus, pageable);
         List<MetaDataPointer> results = metaDataPointerRepository
-                .findByStageStatusOrderByAdlsCreationTimestampAsc(stageStatus, pageable);
+                .findBystageStatusAndDbIdentifierOrderByAdlsCreationTimestampAsc(stageStatus, dbIdentifier);
         return results.isEmpty() ? null : results.get(0); // Return the first record or null if no result
     }
 
-    public DBSnapshotWidget getDBSnapshotWidget() {
+    public DBSnapshotWidget getDBSnapshotWidget(String dbIdentifier) {
         DBSnapshotWidget dbSnapshotWidget = new DBSnapshotWidget();
         Short stagestatus = 1;
-        MetaDataPointer currentpointer = getFirstRecordByStageStatus(stagestatus);
-        MetaDataPointer latestpointer = metaDataPointerRepository.findMaxAdlsCreationTimestamp();
-        long pendingPackages = metaDataPointerRepository.countByStageStatus(stagestatus);
+        MetaDataPointer currentpointer = getFirstRecordByStageStatus(stagestatus, dbIdentifier);
+        MetaDataPointer latestpointer = metaDataPointerRepository.findMaxAdlsCreationTimestampByDbIdentifier(
+                dbIdentifier);
+        long pendingPackages = metaDataPointerRepository.countByStageStatusAndDbIdentifier(stagestatus, dbIdentifier);
         Short copystatus = 0;
-        long pendingTables = folderSyncStatusRepository.countByCopyStatus(copystatus);
+        long pendingTables = folderSyncStatusRepository.countByCopyStatusAndDbIdentifier(copystatus, dbIdentifier);
         stagestatus = 2;
-        long completedPackages = metaDataPointerRepository.countByStageStatus(stagestatus);
+        long completedPackages = metaDataPointerRepository.countByStageStatusAndDbIdentifier(stagestatus, dbIdentifier);
         if (currentpointer != null) {
             dbSnapshotWidget.setLastProcessedfolder(currentpointer.getFolderName());
         }

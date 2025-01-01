@@ -23,9 +23,18 @@ public interface MetaDataPointerRepository extends JpaRepository<MetaDataPointer
     @Query("SELECT m FROM MetaDataPointer m WHERE m.adlscreationtimestamp = (SELECT MAX(m2.adlscreationtimestamp) FROM MetaDataPointer m2)")
     MetaDataPointer findMaxAdlsCreationTimestamp();
 
+    @Query("SELECT m FROM MetaDataPointer m WHERE m.dbIdentifier = :dbIdentifier AND m.adlscreationtimestamp = (SELECT MAX(m2.adlscreationtimestamp) FROM MetaDataPointer m2 WHERE m2.dbIdentifier = :dbIdentifier)")
+    MetaDataPointer findMaxAdlsCreationTimestampByDbIdentifier(@Param("dbIdentifier") String dbIdentifier);
+
     @Query("SELECT m FROM MetaDataPointer m WHERE m.stageStatus = :stageStatus ORDER BY m.adlscreationtimestamp ASC")
     List<MetaDataPointer> findByStageStatusOrderByAdlsCreationTimestampAsc(@Param("stageStatus") Short stageStatus,
             Pageable pageable);
+
+    @Query("SELECT m FROM MetaDataPointer m WHERE m.stageStatus = :stageStatus AND m.dbIdentifier = :dbIdentifier ORDER BY m.adlscreationtimestamp ASC")
+    List<MetaDataPointer> findBystageStatusAndDbIdentifierOrderByAdlsCreationTimestampAsc(
+            @Param("stageStatus") Short stageStatus, @Param("dbIdentifier") String dbIdentifier);
+
+    long countByStageStatusAndDbIdentifier(Short stageStatus, String dbIdentifier);
 
     MetaDataPointer findBydbIdentifierAndFolderName(String dbIdentifier, String folderName);
 

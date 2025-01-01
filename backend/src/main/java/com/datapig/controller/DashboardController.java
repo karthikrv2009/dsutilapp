@@ -53,16 +53,16 @@ public class DashboardController {
   EnvironmentConfigService environmentConfigService;
 
   // Overall MetaDataPointer Snapshot
-  @GetMapping("/getDashboardData")
-  public ResponseEntity<DBSnapshotWidget> getDashboardData() {
-    DBSnapshotWidget dbSnapshotWidget = metaDataPointerService.getDBSnapshotWidget();
+  @GetMapping("/getDashboardData/{dbProfile}")
+  public ResponseEntity<DBSnapshotWidget> getDashboardData(@PathVariable String dbProfile) {
+    DBSnapshotWidget dbSnapshotWidget = metaDataPointerService.getDBSnapshotWidget(dbProfile);
     return ResponseEntity.ok(dbSnapshotWidget);
   }
 
   // Overall Table In FolderSyncStatusSnapShot
-  @GetMapping("/getCurrentFolderStatus")
-  public ResponseEntity<FolderSyncStatusDTO> getCurrentFolerStatus() {
-    FolderSyncStatusDTO folderSyncStatusDTO = folderSyncStatusService.getFolerStatusDTO();
+  @GetMapping("/getCurrentFolderStatus/{dbProfile}")
+  public ResponseEntity<FolderSyncStatusDTO> getCurrentFolerStatus(@PathVariable String dbProfile) {
+    FolderSyncStatusDTO folderSyncStatusDTO = folderSyncStatusService.getFolerStatusDTO(dbProfile);
     if (folderSyncStatusDTO == null) {
       folderSyncStatusDTO = new FolderSyncStatusDTO();
     }
@@ -70,10 +70,11 @@ public class DashboardController {
   }
 
   // PipeLine information based on Duration(maximum 1 month) and Status
-  @GetMapping("/getPipeline")
-  public ResponseEntity<List<Pipeline>> getPipeline(int days, boolean error, boolean success, boolean inprogress) {
+  @GetMapping("/getPipeline/}")
+  public ResponseEntity<List<Pipeline>> getPipeline(int days, boolean error, boolean success, boolean inprogress,
+      String dbProfile) {
     List<Pipeline> pipelines = new ArrayList<Pipeline>();
-    List<Pipeline> pipelinesInDB = pipelineService.getPipelinesWithinLastDays(days);
+    List<Pipeline> pipelinesInDB = pipelineService.getPipelinesWithinLastDays(days, dbProfile);
     for (Pipeline pipeline : pipelinesInDB) {
       if (error && pipeline.getStatus() == 3) {
         pipelines.add(pipeline);
@@ -90,9 +91,10 @@ public class DashboardController {
   }
 
   // Get HealtMetrics based on PipelineId
-  @GetMapping("/getHealthMetrics/{pipelineId}")
-  public ResponseEntity<List<HealthMetrics>> getHealthMetrics(@PathVariable String pipelineId) {
-    List<HealthMetrics> healthMetrics = healthMetricsService.findbyPipelineId(pipelineId);
+  @GetMapping("/getHealthMetrics/{pipelineId}/{dbProfile}")
+  public ResponseEntity<List<HealthMetrics>> getHealthMetrics(@PathVariable String pipelineId,
+      @PathVariable String dbProfile) {
+    List<HealthMetrics> healthMetrics = healthMetricsService.findbyPipelineIdAndDbIdentifer(pipelineId, dbProfile);
     return ResponseEntity.ok(healthMetrics);
   }
 
@@ -107,11 +109,11 @@ public class DashboardController {
   }
 
   // Get MetaDataCatalog Information
-  @GetMapping("/getMetaDataCatalogInfo")
+  @GetMapping("/getMetaDataCatalogInfo/{dbProfile}")
 
-  public ResponseEntity<List<MetaDataCatalogDTO>> getMetaDataCatalogInfo() {
+  public ResponseEntity<List<MetaDataCatalogDTO>> getMetaDataCatalogInfo(@PathVariable String dbProfile) {
     List<MetaDataCatalogDTO> metaDataCatalogDTOs = new ArrayList<MetaDataCatalogDTO>();
-    List<MetaDataCatlog> metaDataCatlogs = metaDataCatlogService.findAll();
+    List<MetaDataCatlog> metaDataCatlogs = metaDataCatlogService.findAllByDbIdentifier(dbProfile);
     for (MetaDataCatlog metaDataCatlog : metaDataCatlogs) {
       MetaDataCatalogDTO metaDataCatalogDTO = new MetaDataCatalogDTO();
       metaDataCatalogDTO.setLastCopyStatus(metaDataCatlog.getLastCopyStatus());
