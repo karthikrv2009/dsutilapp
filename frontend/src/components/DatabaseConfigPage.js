@@ -77,52 +77,7 @@ const fetchDataWithoutToken = async (url, setData) => {
 
 const DatabaseConfigPage = () => {
   const classes = useStyles();
-  const [configs, setConfigs] = useState([
-    {
-      name: "Config 1",
-      url: "http://example.com/db1",
-      username: "user1",
-      password: "password1",
-      dbIdentifier: "db1",
-      driverClassName: "com.microsoft.sqlserver.jdbc.SQLServerDriver",
-      queueName: "queue1",
-      queueSasToken: "sasToken1",
-      queueEndpoint: "endpoint1",
-      adlsStorageAccountName: "storageAccount1",
-      adlsStorageAccountEndpoint: "storageEndpoint1",
-      adlsStorageAccountSasKey: "sasKey1",
-      adlsContainerName: "container1",
-      adlsFolderName: "folder1",
-      adlsCdmFileName: "cdmFileName1",
-      adlsCdmFilePath: "cdmFilePath1",
-      localCdmFilePath: "localCdmFilePath1",
-      maxThreads: 5,
-      initialLoadStatus: 0,
-      queueListenerStatus: 0,
-    },
-    {
-      name: "Config 2",
-      url: "http://example.com/db2",
-      username: "user2",
-      password: "password2",
-      dbIdentifier: "db2",
-      driverClassName: "com.microsoft.sqlserver.jdbc.SQLServerDriver",
-      queueName: "queue2",
-      queueSasToken: "sasToken2",
-      queueEndpoint: "endpoint2",
-      adlsStorageAccountName: "storageAccount2",
-      adlsStorageAccountEndpoint: "storageEndpoint2",
-      adlsStorageAccountSasKey: "sasKey2",
-      adlsContainerName: "container2",
-      adlsFolderName: "folder2",
-      adlsCdmFileName: "cdmFileName2",
-      adlsCdmFilePath: "cdmFilePath2",
-      localCdmFilePath: "localCdmFilePath2",
-      maxThreads: 10,
-      initialLoadStatus: 1,
-      queueListenerStatus: 1,
-    },
-  ]);
+  const [configs, setConfigs] = useState([]);
   const [open, setOpen] = useState(false);
   const [newConfig, setNewConfig] = useState({
     name: "",
@@ -174,7 +129,7 @@ const DatabaseConfigPage = () => {
       setConfigs((prevConfigs) => [...prevConfigs, newConfig]);
       handleClose();
     } catch (error) {
-      console.error("Error saving  config:", error);
+      console.error("Error saving config:", error);
     }
   };
 
@@ -221,58 +176,30 @@ const DatabaseConfigPage = () => {
       <Header /> {/* Include the Header component */}
       <Container>
         <Typography variant="h4" className={classes.title}>
-          Database Configurations
+          Synapse Link Profiles
         </Typography>
         <Button variant="contained" color="primary" onClick={handleClickOpen}>
-          Add New Configuration
+          Add New Profile
         </Button>
         <TableContainer component={Paper} className={classes.tableContainer}>
           <Table>
             <TableHead className={classes.tableHead}>
               <TableRow>
-                <TableCell className={classes.tableCellHead}>Name</TableCell>
-                <TableCell className={classes.tableCellHead}>URL</TableCell>
                 <TableCell className={classes.tableCellHead}>
-                  Username
+                  Database Name
                 </TableCell>
                 <TableCell className={classes.tableCellHead}>
-                  DB Identifier
+                  Synapse Profile Identifier(Unique)
                 </TableCell>
+
                 <TableCell className={classes.tableCellHead}>
-                  Driver Class Name
-                </TableCell>
-                <TableCell className={classes.tableCellHead}>
-                  Queue Name
-                </TableCell>
-                <TableCell className={classes.tableCellHead}>
-                  Queue SAS Token
-                </TableCell>
-                <TableCell className={classes.tableCellHead}>
-                  Queue Endpoint
+                  Azure Queue Name
                 </TableCell>
                 <TableCell className={classes.tableCellHead}>
                   ADLS Storage Account Name
                 </TableCell>
                 <TableCell className={classes.tableCellHead}>
-                  ADLS Storage Account Endpoint
-                </TableCell>
-                <TableCell className={classes.tableCellHead}>
-                  ADLS Storage Account SAS Key
-                </TableCell>
-                <TableCell className={classes.tableCellHead}>
                   ADLS Container Name
-                </TableCell>
-                <TableCell className={classes.tableCellHead}>
-                  ADLS Folder Name
-                </TableCell>
-                <TableCell className={classes.tableCellHead}>
-                  ADLS CDM File Name
-                </TableCell>
-                <TableCell className={classes.tableCellHead}>
-                  ADLS CDM File Path
-                </TableCell>
-                <TableCell className={classes.tableCellHead}>
-                  Local CDM File Path
                 </TableCell>
                 <TableCell className={classes.tableCellHead}>
                   Max Threads
@@ -293,49 +220,16 @@ const DatabaseConfigPage = () => {
                       {config.name}
                     </TableCell>
                     <TableCell className={classes.tableCellBody}>
-                      {config.url}
-                    </TableCell>
-                    <TableCell className={classes.tableCellBody}>
-                      {config.username}
-                    </TableCell>
-                    <TableCell className={classes.tableCellBody}>
                       {config.dbIdentifier}
-                    </TableCell>
-                    <TableCell className={classes.tableCellBody}>
-                      {config.driverClassName}
                     </TableCell>
                     <TableCell className={classes.tableCellBody}>
                       {config.queueName}
                     </TableCell>
                     <TableCell className={classes.tableCellBody}>
-                      {config.queueSasToken}
-                    </TableCell>
-                    <TableCell className={classes.tableCellBody}>
-                      {config.queueEndpoint}
-                    </TableCell>
-                    <TableCell className={classes.tableCellBody}>
                       {config.adlsStorageAccountName}
                     </TableCell>
                     <TableCell className={classes.tableCellBody}>
-                      {config.adlsStorageAccountEndpoint}
-                    </TableCell>
-                    <TableCell className={classes.tableCellBody}>
-                      {config.adlsStorageAccountSasKey}
-                    </TableCell>
-                    <TableCell className={classes.tableCellBody}>
                       {config.adlsContainerName}
-                    </TableCell>
-                    <TableCell className={classes.tableCellBody}>
-                      {config.adlsFolderName}
-                    </TableCell>
-                    <TableCell className={classes.tableCellBody}>
-                      {config.adlsCdmFileName}
-                    </TableCell>
-                    <TableCell className={classes.tableCellBody}>
-                      {config.adlsCdmFilePath}
-                    </TableCell>
-                    <TableCell className={classes.tableCellBody}>
-                      {config.localCdmFilePath}
                     </TableCell>
                     <TableCell className={classes.tableCellBody}>
                       {config.maxThreads}

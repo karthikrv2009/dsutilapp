@@ -14,7 +14,6 @@ public class LicenseKey {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String companyName;
-    private String machineName;
     private String licenseType;
     private String validity;
     private String licenseKey;
@@ -34,14 +33,6 @@ public class LicenseKey {
 
     public void setCompanyName(String companyName) {
         this.companyName = companyName;
-    }
-
-    public String getMachineName() {
-        return machineName;
-    }
-
-    public void setMachineName(String machineName) {
-        this.machineName = machineName;
     }
 
     public String getLicenseType() {
