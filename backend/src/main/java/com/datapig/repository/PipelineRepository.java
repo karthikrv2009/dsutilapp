@@ -14,17 +14,14 @@ import com.datapig.entity.Pipeline;
 @Repository
 public interface PipelineRepository extends JpaRepository<Pipeline, Long> {
 
-    public List<Pipeline> findByFolderName(String folderName);
+        public List<Pipeline> findByFolderName(String folderName);
 
-    @Query("SELECT p FROM Pipeline p WHERE p.pipelineStartTime BETWEEN :startDate AND :endDate")
-    List<Pipeline> findPipelinesWithinDateRange(@Param("startDate") LocalDateTime startDate,
-            @Param("endDate") LocalDateTime endDate);
+        @Query("SELECT p FROM Pipeline p WHERE p.pipelineStartTime BETWEEN :startDate AND :endDate")
+        List<Pipeline> findPipelinesWithinDateRange(@Param("startDate") LocalDateTime startDate,
+                        @Param("endDate") LocalDateTime endDate);
 
-@Query("SELECT p FROM Pipeline p WHERE p.dbIdentifier = :dbIdentifier AND p.pipelineStartTime BETWEEN :startDate AND :endDate")
-List<Pipeline> findPipelinesWithinDateRangeByDbIdentifier(@Param("startDate")
-LocalDateTime startDate,
-@Param("endDate") LocalDateTime endDate, @Param("dbIdentifier") String
-dbIdentifier);
-
+        @Query("SELECT p FROM Pipeline p WHERE p.dbIdentifier = :dbIdentifier AND p.startTime BETWEEN :startDate AND :endDate")
+        List<Pipeline> findPipelinesWithinDateRangeByDbIdentifier(@Param("startDate") LocalDateTime startDate,
+                        @Param("endDate") LocalDateTime endDate, @Param("dbIdentifier") String dbIdentifier);
 
 }
