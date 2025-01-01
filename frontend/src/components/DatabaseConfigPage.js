@@ -174,7 +174,7 @@ const DatabaseConfigPage = () => {
       setConfigs((prevConfigs) => [...prevConfigs, newConfig]);
       handleClose();
     } catch (error) {
-      console.error("Error saving config:", error);
+      console.error("Error saving  config:", error);
     }
   };
 
