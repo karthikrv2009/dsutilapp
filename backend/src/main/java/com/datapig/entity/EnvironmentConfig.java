@@ -2,12 +2,14 @@ package com.datapig.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "environment_config")
 public class EnvironmentConfig {
 
+    @Id
     @Column(name = "d365_environment", length = 200)
     private String d365Environment;
 
