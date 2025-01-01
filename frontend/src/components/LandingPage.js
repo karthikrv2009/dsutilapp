@@ -12,6 +12,10 @@ import {
   Tabs,
   Tab,
   Container,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
 } from "@mui/material";
 import { makeStyles } from "@mui/styles";
 import Header from "./Header"; // Import the Header component
@@ -43,6 +47,10 @@ const useStyles = makeStyles((theme) => ({
   tabs: {
     marginBottom: theme.spacing(2),
   },
+  formControl: {
+    margin: theme.spacing(2),
+    minWidth: 120,
+  },
 }));
 
 const fetchData = async (url, setData) => {
@@ -69,21 +77,42 @@ const LandingPage = () => {
   const [healthMetrics, setHealthMetrics] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState(0); // Set default tab to 0
+  const [dbProfiles, setDbProfiles] = useState([]);
+  const [selectedDbProfile, setSelectedDbProfile] = useState("");
 
   useEffect(() => {
     const fetchDataAsync = async () => {
-      fetchData("/api/dashboard/getDashboardData", setDashboardData);
-      fetchData("/api/dashboard/getCurrentFolderStatus", setFolderStatus);
-      fetchData("/api/dashboard/getMetaDataCatalogInfo", setMetaDataCatalog);
+      fetchData("/api/database-configs", setDbProfiles);
     };
     fetchDataAsync();
   }, []);
+
+  useEffect(() => {
+    if (selectedDbProfile) {
+      const fetchDataAsync = async () => {
+        fetchData(
+          `/api/dashboard/getDashboardData?dbProfile=${selectedDbProfile}`,
+          setDashboardData
+        );
+        fetchData(
+          `/api/dashboard/getCurrentFolderStatus?dbProfile=${selectedDbProfile}`,
+          setFolderStatus
+        );
+        fetchData(
+          `/api/dashboard/getMetaDataCatalogInfo?dbProfile=${selectedDbProfile}`,
+          setMetaDataCatalog
+        );
+      };
+      fetchDataAsync();
+    }
+  }, [selectedDbProfile]);
 
   const fetchPipelineData = async () => {
     try {
       const params = {
         days: selectedDays,
         ...pipelineFilters,
+        dbProfile: selectedDbProfile,
       };
       console.log("Pipeline Request Params:", params);
       const response = await axios.get("/api/dashboard/getPipeline", {
@@ -102,7 +131,7 @@ const LandingPage = () => {
   const fetchHealthMetrics = async (pipelineId) => {
     try {
       const response = await axios.get(
-        `/api/dashboard/getHealthMetrics/${pipelineId}`
+        `/api/dashboard/getHealthMetrics/${pipelineId}?dbProfile=${selectedDbProfile}`
       );
       console.log("Health Metrics:", response.data);
       setHealthMetrics(
@@ -131,10 +160,29 @@ const LandingPage = () => {
     setActiveTab(newValue);
   };
 
+  const handleDbProfileChange = (event) => {
+    setSelectedDbProfile(event.target.value);
+  };
+
   return (
     <div>
       <Header /> {/* Include the Header component */}
       <Container>
+        <FormControl className={classes.formControl}>
+          <InputLabel id="dbProfile-label">SysLink Profiles</InputLabel>
+          <Select
+            labelId="dbProfile-label"
+            value={selectedDbProfile}
+            onChange={handleDbProfileChange}
+          >
+            {dbProfiles.map((profile) => (
+              <MenuItem key={profile.dbIdentifier} value={profile.dbIdentifier}>
+                {profile.dbIdentifier}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+
         <Tabs
           value={activeTab}
           onChange={handleTabChange}

@@ -14,18 +14,24 @@ public class HealthMetricsService {
     @Autowired
     HealthMetricsRepository healthMetricsRepository;
 
-    public HealthMetrics save(HealthMetrics healthMetrics){
+    public HealthMetrics save(HealthMetrics healthMetrics) {
         return healthMetricsRepository.save(healthMetrics);
     }
 
-    public List<HealthMetrics> findByFolderName(String folderName){
+    public List<HealthMetrics> findByFolderName(String folderName) {
         java.util.List<HealthMetrics> entityOptional = healthMetricsRepository.findByFolderName(folderName);
-        return entityOptional; 
+        return entityOptional;
     }
 
-    public List<HealthMetrics> findbyPipelineId(String pipelineId){
+    public List<HealthMetrics> findbyPipelineId(String pipelineId) {
         java.util.List<HealthMetrics> entityOptional = healthMetricsRepository.findByPipelineId(pipelineId);
-        return entityOptional; 
+        return entityOptional;
+    }
+
+    public List<HealthMetrics> findbyPipelineIdAndDbIdentifer(String pipelineId, String dbIdentifier) {
+        java.util.List<HealthMetrics> entityOptional = healthMetricsRepository
+                .findByPipelineIdAndDbIdentifier(pipelineId, dbIdentifier);
+        return entityOptional;
     }
 
 }

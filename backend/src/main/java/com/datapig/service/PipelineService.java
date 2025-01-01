@@ -14,22 +14,22 @@ public class PipelineService {
     @Autowired
     PipelineRepository pipelineRepository;
 
-    public Pipeline save(Pipeline pipeline){
-       return pipelineRepository.save(pipeline);
+    public Pipeline save(Pipeline pipeline) {
+        return pipelineRepository.save(pipeline);
     }
 
-    public List<Pipeline> findByFolderName(String folderName){
+    public List<Pipeline> findByFolderName(String folderName) {
         java.util.List<Pipeline> entityOptional = pipelineRepository.findByFolderName(folderName);
-        return entityOptional; 
+        return entityOptional;
     }
 
-    public List<Pipeline> getPipelinesWithinLastDays(int days) {
+    public List<Pipeline> getPipelinesWithinLastDays(int days, String dbIdentifier) {
         // Calculate the end date as the current date and time
         LocalDateTime endDate = LocalDateTime.now();
         // Calculate the start date by subtracting the specified number of days
         LocalDateTime startDate = endDate.minusDays(days);
         // Fetch pipelines within the date range
-        return pipelineRepository.findPipelinesWithinDateRange(startDate, endDate);
+        return pipelineRepository.findPipelinesWithinDateRangeByDbIdentifier(startDate, endDate, dbIdentifier);
     }
 
 }
