@@ -19,49 +19,49 @@ public class DatabaseConfig {
     @Column(name = "db_identifier", unique = true, nullable = false, length = 50)
     private String dbIdentifier;
 
-    @Column(name = "url", nullable = false, length = 255)
+    @Column(name = "url", nullable = false, length = 300)
     private String url;
 
     @Column(name = "username", nullable = false, length = 50)
     private String username;
 
-    @Column(name = "password", nullable = false, length = 100)
+    @Column(name = "password", nullable = false, length = 300)
     private String password;
 
-    @Column(name = "driver_class_name", length = 100)
+    @Column(name = "driver_class_name", length = 300)
     private String driverClassName = "com.microsoft.sqlserver.jdbc.SQLServerDriver";
 
-    @Column(name = "queue_name", length = 100)
+    @Column(name = "queue_name", length = 300)
     private String queueName;
 
-    @Column(name = "queue_sas_token", length = 100)
+    @Column(name = "queue_sas_token", length = 300)
     private String queueSasToken;
 
-    @Column(name = "queue_endpoint", length = 100)
+    @Column(name = "queue_endpoint", length = 300)
     private String queueEndpoint;
 
-    @Column(name = "adls_storage_account_name", length = 100)
+    @Column(name = "adls_storage_account_name", length = 300)
     private String adlsStorageAccountName;
 
-    @Column(name = "adls_storage_account_endpoint", length = 100)
+    @Column(name = "adls_storage_account_endpoint", length = 300)
     private String adlsStorageAccountEndpoint;
 
-    @Column(name = "adls_storage_account_sas_key", length = 100)
+    @Column(name = "adls_storage_account_sas_key", length = 300)
     private String adlsStorageAccountSasKey;
 
-    @Column(name = "adls_container_name", length = 100)
+    @Column(name = "adls_container_name", length = 300)
     private String adlsContainerName;
 
-    @Column(name = "adls_folder_name", length = 100)
+    @Column(name = "adls_folder_name", length = 300)
     private String adlsFolderName;
 
-    @Column(name = "adls_cdm_file_name", length = 100)
+    @Column(name = "adls_cdm_file_name", length = 300)
     private String adlsCdmFileName;
 
-    @Column(name = "adls_cdm_file_path", length = 100)
+    @Column(name = "adls_cdm_file_path", length = 300)
     private String adlsCdmFilePath;
 
-    @Column(name = "local_cdm_file_path", length = 100)
+    @Column(name = "local_cdm_file_path", length = 300)
     private String localCdmFilePath;
 
     @Column(name = "max_threads")

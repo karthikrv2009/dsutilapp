@@ -18,7 +18,8 @@ public class DynamicDataSourceManager {
 
     public void addDataSource(String dbIdentifier, String url, String username, String password) {
         if (dataSourceMap.containsKey(dbIdentifier)) {
-            throw new IllegalArgumentException("DataSource with identifier " + dbIdentifier + " already exists.");
+           // throw new IllegalArgumentException("DataSource with identifier " + dbIdentifier + " already exists.");
+            return;
         }
 
         DriverManagerDataSource dataSource = new DriverManagerDataSource();
@@ -26,7 +27,7 @@ public class DynamicDataSourceManager {
         dataSource.setUsername(username);
         dataSource.setPassword(password);
         // dataSource.setDriverClassName("com.mysql.cj.jdbc.Driver");
-
+        
         dataSourceMap.put(dbIdentifier, dataSource);
     }
 
