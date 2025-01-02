@@ -235,7 +235,7 @@ const DatabaseConfigPage = () => {
                       {config.maxThreads}
                     </TableCell>
                     <TableCell className={classes.tableCellBody}>
-                      {config.initialLoadStatus === 0 ? (
+                      {config.initialLoadStatus !== 2 ? (
                         <PlayCircleOutlineIcon
                           style={{ color: "blue", cursor: "pointer" }}
                           onClick={() =>
@@ -247,7 +247,7 @@ const DatabaseConfigPage = () => {
                       )}
                     </TableCell>
                     <TableCell className={classes.tableCellBody}>
-                      {config.queueListenerStatus === 0 ? (
+                      {config.queueListenerStatus !== 2 ? (
                         <PlayCircleOutlineIcon
                           style={{ color: "blue", cursor: "pointer" }}
                           onClick={() =>

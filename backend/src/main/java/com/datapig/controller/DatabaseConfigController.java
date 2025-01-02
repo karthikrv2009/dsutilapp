@@ -2,9 +2,12 @@ package com.datapig.controller;
 
 import com.datapig.component.DynamicDataSourceManager;
 import com.datapig.entity.DatabaseConfig;
+import com.datapig.entity.IntialLoad;
+import com.datapig.repository.IntitalLoadRepository;
 import com.datapig.service.AzureQueueListenerService;
 import com.datapig.service.DatabaseConfigService;
 import com.datapig.service.InitialLoadService;
+import com.datapig.service.dto.DatabaseConfigDTO;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +18,9 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/database-configs")
 public class DatabaseConfigController {
+
+    @Autowired
+    IntitalLoadRepository intitalLoadRepository;
 
     @Autowired
     private DatabaseConfigService databaseConfigService;
@@ -35,11 +41,20 @@ public class DatabaseConfigController {
     }
 
     @PostMapping("/save")
-    public ResponseEntity<DatabaseConfig> saveDatabaseConfig(@RequestBody DatabaseConfig databaseConfig) {
+    public ResponseEntity<DatabaseConfigDTO> saveDatabaseConfig(@RequestBody DatabaseConfig databaseConfig) {
         DatabaseConfig savedConfig = databaseConfigService.saveDatabaseConfig(databaseConfig);
         dynamicDataSourceManager.addDataSource(databaseConfig.getDbIdentifier(), databaseConfig.getUrl(),
                 databaseConfig.getUsername(), databaseConfig.getPassword());
-        return ResponseEntity.ok(savedConfig);
+
+        IntialLoad intialLoad = intitalLoadRepository.findByDbIdentifier(databaseConfig.getDbIdentifier());
+
+        DatabaseConfigDTO databaseConfigDTO = new DatabaseConfigDTO();
+
+        databaseConfigDTO = databaseConfigDTO.fromEntity(databaseConfig, intialLoad.getStagestatus(),
+                intialLoad.getStagestatus());
+
+        return ResponseEntity.ok(databaseConfigDTO);
+
     }
 
     @PostMapping("/start-initial-load")

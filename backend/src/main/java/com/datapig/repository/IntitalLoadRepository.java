@@ -5,8 +5,9 @@ import org.springframework.stereotype.Repository;
 
 import com.datapig.entity.IntialLoad;
 
-
 @Repository
 public interface IntitalLoadRepository extends JpaRepository<IntialLoad, String> {
     IntialLoad findByName(String name);
+
+    IntialLoad findByDbIdentifier(String dbIdentifier);
 }
