@@ -69,7 +69,7 @@ public class DashboardController {
   @GetMapping("/getPipeline/")
   public ResponseEntity<List<Pipeline>> getPipeline(int days, boolean error, boolean success, boolean inprogress,
       String dbProfile) {
-    List<Pipeline> pipelines = new ArrayList<Pipeline>();
+    List<Pipeline> pipelines= new ArrayList<Pipeline>();
     List<Pipeline> pipelinesInDB = pipelineService.getPipelinesWithinLastDays(days, dbProfile);
     for (Pipeline pipeline : pipelinesInDB) {
       if (error && pipeline.getStatus() == 3) {
