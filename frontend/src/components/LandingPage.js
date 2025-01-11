@@ -232,23 +232,23 @@ const LandingPage = () => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {dashboardData.length > 0 ? (
-                    dashboardData.map((data, index) => (
-                      <TableRow key={index}>
+                  {Object.keys(dashboardData).length > 0 ? (
+                    
+                      <TableRow>
                         <TableCell className={classes.tableCellBody}>
-                          {data.lastProcessedfolder}
+                          {dashboardData.lastProcessedfolder}
                         </TableCell>
                         <TableCell className={classes.tableCellBody}>
-                          {data.latestADLSFolderAvailable}
+                          {dashboardData.latestADLSFolderAvailable}
                         </TableCell>
                         <TableCell className={classes.tableCellBody}>
-                          {data.pendingNumberPackages}
+                          {dashboardData.pendingNumberPackages}
                         </TableCell>
                         <TableCell className={classes.tableCellBody}>
-                          {data.pendingTablesInAllPackages}
+                          {dashboardData.pendingTablesInAllPackages}
                         </TableCell>
                       </TableRow>
-                    ))
+                    
                   ) : (
                     <TableRow>
                       <TableCell colSpan={4} className={classes.tableCellBody}>
@@ -303,26 +303,26 @@ const LandingPage = () => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {folderStatus.length > 0 ? (
-                    folderStatus.map((status, index) => (
-                      <TableRow key={index}>
+                  {Object.keys(folderStatus).length > 0 ? (
+                    
+                      <TableRow >
                         <TableCell className={classes.tableCellBody}>
-                          {status.currentPackageName}
+                          {folderStatus.currentPackageName}
                         </TableCell>
                         <TableCell className={classes.tableCellBody}>
-                          {status.inProgressTables}
+                          {folderStatus.inProgressTables}
                         </TableCell>
                         <TableCell className={classes.tableCellBody}>
-                          {status.pendingTables}
+                          {folderStatus.pendingTables}
                         </TableCell>
                         <TableCell className={classes.tableCellBody}>
-                          {status.completedTables}
+                          {folderStatus.completedTables}
                         </TableCell>
                         <TableCell className={classes.tableCellBody}>
-                          {status.errorTablesCount}
+                          {folderStatus.errorTablesCount}
                         </TableCell>
                       </TableRow>
-                    ))
+                   
                   ) : (
                     <TableRow>
                       <TableCell colSpan={5} className={classes.tableCellBody}>

@@ -39,6 +39,7 @@ public class JDBCTemplateUtiltiy {
 			dynamicDataSourceManager.addDataSource(dbIdentifier, databaseConfig.getUrl(), databaseConfig.getUsername(), databaseConfig.getPassword());
 			dataSource = dynamicDataSourceManager.getDataSource(dbIdentifier);
 		}
+
 		
 		// Create and return a new JdbcTemplate based on the DataSource
 		return new JdbcTemplate(dataSource);
@@ -93,6 +94,16 @@ public class JDBCTemplateUtiltiy {
 
 	}
 
+	public Integer getRowCountByTableName(String tableName,String dbIdentifier){
+		jdbcTemplate = getJdbcTemplate(dbIdentifier);
+		String rowCountQuery="SELECT SUM(p.rows) FROM sys.partitions p " +
+                        "JOIN sys.tables t ON p.object_id = t.object_id " +
+                        "WHERE t.name = ? AND t.is_ms_shipped = 0 AND p.index_id IN (0, 1)";
+		
+		Integer count=jdbcTemplate.queryForObject(rowCountQuery, new Object[] { tableName }, Integer.class);
+				
+		return count;
+	}
 	public void createTableIfNotExists(String tableName, String dataFrame, String dbIdentifier) {
 		jdbcTemplate = getJdbcTemplate(dbIdentifier);
 		String checkTableSQL = "SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = ?";

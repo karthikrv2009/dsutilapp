@@ -6,6 +6,7 @@ import java.util.Set;
 import org.springframework.stereotype.Service;
 
 import com.datapig.repository.MetaDataCatlogRepository;
+import com.datapig.utility.JDBCTemplateUtiltiy;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import java.util.Optional;
@@ -15,6 +16,8 @@ import com.datapig.entity.MetaDataCatlog;
 @Service
 public class MetaDataCatlogService {
 
+    @Autowired
+    private JDBCTemplateUtiltiy jdbcTemplateUtiltiy;
     @Autowired
     private MetaDataCatlogRepository metaDataCatlogRepository;
 
@@ -59,8 +62,8 @@ public class MetaDataCatlogService {
         return metaDataCatlogs;
     }
 
-    public Integer getRowCount(String tableName) {
-        return metaDataCatlogRepository.getRowCountByTableName(tableName);
+    public Integer getRowCount(String tableName,String dbIdentifier) {
+        return jdbcTemplateUtiltiy.getRowCountByTableName(tableName,dbIdentifier);
     }
 
     public List<MetaDataCatlog> findBylastCopyStatusAndDbIdentifier(short lastCopyStatus, String dbIdentifier) {

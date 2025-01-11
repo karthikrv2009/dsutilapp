@@ -3,6 +3,8 @@ package com.datapig.controller;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 
@@ -24,11 +26,14 @@ import com.datapig.service.dto.MetaDataCatalogDTO;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/dashboard")
 public class DashboardController {
+
+      private static final Logger logger = LoggerFactory.getLogger(DashboardController.class);
 
   @Autowired
   MetaDataPointerService metaDataPointerService;
@@ -50,14 +55,16 @@ public class DashboardController {
 
   // Overall MetaDataPointer Snapshot
   @GetMapping("/getDashboardData")
-  public ResponseEntity<DBSnapshotWidget> getDashboardData(@PathVariable String dbProfile) {
+  public ResponseEntity<DBSnapshotWidget> getDashboardData(@RequestParam String dbProfile) {
+    
+    logger.info("We are in Controller======>"+dbProfile);
     DBSnapshotWidget dbSnapshotWidget = metaDataPointerService.getDBSnapshotWidget(dbProfile);
     return ResponseEntity.ok(dbSnapshotWidget);
   }
 
   // Overall Table In FolderSyncStatusSnapShot
   @GetMapping("/getCurrentFolderStatus")
-  public ResponseEntity<FolderSyncStatusDTO> getCurrentFolerStatus(@PathVariable String dbProfile) {
+  public ResponseEntity<FolderSyncStatusDTO> getCurrentFolerStatus(@RequestParam String dbProfile) {
     FolderSyncStatusDTO folderSyncStatusDTO = folderSyncStatusService.getFolerStatusDTO(dbProfile);
     if (folderSyncStatusDTO == null) {
       folderSyncStatusDTO = new FolderSyncStatusDTO();
@@ -66,7 +73,7 @@ public class DashboardController {
   }
 
   // PipeLine information based on Duration(maximum 1 month) and Status
-  @GetMapping("/getPipeline/")
+  @GetMapping("/getPipeline")
   public ResponseEntity<List<Pipeline>> getPipeline(int days, boolean error, boolean success, boolean inprogress,
       String dbProfile) {
     List<Pipeline> pipelines= new ArrayList<Pipeline>();
@@ -89,7 +96,7 @@ public class DashboardController {
   // Get HealtMetrics based on PipelineId
   @GetMapping("/getHealthMetrics/{pipelineId}")
   public ResponseEntity<List<HealthMetrics>> getHealthMetrics(@PathVariable String pipelineId,
-      @PathVariable String dbProfile) {
+  @RequestParam String dbProfile) {
     List<HealthMetrics> healthMetrics = healthMetricsService.findbyPipelineIdAndDbIdentifer(pipelineId, dbProfile);
     return ResponseEntity.ok(healthMetrics);
   }
@@ -105,9 +112,9 @@ public class DashboardController {
   }
 
   // Get MetaDataCatalog Information
-  @GetMapping("/getMetaDataCatalogInfo/{dbProfile}")
+  @GetMapping("/getMetaDataCatalogInfo")
 
-  public ResponseEntity<List<MetaDataCatalogDTO>> getMetaDataCatalogInfo(@PathVariable String dbProfile) {
+  public ResponseEntity<List<MetaDataCatalogDTO>> getMetaDataCatalogInfo(@RequestParam String dbProfile) {
     List<MetaDataCatalogDTO> metaDataCatalogDTOs = new ArrayList<MetaDataCatalogDTO>();
     List<MetaDataCatlog> metaDataCatlogs = metaDataCatlogService.findAllByDbIdentifier(dbProfile);
     for (MetaDataCatlog metaDataCatlog : metaDataCatlogs) {
@@ -117,7 +124,7 @@ public class DashboardController {
       metaDataCatalogDTO.setQuarintine(metaDataCatlog.getQuarintine());
       metaDataCatalogDTO.setLastUpdatedFolder(metaDataCatlog.getLastUpdatedFolder());
       // Update it to actual count
-      metaDataCatalogDTO.setRowCount(metaDataCatlogService.getRowCount(metaDataCatlog.getTableName()));
+      metaDataCatalogDTO.setRowCount(metaDataCatlogService.getRowCount(metaDataCatlog.getTableName(),dbProfile));
       metaDataCatalogDTOs.add(metaDataCatalogDTO);
     }
     return ResponseEntity.ok(metaDataCatalogDTOs);
