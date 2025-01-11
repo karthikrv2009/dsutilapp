@@ -1,3 +1,4 @@
+import RotateRightRoundedIcon from '@mui/icons-material/RotateRightRounded';
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import {
@@ -162,6 +163,7 @@ const LandingPage = () => {
 
   const handleDbProfileChange = (event) => {
     setSelectedDbProfile(event.target.value);
+    setPipelineData([]);
   };
 
   return (
@@ -446,10 +448,12 @@ const LandingPage = () => {
                           {pipeline.pipelineEndTime}
                         </TableCell>
                         <TableCell className={classes.tableCellBody}>
-                          {pipeline.status === 0 ? (
+                        {pipeline.status === 2 ? (
                             <CheckCircleOutlineIcon
                               style={{ color: "green" }}
                             />
+                          ) : pipeline.status === 1 ? (
+                            <RotateRightRoundedIcon style={{ color: "blue" }} />
                           ) : (
                             <ErrorOutlineIcon style={{ color: "red" }} />
                           )}
@@ -639,7 +643,11 @@ const LandingPage = () => {
                         {metric.timespent}
                       </TableCell>
                       <TableCell className={classes.tableCellBody}>
-                        {metric.status}
+                            {metric.status === 1 ? (
+                              <CheckCircleOutlineIcon style={{ color: "green" }} />
+                            ) : (
+                              <ErrorOutlineIcon style={{ color: "red" }} />
+                            )}
                       </TableCell>
                       <TableCell className={classes.tableCellBody}>
                         {metric.rcount}
