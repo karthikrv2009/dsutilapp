@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import com.datapig.component.DynamicDataSourceManager;
 import com.datapig.entity.DatabaseConfig;
+
 import com.datapig.repository.DatabaseConfigRepository;
 
 @Service
@@ -23,7 +24,12 @@ public class DatabaseConfigService {
     }
 
     public DatabaseConfig getDatabaseConfigByIdentifier(String dbIdentifier) {
-        return databaseConfigRepository.findByDbIdentifier(dbIdentifier);
+        System.out.println("Fetching DatabaseConfig for identifier: " + dbIdentifier);
+        DatabaseConfig result = databaseConfigRepository.findByDbIdentifier(dbIdentifier);
+        if (result == null) {
+            System.out.println("No DatabaseConfig found for identifier: " + dbIdentifier);
+        }
+        return result;
     }
 
     public DatabaseConfig saveDatabaseConfig(DatabaseConfig databaseConfig) {

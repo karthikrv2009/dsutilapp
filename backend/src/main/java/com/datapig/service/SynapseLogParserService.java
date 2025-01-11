@@ -55,6 +55,7 @@ public class SynapseLogParserService {
     public void startParse(String folderName, DatabaseConfig databaseConfig) {
 
         Set<String> tableNamesInMetadataCatalogDB = metaDataCatlogService.getAllTableNamesByDbIdentifier(databaseConfig.getDbIdentifier());
+        String dbIdentifier=databaseConfig.getDbIdentifier();
         String fileSystemName = databaseConfig.getAdlsStorageAccountName();
         String targetFileName = databaseConfig.getAdlsCdmFileName();
 
@@ -81,7 +82,7 @@ public class SynapseLogParserService {
             if (doesFileExist(directoryClient, targetFileName)) {
                 List<String> tablesInDB = getTablesPerFolderInDB(metaDataPointer);
                 Set<String> tableNamesInAdls = jdbcTemplateUtiltiy
-                        .getTableInFolder(metaDataPointer.getFolderName(), fileSystemName);
+                        .getTableInFolder(metaDataPointer.getFolderName(), fileSystemName,dbIdentifier);
 
                 for (String tableName : tableNamesInAdls) {
                     if (!tableNamesInMetadataCatalogDB.contains(tableName)) {
@@ -107,7 +108,7 @@ public class SynapseLogParserService {
             if (doesFileExist(directoryClient, targetFileName)) {
 
                 Set<String> tableNamesInAdls = jdbcTemplateUtiltiy
-                        .getTableInFolder(metaDataPointer.getFolderName(), fileSystemName);
+                        .getTableInFolder(metaDataPointer.getFolderName(), fileSystemName,dbIdentifier);
                 for (String tableName : tableNamesInAdls) {
                     loadFolderSyncStatus(metaDataPointer, tableName);
                 }

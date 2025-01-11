@@ -16,7 +16,7 @@ public class DatabaseConfig {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "db_identifier", unique = true, nullable = false, length = 50)
+    @Column(name = "dbIdentifier", unique = true, nullable = false, length = 50)
     private String dbIdentifier;
 
     @Column(name = "url", nullable = false, length = 300)

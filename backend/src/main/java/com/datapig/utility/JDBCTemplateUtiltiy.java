@@ -6,6 +6,8 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import com.datapig.component.DynamicDataSourceManager;
+import com.datapig.entity.DatabaseConfig;
+import com.datapig.service.DatabaseConfigService;
 
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -26,14 +28,24 @@ public class JDBCTemplateUtiltiy {
 	@Autowired
 	private DynamicDataSourceManager dynamicDataSourceManager;
 
+	@Autowired
+	private DatabaseConfigService databaseConfigService;
+
 	public JdbcTemplate getJdbcTemplate(String dbIdentifier) {
 		// Get the DataSource from DynamicDataSourceManager
 		DataSource dataSource = dynamicDataSourceManager.getDataSource(dbIdentifier);
+		if(dataSource==null){
+			DatabaseConfig databaseConfig=databaseConfigService.getDatabaseConfigByIdentifier(dbIdentifier);
+			dynamicDataSourceManager.addDataSource(dbIdentifier, databaseConfig.getUrl(), databaseConfig.getUsername(), databaseConfig.getPassword());
+			dataSource = dynamicDataSourceManager.getDataSource(dbIdentifier);
+		}
+		
 		// Create and return a new JdbcTemplate based on the DataSource
 		return new JdbcTemplate(dataSource);
 	}
 
-	public Set<String> getTableInFolder(String folderName, String DATA_SOURCE) {
+	public Set<String> getTableInFolder(String folderName, String DATA_SOURCE,String dbIdentifier) {
+		jdbcTemplate = getJdbcTemplate(dbIdentifier);
 		Set<String> tables = new LinkedHashSet<>();
 		List<String> tableNames = null;
 		try {
@@ -105,13 +117,13 @@ public class JDBCTemplateUtiltiy {
 		jdbcTemplate = getJdbcTemplate(dbIdentifier);
 		String createIdIndexSQL = "CREATE UNIQUE INDEX dbo_" + tableName + "_Id_idx ON dbo." + tableName
 				+ "(Id) WITH (ONLINE=ON)";
-		String createRecIdIndexSQL = "CREATE UNIQUE INDEX dbo_" + tableName + "_RecId_idx ON dbo." + tableName
-				+ "(recid) WITH (ONLINE=ON)";
+		/*String createRecIdIndexSQL = "CREATE UNIQUE INDEX dbo_" + tableName + "_RecId_idx ON dbo." + tableName
+				+ "(recid) WITH (ONLINE=ON)";*/
 		String createVersionNumberIndexSQL = "CREATE INDEX dbo_" + tableName + "_versionnumber_idx ON dbo." + tableName
 				+ "(versionnumber) WITH (ONLINE=ON)";
 
 		jdbcTemplate.execute(createIdIndexSQL);
-		jdbcTemplate.execute(createRecIdIndexSQL);
+		//jdbcTemplate.execute(createRecIdIndexSQL);
 		jdbcTemplate.execute(createVersionNumberIndexSQL);
 
 		logger.info("Indexes created for table: {}", tableName);

@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+
 import java.util.ArrayList;
 
 import org.slf4j.Logger;
@@ -39,10 +40,7 @@ public class PolybaseService {
 
     @Autowired
     private FolderSyncStatusService folderSyncStatusService;
-
-    @Autowired
-    private JdbcTemplate jdbcTemplate;
-
+    
     @Autowired
     private HealthMetricsService healthMetricsService;
 
@@ -50,7 +48,7 @@ public class PolybaseService {
     private PipelineService pipelineService;
 
     public void startSyncInFolder(MetaDataPointer metaDataPointer,DatabaseConfig databaseConfig) {
-
+        JdbcTemplate jdbcTemplate=jdbcTemplateUtiltiy.getJdbcTemplate(metaDataPointer.getDbIdentifier());
         int maxCount = databaseConfig.getMaxThreads();
         List<FolderSyncStatus> setfolderSyncStatus = folderSyncStatusService
                 .getFolderSyncStatusByfolderAndDbIdentifier(metaDataPointer.getFolderName(),
@@ -67,6 +65,7 @@ public class PolybaseService {
                 }
             }
         }
+
 
         List<List<FolderSyncStatus>> chunksofFolderSyncStatus = chunkList(folderNeedsToBeProcessed, maxCount);
 
@@ -101,6 +100,7 @@ public class PolybaseService {
         logger.info("All data merge tasks completed for folder: " + metaDataPointer.getFolderName());
 
     }
+
 
     private void postMergeActionPipeline(Pipeline pipeline) {
         pipeline.setPipelineEndTime(LocalDateTime.now());
@@ -165,7 +165,7 @@ public class PolybaseService {
         jdbcTemplateUtiltiy.dropStagingTable(folderSyncStatus.getTableName(), folderSyncStatus.getDbIdentifier());
         Short copyStatus = 2;
         String tableName = folderSyncStatus.getTableName();
-        MetaDataCatlog metaDataCatlog = metaDataCatlogService.getmetaDataCatlogServiceBytableName(tableName);
+        MetaDataCatlog metaDataCatlog = metaDataCatlogService.getMetaDataCatlogByTableNameAndDbIdentifier(tableName, folderSyncStatus.getDbIdentifier());
         metaDataCatlog.setLastCopyStatus(copyStatus);
         metaDataCatlog.setLastStartCopyDate(LocalDateTime.now());
         metaDataCatlog.setLastUpdatedFolder(folderSyncStatus.getFolder());

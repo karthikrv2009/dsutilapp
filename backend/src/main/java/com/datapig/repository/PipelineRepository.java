@@ -3,7 +3,6 @@ package com.datapig.repository;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import org.antlr.v4.runtime.atn.SemanticContext.AND;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

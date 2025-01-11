@@ -6,6 +6,7 @@ C:\Users\Administrator\Documents\GitHub\dsutilapp\backend\src\main\java\com\data
 C:\Users\Administrator\Documents\GitHub\dsutilapp\backend\src\main\java\com\datapig\repository\DatabaseConfigRepository.java
 C:\Users\Administrator\Documents\GitHub\dsutilapp\backend\src\main\java\com\datapig\utility\ModelJsonDownloader.java
 C:\Users\Administrator\Documents\GitHub\dsutilapp\backend\src\main\java\com\datapig\service\dto\ModelAttribute.java
+C:\Users\Administrator\Documents\GitHub\dsutilapp\backend\src\main\java\com\datapig\service\dto\DatabaseConfigDTO.java
 C:\Users\Administrator\Documents\GitHub\dsutilapp\backend\src\main\java\com\datapig\service\InitialLoadService.java
 C:\Users\Administrator\Documents\GitHub\dsutilapp\backend\src\main\java\com\datapig\entity\LicenseKey.java
 C:\Users\Administrator\Documents\GitHub\dsutilapp\backend\src\main\java\com\datapig\entity\EnvironmentConfig.java

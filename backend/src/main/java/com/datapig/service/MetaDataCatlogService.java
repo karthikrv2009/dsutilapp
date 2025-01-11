@@ -48,11 +48,6 @@ public class MetaDataCatlogService {
         return metaDataCatlogRepository.save(metaDataCatlog);
     }
 
-    public MetaDataCatlog getmetaDataCatlogServiceBytableName(String tableName) {
-        Optional<MetaDataCatlog> entityOptional = metaDataCatlogRepository.findBytableName(tableName);
-        return entityOptional.orElse(null); // Return the entity or null if not found
-    }
-
     public MetaDataCatlog getMetaDataCatlogByTableNameAndDbIdentifier(String tableName, String dbIdentifier) {
         Optional<MetaDataCatlog> entityOptional = metaDataCatlogRepository.findByTableNameAndDbIdentifier(tableName,
                 dbIdentifier);

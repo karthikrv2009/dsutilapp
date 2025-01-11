@@ -115,4 +115,5 @@ public class AzureQueueListenerService {
             logger.warn(e.getMessage());
         }
     }
+
 }

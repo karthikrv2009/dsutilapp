@@ -10,6 +10,8 @@ import com.datapig.utility.ModelJsonDownloader;
 
 @Service
 public class InitialLoadService {
+    
+
     @Autowired
     IntitalLoadRepository intitalLoadRepository;
 
@@ -46,6 +48,7 @@ public class InitialLoadService {
                 initialLoad = new IntialLoad();
                 initialLoad.setName(dbIdentifier);
                 initialLoad.setStatus(0);
+                initialLoad.setDbIdentifier(dbIdentifier);
                 intitalLoadRepository.save(initialLoad);
             }
         }

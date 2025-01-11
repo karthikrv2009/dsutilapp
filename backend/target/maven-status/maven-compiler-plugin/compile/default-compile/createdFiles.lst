@@ -1,3 +1,4 @@
+com\datapig\service\dto\DatabaseConfigDTO.class
 com\datapig\repository\HealthMetricsRepository.class
 com\datapig\service\FolderSyncStatusService.class
 com\datapig\config\WebConfig$1.class

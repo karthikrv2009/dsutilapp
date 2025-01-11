@@ -69,7 +69,7 @@ public class ALDSMetaDataPointerLoadService {
         DatabaseConfig databaseConfig=databaseConfigService.getDatabaseConfigByIdentifier(dbIdentifier);
         
         // Define the filesystem name and directory to search
-        String fileSystemName = databaseConfig.getAdlsStorageAccountName();
+        String fileSystemName = databaseConfig.getAdlsFolderName();
         String targetFileName = databaseConfig.getAdlsCdmFileName();
 
         String storageAccountUrl = databaseConfig.getAdlsStorageAccountEndpoint();
@@ -125,7 +125,7 @@ public class ALDSMetaDataPointerLoadService {
                                 // Check if the target file exists in the directory
                                 if (doesFileExist(directoryClient, targetFileName)) {
                                     Set<String> tableNames = jDBCTemplateUtiltiy
-                                            .getTableInFolder(metaDataPointer.getFolderName(), fileSystemName);
+                                            .getTableInFolder(metaDataPointer.getFolderName(), fileSystemName,dbIdentifier);
 
                                     for (String tableName : tableNames) {
                                         if (!tableNamesInDB.contains(tableName)) {

@@ -1,14 +1,20 @@
 package com.datapig.controller;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+
 import com.datapig.component.DynamicDataSourceManager;
 import com.datapig.entity.DatabaseConfig;
 import com.datapig.entity.IntialLoad;
 import com.datapig.repository.IntitalLoadRepository;
+
 import com.datapig.service.AzureQueueListenerService;
 import com.datapig.service.DatabaseConfigService;
 import com.datapig.service.InitialLoadService;
 import com.datapig.service.dto.DatabaseConfigDTO;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,6 +25,7 @@ import java.util.List;
 @RequestMapping("/api/database-configs")
 public class DatabaseConfigController {
 
+    private static final Logger logger = LoggerFactory.getLogger(DatabaseConfigController.class);
     @Autowired
     IntitalLoadRepository intitalLoadRepository;
 
@@ -42,7 +49,6 @@ public class DatabaseConfigController {
 
     @PostMapping("/save")
     public ResponseEntity<DatabaseConfigDTO> saveDatabaseConfig(@RequestBody DatabaseConfig databaseConfig) {
-        DatabaseConfig savedConfig = databaseConfigService.saveDatabaseConfig(databaseConfig);
         dynamicDataSourceManager.addDataSource(databaseConfig.getDbIdentifier(), databaseConfig.getUrl(),
                 databaseConfig.getUsername(), databaseConfig.getPassword());
 
@@ -58,13 +64,19 @@ public class DatabaseConfigController {
     }
 
     @PostMapping("/start-initial-load")
-    public ResponseEntity<String> startInitialLoad(@RequestBody String dbIdentifier) {
+    public ResponseEntity<String> startInitialLoad(@RequestBody String request) {
+        logger.info("Initial Load started successfully :"+request);
+        JsonObject jsonObject = JsonParser.parseString(request).getAsJsonObject();
+        String dbIdentifier = jsonObject.get("dbIdentifier").getAsString();
         initialLoadService.runInitialLoad(dbIdentifier);
         return ResponseEntity.ok("Initial Load started successfully");
     }
 
     @PostMapping("/start-queue-listener")
-    public ResponseEntity<String> startQueueListener(@RequestBody String dbIdentifier) {
+    public ResponseEntity<String> startQueueListener(@RequestBody String request) {
+        logger.info("Queue Listener started successfully"+request);
+        JsonObject jsonObject = JsonParser.parseString(request).getAsJsonObject();
+        String dbIdentifier = jsonObject.get("dbIdentifier").getAsString();
         azureQueueListenerService.startQueueListener(dbIdentifier);
 
         return ResponseEntity.ok("Queue Listener started successfully");

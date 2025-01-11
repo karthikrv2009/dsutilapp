@@ -13,8 +13,6 @@ import java.util.Optional;
 @Repository
 public interface MetaDataCatlogRepository extends JpaRepository<MetaDataCatlog, String> {
 
-        Optional<MetaDataCatlog> findBytableName(String tableName);
-
         List<MetaDataCatlog> findBylastCopyStatus(short lastCopyStatus);
 
         @Query(value = "SELECT SUM(p.rows) FROM sys.partitions p " +

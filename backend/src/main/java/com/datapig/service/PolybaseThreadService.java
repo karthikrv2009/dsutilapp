@@ -1,9 +1,7 @@
 package com.datapig.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 
-import com.datapig.component.DynamicDataSourceManager;
 import com.datapig.entity.FolderSyncStatus;
 import com.datapig.entity.HealthMetrics;
 import com.datapig.entity.MetaDataCatlog;
@@ -11,8 +9,6 @@ import com.datapig.entity.MetaDataPointer;
 import com.datapig.entity.Pipeline;
 
 import java.time.LocalDateTime;
-
-import javax.sql.DataSource;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,8 +26,6 @@ public class PolybaseThreadService implements Runnable {
     private final FolderSyncStatusService folderSyncStatusService;
     private final HealthMetricsService healthMetricsService;
 
-    @Autowired
-    private DynamicDataSourceManager dynamicDataSourceManager;
 
     private long timespent = 0;
     private int status = 0;
@@ -45,18 +39,13 @@ public class PolybaseThreadService implements Runnable {
         this.folderSyncStatus = folderSyncStatus;
         this.metaDataPointer = metaDataPointer;
         this.pipeline = pipeline;
-        this.jdbcTemplate = getJdbcTemplate(metaDataPointer.getDbIdentifier());
+        this.jdbcTemplate = jdbcTemplate;
         this.folderSyncStatusService = folderSyncStatusService;
         this.metaDataCatlogService = metaDataCatlogService;
         this.healthMetricsService = healthMetricsService;
     }
 
-    public JdbcTemplate getJdbcTemplate(String dbIdentifier) {
-        // Get the DataSource from DynamicDataSourceManager
-        DataSource dataSource = dynamicDataSourceManager.getDataSource(dbIdentifier);
-        // Create and return a new JdbcTemplate based on the DataSource
-        return new JdbcTemplate(dataSource);
-    }
+
 
     @Override
     public void run() {
@@ -255,7 +244,7 @@ public class PolybaseThreadService implements Runnable {
         String query = "DELETE target\n" + //
                 "FROM " + tableName + " target\n" + //
                 "INNER JOIN _staging_" + tableName + " source \n" + //
-                "  ON source.recid = target.recid\n" + //
+                "  ON source.id = target.id\n" + //
                 "WHERE source.IsDelete IN ('1', 'True');";
 
         try {
