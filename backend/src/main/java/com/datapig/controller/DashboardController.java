@@ -49,14 +49,14 @@ public class DashboardController {
   EnvironmentConfigService environmentConfigService;
 
   // Overall MetaDataPointer Snapshot
-  @GetMapping("/getDashboardData/{dbProfile}")
+  @GetMapping("/getDashboardData")
   public ResponseEntity<DBSnapshotWidget> getDashboardData(@PathVariable String dbProfile) {
     DBSnapshotWidget dbSnapshotWidget = metaDataPointerService.getDBSnapshotWidget(dbProfile);
     return ResponseEntity.ok(dbSnapshotWidget);
   }
 
   // Overall Table In FolderSyncStatusSnapShot
-  @GetMapping("/getCurrentFolderStatus/{dbProfile}")
+  @GetMapping("/getCurrentFolderStatus")
   public ResponseEntity<FolderSyncStatusDTO> getCurrentFolerStatus(@PathVariable String dbProfile) {
     FolderSyncStatusDTO folderSyncStatusDTO = folderSyncStatusService.getFolerStatusDTO(dbProfile);
     if (folderSyncStatusDTO == null) {
@@ -87,7 +87,7 @@ public class DashboardController {
   }
 
   // Get HealtMetrics based on PipelineId
-  @GetMapping("/getHealthMetrics/{pipelineId}/{dbProfile}")
+  @GetMapping("/getHealthMetrics/{pipelineId}")
   public ResponseEntity<List<HealthMetrics>> getHealthMetrics(@PathVariable String pipelineId,
       @PathVariable String dbProfile) {
     List<HealthMetrics> healthMetrics = healthMetricsService.findbyPipelineIdAndDbIdentifer(pipelineId, dbProfile);
