@@ -86,15 +86,7 @@ const LandingPage = () => {
   const [healthMetrics, setHealthMetrics] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState(0); // Set default tab to 0
-  const [dbProfiles, setDbProfiles] = useState([]);
   const [selectedDbProfile, setSelectedDbProfile] = useState("");
-
-  useEffect(() => {
-    const fetchDataAsync = async () => {
-      fetchData("/api/database-configs", setDbProfiles);
-    };
-    fetchDataAsync();
-  }, []);
 
   useEffect(() => {
     if (selectedDbProfile) {
@@ -178,32 +170,6 @@ const LandingPage = () => {
     <div>
       <Header /> {/* Include the Header component */}
       <Container>
-        <FormControl sx={{ minWidth: 250, margin: 1 }}>
-          <InputLabel
-            id="dbProfile-label"
-            sx={{
-              fontSize: "1.25rem", // Increase font size
-              padding: 1, // Add padding
-              lineHeight: "1.5", // Adjust line height
-              fontWeight: "bold", // Make the text bold
-              minWidth: "500px", // Ensure label aligns
-            }}
-          >
-            Profiles
-          </InputLabel>
-          <Select
-            labelId="dbProfile-label"
-            value={selectedDbProfile}
-            onChange={handleDbProfileChange}
-          >
-            {dbProfiles.map((profile) => (
-              <MenuItem key={profile.dbIdentifier} value={profile.dbIdentifier}>
-                {profile.dbIdentifier}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-
         <Tabs
           value={activeTab}
           onChange={handleTabChange}
