@@ -216,134 +216,124 @@ const LandingPage = () => {
 
         {activeTab === 0 && (
           <div>
-            <TableContainer
-              component={Paper}
-              className={classes.tableContainer}
-            >
-              <Table>
-                <TableHead className={classes.tableHead}>
+            <Table>
+              <TableHead className={classes.tableHead}>
+                <TableRow>
+                  <TableCell
+                    className={classes.tableCellHead}
+                    style={{ color: "white" }}
+                  >
+                    Last Processed Folder
+                  </TableCell>
+                  <TableCell
+                    className={classes.tableCellHead}
+                    style={{ color: "white" }}
+                  >
+                    Latest ADLS Folder Available
+                  </TableCell>
+                  <TableCell
+                    className={classes.tableCellHead}
+                    style={{ color: "white" }}
+                  >
+                    Pending Number of Packages
+                  </TableCell>
+                  <TableCell
+                    className={classes.tableCellHead}
+                    style={{ color: "white" }}
+                  >
+                    Pending Tables in All Packages
+                  </TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {Object.keys(dashboardData).length > 0 ? (
                   <TableRow>
-                    <TableCell
-                      className={classes.tableCellHead}
-                      style={{ color: "white" }}
-                    >
-                      Last Processed Folder
+                    <TableCell className={classes.tableCellBody}>
+                      {dashboardData.lastProcessedfolder}
                     </TableCell>
-                    <TableCell
-                      className={classes.tableCellHead}
-                      style={{ color: "white" }}
-                    >
-                      Latest ADLS Folder Available
+                    <TableCell className={classes.tableCellBody}>
+                      {dashboardData.latestADLSFolderAvailable}
                     </TableCell>
-                    <TableCell
-                      className={classes.tableCellHead}
-                      style={{ color: "white" }}
-                    >
-                      Pending Number of Packages
+                    <TableCell className={classes.tableCellBody}>
+                      {dashboardData.pendingNumberPackages}
                     </TableCell>
-                    <TableCell
-                      className={classes.tableCellHead}
-                      style={{ color: "white" }}
-                    >
-                      Pending Tables in All Packages
+                    <TableCell className={classes.tableCellBody}>
+                      {dashboardData.pendingTablesInAllPackages}
                     </TableCell>
                   </TableRow>
-                </TableHead>
-                <TableBody>
-                  {Object.keys(dashboardData).length > 0 ? (
-                    <TableRow>
-                      <TableCell className={classes.tableCellBody}>
-                        {dashboardData.lastProcessedfolder}
-                      </TableCell>
-                      <TableCell className={classes.tableCellBody}>
-                        {dashboardData.latestADLSFolderAvailable}
-                      </TableCell>
-                      <TableCell className={classes.tableCellBody}>
-                        {dashboardData.pendingNumberPackages}
-                      </TableCell>
-                      <TableCell className={classes.tableCellBody}>
-                        {dashboardData.pendingTablesInAllPackages}
-                      </TableCell>
-                    </TableRow>
-                  ) : (
-                    <TableRow>
-                      <TableCell colSpan={4} className={classes.tableCellBody}>
-                        No data available
-                      </TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
-              </Table>
-            </TableContainer>
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={4} className={classes.tableCellBody}>
+                      No data available
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
 
-            <TableContainer
-              component={Paper}
-              className={classes.tableContainer}
-            >
-              <Table>
-                <TableHead className={classes.tableHead}>
+            <Table>
+              <TableHead className={classes.tableHead}>
+                <TableRow>
+                  <TableCell
+                    className={classes.tableCellHead}
+                    style={{ color: "white" }}
+                  >
+                    Current Package Name
+                  </TableCell>
+                  <TableCell
+                    className={classes.tableCellHead}
+                    style={{ color: "white" }}
+                  >
+                    In Progress Tables
+                  </TableCell>
+                  <TableCell
+                    className={classes.tableCellHead}
+                    style={{ color: "white" }}
+                  >
+                    Pending Tables
+                  </TableCell>
+                  <TableCell
+                    className={classes.tableCellHead}
+                    style={{ color: "white" }}
+                  >
+                    Completed Tables
+                  </TableCell>
+                  <TableCell
+                    className={classes.tableCellHead}
+                    style={{ color: "white" }}
+                  >
+                    Error Tables Count
+                  </TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {Object.keys(folderStatus).length > 0 ? (
                   <TableRow>
-                    <TableCell
-                      className={classes.tableCellHead}
-                      style={{ color: "white" }}
-                    >
-                      Current Package Name
+                    <TableCell className={classes.tableCellBody}>
+                      {folderStatus.currentPackageName}
                     </TableCell>
-                    <TableCell
-                      className={classes.tableCellHead}
-                      style={{ color: "white" }}
-                    >
-                      In Progress Tables
+                    <TableCell className={classes.tableCellBody}>
+                      {folderStatus.inProgressTables}
                     </TableCell>
-                    <TableCell
-                      className={classes.tableCellHead}
-                      style={{ color: "white" }}
-                    >
-                      Pending Tables
+                    <TableCell className={classes.tableCellBody}>
+                      {folderStatus.pendingTables}
                     </TableCell>
-                    <TableCell
-                      className={classes.tableCellHead}
-                      style={{ color: "white" }}
-                    >
-                      Completed Tables
+                    <TableCell className={classes.tableCellBody}>
+                      {folderStatus.completedTables}
                     </TableCell>
-                    <TableCell
-                      className={classes.tableCellHead}
-                      style={{ color: "white" }}
-                    >
-                      Error Tables Count
+                    <TableCell className={classes.tableCellBody}>
+                      {folderStatus.errorTablesCount}
                     </TableCell>
                   </TableRow>
-                </TableHead>
-                <TableBody>
-                  {Object.keys(folderStatus).length > 0 ? (
-                    <TableRow>
-                      <TableCell className={classes.tableCellBody}>
-                        {folderStatus.currentPackageName}
-                      </TableCell>
-                      <TableCell className={classes.tableCellBody}>
-                        {folderStatus.inProgressTables}
-                      </TableCell>
-                      <TableCell className={classes.tableCellBody}>
-                        {folderStatus.pendingTables}
-                      </TableCell>
-                      <TableCell className={classes.tableCellBody}>
-                        {folderStatus.completedTables}
-                      </TableCell>
-                      <TableCell className={classes.tableCellBody}>
-                        {folderStatus.errorTablesCount}
-                      </TableCell>
-                    </TableRow>
-                  ) : (
-                    <TableRow>
-                      <TableCell colSpan={5} className={classes.tableCellBody}>
-                        No data available
-                      </TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
-              </Table>
-            </TableContainer>
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={5} className={classes.tableCellBody}>
+                      No data available
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
           </div>
         )}
 
@@ -391,166 +381,155 @@ const LandingPage = () => {
               </label>
               <button onClick={fetchPipelineData}>Submit</button>
             </div>
-            <TableContainer
-              component={Paper}
-              className={classes.tableContainer}
-            >
-              <Table>
-                <TableHead className={classes.tableHead}>
-                  <TableRow>
-                    <TableCell
-                      className={classes.tableCellHead}
-                      style={{ color: "white" }}
-                    >
-                      Pipeline ID
-                    </TableCell>
-                    <TableCell
-                      className={classes.tableCellHead}
-                      style={{ color: "white" }}
-                    >
-                      Folder Name
-                    </TableCell>
-                    <TableCell
-                      className={classes.tableCellHead}
-                      style={{ color: "white" }}
-                    >
-                      Pipeline Start Time
-                    </TableCell>
-                    <TableCell
-                      className={classes.tableCellHead}
-                      style={{ color: "white" }}
-                    >
-                      Pipeline End Time
-                    </TableCell>
-                    <TableCell
-                      className={classes.tableCellHead}
-                      style={{ color: "white" }}
-                    >
-                      Status
-                    </TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {pipelineData.length > 0 ? (
-                    pipelineData.map((pipeline, index) => (
-                      <TableRow key={index}>
-                        <TableCell className={classes.tableCellBody}>
-                          <a
-                            href="#"
-                            onClick={() =>
-                              fetchHealthMetrics(pipeline.pipelineid)
-                            }
-                          >
-                            {pipeline.pipelineid}
-                          </a>
-                        </TableCell>
-                        <TableCell className={classes.tableCellBody}>
-                          {pipeline.folderName}
-                        </TableCell>
-                        <TableCell className={classes.tableCellBody}>
-                          {pipeline.pipelineStartTime}
-                        </TableCell>
-                        <TableCell className={classes.tableCellBody}>
-                          {pipeline.pipelineEndTime}
-                        </TableCell>
-                        <TableCell className={classes.tableCellBody}>
-                          {pipeline.status === 2 ? (
-                            <CheckCircleOutlineIcon
-                              style={{ color: "green" }}
-                            />
-                          ) : pipeline.status === 1 ? (
-                            <RotateRightRoundedIcon style={{ color: "blue" }} />
-                          ) : (
-                            <ErrorOutlineIcon style={{ color: "red" }} />
-                          )}
-                        </TableCell>
-                      </TableRow>
-                    ))
-                  ) : (
-                    <TableRow>
-                      <TableCell colSpan={5} className={classes.tableCellBody}>
-                        No data available
+
+            <Table>
+              <TableHead className={classes.tableHead}>
+                <TableRow>
+                  <TableCell
+                    className={classes.tableCellHead}
+                    style={{ color: "white" }}
+                  >
+                    Pipeline ID
+                  </TableCell>
+                  <TableCell
+                    className={classes.tableCellHead}
+                    style={{ color: "white" }}
+                  >
+                    Folder Name
+                  </TableCell>
+                  <TableCell
+                    className={classes.tableCellHead}
+                    style={{ color: "white" }}
+                  >
+                    Pipeline Start Time
+                  </TableCell>
+                  <TableCell
+                    className={classes.tableCellHead}
+                    style={{ color: "white" }}
+                  >
+                    Pipeline End Time
+                  </TableCell>
+                  <TableCell
+                    className={classes.tableCellHead}
+                    style={{ color: "white" }}
+                  >
+                    Status
+                  </TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {pipelineData.length > 0 ? (
+                  pipelineData.map((pipeline, index) => (
+                    <TableRow key={index}>
+                      <TableCell className={classes.tableCellBody}>
+                        <a
+                          href="#"
+                          onClick={() =>
+                            fetchHealthMetrics(pipeline.pipelineid)
+                          }
+                        >
+                          {pipeline.pipelineid}
+                        </a>
+                      </TableCell>
+                      <TableCell className={classes.tableCellBody}>
+                        {pipeline.folderName}
+                      </TableCell>
+                      <TableCell className={classes.tableCellBody}>
+                        {pipeline.pipelineStartTime}
+                      </TableCell>
+                      <TableCell className={classes.tableCellBody}>
+                        {pipeline.pipelineEndTime}
+                      </TableCell>
+                      <TableCell className={classes.tableCellBody}>
+                        {pipeline.status === 2 ? (
+                          <CheckCircleOutlineIcon style={{ color: "green" }} />
+                        ) : pipeline.status === 1 ? (
+                          <RotateRightRoundedIcon style={{ color: "blue" }} />
+                        ) : (
+                          <ErrorOutlineIcon style={{ color: "red" }} />
+                        )}
                       </TableCell>
                     </TableRow>
-                  )}
-                </TableBody>
-              </Table>
-            </TableContainer>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={5} className={classes.tableCellBody}>
+                      No data available
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
           </div>
         )}
 
         {activeTab === 2 && (
           <div>
-            <TableContainer
-              component={Paper}
-              className={classes.tableContainer}
-            >
-              <Table>
-                <TableHead className={classes.tableHead}>
-                  <TableRow>
-                    <TableCell
-                      className={classes.tableCellHead}
-                      style={{ color: "white" }}
-                    >
-                      Table Name
-                    </TableCell>
-                    <TableCell
-                      className={classes.tableCellHead}
-                      style={{ color: "white" }}
-                    >
-                      Last Updated Folder
-                    </TableCell>
-                    <TableCell
-                      className={classes.tableCellHead}
-                      style={{ color: "white" }}
-                    >
-                      Last Copy Status
-                    </TableCell>
-                    <TableCell
-                      className={classes.tableCellHead}
-                      style={{ color: "white" }}
-                    >
-                      Quarantine
-                    </TableCell>
-                    <TableCell
-                      className={classes.tableCellHead}
-                      style={{ color: "white" }}
-                    >
-                      Row Count
-                    </TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {metaDataCatalog.length > 0 ? (
-                    metaDataCatalog.map((metaData, index) => (
-                      <TableRow key={index}>
-                        <TableCell className={classes.tableCellBody}>
-                          {metaData.tableName}
-                        </TableCell>
-                        <TableCell className={classes.tableCellBody}>
-                          {metaData.lastUpdatedFolder}
-                        </TableCell>
-                        <TableCell className={classes.tableCellBody}>
-                          {metaData.lastCopyStatus}
-                        </TableCell>
-                        <TableCell className={classes.tableCellBody}>
-                          {metaData.quarintine}
-                        </TableCell>
-                        <TableCell className={classes.tableCellBody}>
-                          {metaData.rowCount}
-                        </TableCell>
-                      </TableRow>
-                    ))
-                  ) : (
-                    <TableRow>
-                      <TableCell colSpan={5} className={classes.tableCellBody}>
-                        No data available
+            <Table>
+              <TableHead className={classes.tableHead}>
+                <TableRow>
+                  <TableCell
+                    className={classes.tableCellHead}
+                    style={{ color: "white" }}
+                  >
+                    Table Name
+                  </TableCell>
+                  <TableCell
+                    className={classes.tableCellHead}
+                    style={{ color: "white" }}
+                  >
+                    Last Updated Folder
+                  </TableCell>
+                  <TableCell
+                    className={classes.tableCellHead}
+                    style={{ color: "white" }}
+                  >
+                    Last Copy Status
+                  </TableCell>
+                  <TableCell
+                    className={classes.tableCellHead}
+                    style={{ color: "white" }}
+                  >
+                    Quarantine
+                  </TableCell>
+                  <TableCell
+                    className={classes.tableCellHead}
+                    style={{ color: "white" }}
+                  >
+                    Row Count
+                  </TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {metaDataCatalog.length > 0 ? (
+                  metaDataCatalog.map((metaData, index) => (
+                    <TableRow key={index}>
+                      <TableCell className={classes.tableCellBody}>
+                        {metaData.tableName}
+                      </TableCell>
+                      <TableCell className={classes.tableCellBody}>
+                        {metaData.lastUpdatedFolder}
+                      </TableCell>
+                      <TableCell className={classes.tableCellBody}>
+                        {metaData.lastCopyStatus}
+                      </TableCell>
+                      <TableCell className={classes.tableCellBody}>
+                        {metaData.quarintine}
+                      </TableCell>
+                      <TableCell className={classes.tableCellBody}>
+                        {metaData.rowCount}
                       </TableCell>
                     </TableRow>
-                  )}
-                </TableBody>
-              </Table>
-            </TableContainer>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={5} className={classes.tableCellBody}>
+                      No data available
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
           </div>
         )}
 
