@@ -23,7 +23,7 @@ import LoginButton from "./components/LoginButton";
 import DatabaseConfigPage from "./components/DatabaseConfigPage"; // Import the DatabaseConfigPage component
 import DataPigBlackLogo from "./components/datapigblack.png"; // Adjust the path as needed
 import DatapigHome from "./components/DataPigHome.png"; // Adjust the path to your image
-
+import DashboardPage from "./components/DashboardPage"; // Import the DashboardPage component
 const theme = createTheme({
   palette: {
     primary: {
@@ -46,6 +46,7 @@ const App = () => {
             {/* Redirect to Login Page */}
             <Route path="/login" element={<Login />} /> {/* Login Page */}
             <Route path="/landing" element={<LandingPage />} />{" "}
+            <Route path="/dashboard" element={<DashboardPage />} />{" "}
             {/* Landing Page */}
             <Route path="/license" element={<LicenseKeyPage />} />{" "}
             {/* License Key Page */}

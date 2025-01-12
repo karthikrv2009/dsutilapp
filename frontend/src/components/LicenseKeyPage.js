@@ -165,9 +165,6 @@ const LicenseKeyPage = () => {
 
         {activeTab === 0 && (
           <div>
-            <Typography variant="h4" className={classes.title}>
-              License Information
-            </Typography>
             <Button
               variant="contained"
               color="primary"
@@ -175,63 +172,61 @@ const LicenseKeyPage = () => {
             >
               Add License Info
             </Button>
-            <TableContainer
-              component={Paper}
-              className={classes.tableContainer}
-            >
-              <Table>
-                <TableHead className={classes.tableHead}>
-                  <TableRow>
-                    <TableCell className={classes.tableCellHead}>
-                      Company Name
-                    </TableCell>
-                    <TableCell className={classes.tableCellHead}>
-                      License Type
-                    </TableCell>
-                    <TableCell className={classes.tableCellHead}>
-                      Validity
-                    </TableCell>
-                    <TableCell className={classes.tableCellHead}>
-                      License Key
-                    </TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {licenseData.length > 0 ? (
-                    licenseData.map((license, index) => (
-                      <TableRow key={index}>
-                        <TableCell className={classes.tableCellBody}>
-                          {license.companyName}
-                        </TableCell>
-                        <TableCell className={classes.tableCellBody}>
-                          {license.licenseType}
-                        </TableCell>
-                        <TableCell className={classes.tableCellBody}>
-                          {license.validity}
-                        </TableCell>
-                        <TableCell className={classes.tableCellBody}>
-                          {license.licenseKey}
-                        </TableCell>
-                      </TableRow>
-                    ))
-                  ) : (
-                    <TableRow>
-                      <TableCell colSpan={4} className={classes.tableCellBody}>
-                        No data available
+
+            <Table>
+              <TableHead className={classes.tableHead}>
+                <TableRow>
+                  <TableCell className={classes.tableCellHead} colSpan={4}>
+                    License Information
+                  </TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell className={classes.tableCellHead}>
+                    Company Name
+                  </TableCell>
+                  <TableCell className={classes.tableCellHead}>
+                    License Type
+                  </TableCell>
+                  <TableCell className={classes.tableCellHead}>
+                    Validity
+                  </TableCell>
+                  <TableCell className={classes.tableCellHead}>
+                    License Key
+                  </TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {licenseData.length > 0 ? (
+                  licenseData.map((license, index) => (
+                    <TableRow key={index}>
+                      <TableCell className={classes.tableCellBody}>
+                        {license.companyName}
+                      </TableCell>
+                      <TableCell className={classes.tableCellBody}>
+                        {license.licenseType}
+                      </TableCell>
+                      <TableCell className={classes.tableCellBody}>
+                        {license.validity}
+                      </TableCell>
+                      <TableCell className={classes.tableCellBody}>
+                        {license.licenseKey}
                       </TableCell>
                     </TableRow>
-                  )}
-                </TableBody>
-              </Table>
-            </TableContainer>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={4} className={classes.tableCellBody}>
+                      No data available
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
           </div>
         )}
 
         {activeTab === 1 && (
           <div>
-            <Typography variant="h4" className={classes.title}>
-              Environment Information
-            </Typography>
             <Button
               variant="contained"
               color="primary"
@@ -239,43 +234,44 @@ const LicenseKeyPage = () => {
             >
               Add Environment Info
             </Button>
-            <TableContainer
-              component={Paper}
-              className={classes.tableContainer}
-            >
-              <Table>
-                <TableHead className={classes.tableHead}>
-                  <TableRow>
-                    <TableCell className={classes.tableCellHead}>
-                      D365 Environment
-                    </TableCell>
-                    <TableCell className={classes.tableCellHead}>
-                      D365 Environment URL
-                    </TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {environmentInfo.length > 0 ? (
-                    environmentInfo.map((info, index) => (
-                      <TableRow key={index}>
-                        <TableCell className={classes.tableCellBody}>
-                          {info.d365Environment}
-                        </TableCell>
-                        <TableCell className={classes.tableCellBody}>
-                          {info.d365EnvironmentUrl}
-                        </TableCell>
-                      </TableRow>
-                    ))
-                  ) : (
-                    <TableRow>
-                      <TableCell colSpan={5} className={classes.tableCellBody}>
-                        No data available
+
+            <Table>
+              <TableHead className={classes.tableHead}>
+                <TableRow>
+                  <TableCell className={classes.tableCellHead} colSpan={4}>
+                    Environment Information
+                  </TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell className={classes.tableCellHead}>
+                    D365 Environment
+                  </TableCell>
+                  <TableCell className={classes.tableCellHead}>
+                    D365 Environment URL
+                  </TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {environmentInfo.length > 0 ? (
+                  environmentInfo.map((info, index) => (
+                    <TableRow key={index}>
+                      <TableCell className={classes.tableCellBody}>
+                        {info.d365Environment}
+                      </TableCell>
+                      <TableCell className={classes.tableCellBody}>
+                        {info.d365EnvironmentUrl}
                       </TableCell>
                     </TableRow>
-                  )}
-                </TableBody>
-              </Table>
-            </TableContainer>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={5} className={classes.tableCellBody}>
+                      No data available
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
           </div>
         )}
 

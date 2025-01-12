@@ -54,3 +54,13 @@ input {
 .login-button:hover {
   background-color: #0056b3;
 }
+
+.table-container {
+  margin-top: 20px;
+}
+
+thead tr {
+  background-color: #625c5c;
+  color: #ffffff;
+  text-align: left;
+}

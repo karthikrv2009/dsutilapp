@@ -175,101 +175,103 @@ const DatabaseConfigPage = () => {
     <div>
       <Header /> {/* Include the Header component */}
       <Container>
-        <Typography variant="h4" className={classes.title}>
-          Synapse Link Profiles
-        </Typography>
         <Button variant="contained" color="primary" onClick={handleClickOpen}>
           Add New Profile
         </Button>
-        <TableContainer component={Paper} className={classes.tableContainer}>
-          <Table>
-            <TableHead className={classes.tableHead}>
-              <TableRow>
-                <TableCell className={classes.tableCellHead}>
-                  Database Name
-                </TableCell>
-                <TableCell className={classes.tableCellHead}>
-                  Synapse Profile Identifier(Unique)
-                </TableCell>
+        <Table>
+          <TableHead className={classes.tableHead}>
+            <TableRow>
+              <TableCell className={classes.tableCellHead} colSpan={8}>
+                Synapse Link Profiles
+              </TableCell>
+            </TableRow>
+          </TableHead>
+          <TableHead className={classes.tableHead}>
+            <TableRow>
+              <TableCell className={classes.tableCellHead}>
+                Database Name
+              </TableCell>
+              <TableCell className={classes.tableCellHead}>
+                Synapse Profile Identifier(Unique)
+              </TableCell>
 
-                <TableCell className={classes.tableCellHead}>
-                  Azure Queue Name
-                </TableCell>
-                <TableCell className={classes.tableCellHead}>
-                  ADLS Storage Account Name
-                </TableCell>
-                <TableCell className={classes.tableCellHead}>
-                  ADLS Container Name
-                </TableCell>
-                <TableCell className={classes.tableCellHead}>
-                  Max Threads
-                </TableCell>
-                <TableCell className={classes.tableCellHead}>
-                  Initial Load Status
-                </TableCell>
-                <TableCell className={classes.tableCellHead}>
-                  Queue Listener Status
-                </TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {configs.length > 0 ? (
-                configs.map((config, index) => (
-                  <TableRow key={index}>
-                    <TableCell className={classes.tableCellBody}>
-                      {config.name}
-                    </TableCell>
-                    <TableCell className={classes.tableCellBody}>
-                      {config.dbIdentifier}
-                    </TableCell>
-                    <TableCell className={classes.tableCellBody}>
-                      {config.queueName}
-                    </TableCell>
-                    <TableCell className={classes.tableCellBody}>
-                      {config.adlsStorageAccountName}
-                    </TableCell>
-                    <TableCell className={classes.tableCellBody}>
-                      {config.adlsContainerName}
-                    </TableCell>
-                    <TableCell className={classes.tableCellBody}>
-                      {config.maxThreads}
-                    </TableCell>
-                    <TableCell className={classes.tableCellBody}>
-                      {config.initialLoadStatus !== 2 ? (
-                        <PlayCircleOutlineIcon
-                          style={{ color: "blue", cursor: "pointer" }}
-                          onClick={() =>
-                            handleStartInitialLoad(config.dbIdentifier)
-                          }
-                        />
-                      ) : (
-                        <CheckCircleIcon style={{ color: "green" }} />
-                      )}
-                    </TableCell>
-                    <TableCell className={classes.tableCellBody}>
-                      {config.queueListenerStatus !== 2 ? (
-                        <PlayCircleOutlineIcon
-                          style={{ color: "blue", cursor: "pointer" }}
-                          onClick={() =>
-                            handleStartQueueListener(config.dbIdentifier)
-                          }
-                        />
-                      ) : (
-                        <CheckCircleIcon style={{ color: "green" }} />
-                      )}
-                    </TableCell>
-                  </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell colSpan={19} className={classes.tableCellBody}>
-                    No data available
+              <TableCell className={classes.tableCellHead}>
+                Azure Queue Name
+              </TableCell>
+              <TableCell className={classes.tableCellHead}>
+                ADLS Storage Account Name
+              </TableCell>
+              <TableCell className={classes.tableCellHead}>
+                ADLS Container Name
+              </TableCell>
+              <TableCell className={classes.tableCellHead}>
+                Max Threads
+              </TableCell>
+              <TableCell className={classes.tableCellHead}>
+                Initial Load Status
+              </TableCell>
+              <TableCell className={classes.tableCellHead}>
+                Queue Listener Status
+              </TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {configs.length > 0 ? (
+              configs.map((config, index) => (
+                <TableRow key={index}>
+                  <TableCell className={classes.tableCellBody}>
+                    {config.name}
+                  </TableCell>
+                  <TableCell className={classes.tableCellBody}>
+                    {config.dbIdentifier}
+                  </TableCell>
+                  <TableCell className={classes.tableCellBody}>
+                    {config.queueName}
+                  </TableCell>
+                  <TableCell className={classes.tableCellBody}>
+                    {config.adlsStorageAccountName}
+                  </TableCell>
+                  <TableCell className={classes.tableCellBody}>
+                    {config.adlsContainerName}
+                  </TableCell>
+                  <TableCell className={classes.tableCellBody}>
+                    {config.maxThreads}
+                  </TableCell>
+                  <TableCell className={classes.tableCellBody}>
+                    {config.initialLoadStatus !== 2 ? (
+                      <PlayCircleOutlineIcon
+                        style={{ color: "blue", cursor: "pointer" }}
+                        onClick={() =>
+                          handleStartInitialLoad(config.dbIdentifier)
+                        }
+                      />
+                    ) : (
+                      <CheckCircleIcon style={{ color: "green" }} />
+                    )}
+                  </TableCell>
+                  <TableCell className={classes.tableCellBody}>
+                    {config.queueListenerStatus !== 2 ? (
+                      <PlayCircleOutlineIcon
+                        style={{ color: "blue", cursor: "pointer" }}
+                        onClick={() =>
+                          handleStartQueueListener(config.dbIdentifier)
+                        }
+                      />
+                    ) : (
+                      <CheckCircleIcon style={{ color: "green" }} />
+                    )}
                   </TableCell>
                 </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </TableContainer>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell colSpan={19} className={classes.tableCellBody}>
+                  No data available
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
 
         <Dialog open={open} onClose={handleClose}>
           <DialogTitle>Add New Configuration</DialogTitle>

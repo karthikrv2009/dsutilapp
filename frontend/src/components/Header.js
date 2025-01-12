@@ -72,6 +72,13 @@ function Header() {
           </Button>
           <Button
             color="inherit"
+            onClick={() => navigate("/dashboard")}
+            className={classes.button}
+          >
+            Dashboard
+          </Button>
+          <Button
+            color="inherit"
             onClick={() => navigate("/database-config")}
             className={classes.button}
           >

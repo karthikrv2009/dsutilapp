@@ -1,4 +1,4 @@
-import RotateRightRoundedIcon from '@mui/icons-material/RotateRightRounded';
+import RotateRightRoundedIcon from "@mui/icons-material/RotateRightRounded";
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import {
@@ -50,7 +50,15 @@ const useStyles = makeStyles((theme) => ({
   },
   formControl: {
     margin: theme.spacing(2),
-    minWidth: 120,
+    minWidth: 500,
+  },
+  inputLabel: {
+    color: theme.palette.primary.main,
+    fontSize: "1.25rem", // Increase font size
+    padding: 1, // Add padding
+    lineHeight: "1.5", // Adjust line height
+    fontWeight: "bold", // Make the text bold
+    minWidth: "500px", // Ensure label aligns
   },
 }));
 
@@ -170,8 +178,19 @@ const LandingPage = () => {
     <div>
       <Header /> {/* Include the Header component */}
       <Container>
-        <FormControl className={classes.formControl}>
-          <InputLabel id="dbProfile-label">SysLink Profiles</InputLabel>
+        <FormControl sx={{ minWidth: 250, margin: 1 }}>
+          <InputLabel
+            id="dbProfile-label"
+            sx={{
+              fontSize: "1.25rem", // Increase font size
+              padding: 1, // Add padding
+              lineHeight: "1.5", // Adjust line height
+              fontWeight: "bold", // Make the text bold
+              minWidth: "500px", // Ensure label aligns
+            }}
+          >
+            Profiles
+          </InputLabel>
           <Select
             labelId="dbProfile-label"
             value={selectedDbProfile}
@@ -197,9 +216,6 @@ const LandingPage = () => {
 
         {activeTab === 0 && (
           <div>
-            <Typography variant="h4" className={classes.title}>
-              Dashboard Data
-            </Typography>
             <TableContainer
               component={Paper}
               className={classes.tableContainer}
@@ -235,22 +251,20 @@ const LandingPage = () => {
                 </TableHead>
                 <TableBody>
                   {Object.keys(dashboardData).length > 0 ? (
-                    
-                      <TableRow>
-                        <TableCell className={classes.tableCellBody}>
-                          {dashboardData.lastProcessedfolder}
-                        </TableCell>
-                        <TableCell className={classes.tableCellBody}>
-                          {dashboardData.latestADLSFolderAvailable}
-                        </TableCell>
-                        <TableCell className={classes.tableCellBody}>
-                          {dashboardData.pendingNumberPackages}
-                        </TableCell>
-                        <TableCell className={classes.tableCellBody}>
-                          {dashboardData.pendingTablesInAllPackages}
-                        </TableCell>
-                      </TableRow>
-                    
+                    <TableRow>
+                      <TableCell className={classes.tableCellBody}>
+                        {dashboardData.lastProcessedfolder}
+                      </TableCell>
+                      <TableCell className={classes.tableCellBody}>
+                        {dashboardData.latestADLSFolderAvailable}
+                      </TableCell>
+                      <TableCell className={classes.tableCellBody}>
+                        {dashboardData.pendingNumberPackages}
+                      </TableCell>
+                      <TableCell className={classes.tableCellBody}>
+                        {dashboardData.pendingTablesInAllPackages}
+                      </TableCell>
+                    </TableRow>
                   ) : (
                     <TableRow>
                       <TableCell colSpan={4} className={classes.tableCellBody}>
@@ -262,9 +276,6 @@ const LandingPage = () => {
               </Table>
             </TableContainer>
 
-            <Typography variant="h4" className={classes.title}>
-              Current Folder Status
-            </Typography>
             <TableContainer
               component={Paper}
               className={classes.tableContainer}
@@ -306,25 +317,23 @@ const LandingPage = () => {
                 </TableHead>
                 <TableBody>
                   {Object.keys(folderStatus).length > 0 ? (
-                    
-                      <TableRow >
-                        <TableCell className={classes.tableCellBody}>
-                          {folderStatus.currentPackageName}
-                        </TableCell>
-                        <TableCell className={classes.tableCellBody}>
-                          {folderStatus.inProgressTables}
-                        </TableCell>
-                        <TableCell className={classes.tableCellBody}>
-                          {folderStatus.pendingTables}
-                        </TableCell>
-                        <TableCell className={classes.tableCellBody}>
-                          {folderStatus.completedTables}
-                        </TableCell>
-                        <TableCell className={classes.tableCellBody}>
-                          {folderStatus.errorTablesCount}
-                        </TableCell>
-                      </TableRow>
-                   
+                    <TableRow>
+                      <TableCell className={classes.tableCellBody}>
+                        {folderStatus.currentPackageName}
+                      </TableCell>
+                      <TableCell className={classes.tableCellBody}>
+                        {folderStatus.inProgressTables}
+                      </TableCell>
+                      <TableCell className={classes.tableCellBody}>
+                        {folderStatus.pendingTables}
+                      </TableCell>
+                      <TableCell className={classes.tableCellBody}>
+                        {folderStatus.completedTables}
+                      </TableCell>
+                      <TableCell className={classes.tableCellBody}>
+                        {folderStatus.errorTablesCount}
+                      </TableCell>
+                    </TableRow>
                   ) : (
                     <TableRow>
                       <TableCell colSpan={5} className={classes.tableCellBody}>
@@ -340,9 +349,6 @@ const LandingPage = () => {
 
         {activeTab === 1 && (
           <div>
-            <Typography variant="h4" className={classes.title}>
-              Pipeline Information
-            </Typography>
             <div>
               <label>
                 Days:
@@ -448,7 +454,7 @@ const LandingPage = () => {
                           {pipeline.pipelineEndTime}
                         </TableCell>
                         <TableCell className={classes.tableCellBody}>
-                        {pipeline.status === 2 ? (
+                          {pipeline.status === 2 ? (
                             <CheckCircleOutlineIcon
                               style={{ color: "green" }}
                             />
@@ -475,9 +481,6 @@ const LandingPage = () => {
 
         {activeTab === 2 && (
           <div>
-            <Typography variant="h4" className={classes.title}>
-              MetaData Catalog
-            </Typography>
             <TableContainer
               component={Paper}
               className={classes.tableContainer}
@@ -643,11 +646,11 @@ const LandingPage = () => {
                         {metric.timespent}
                       </TableCell>
                       <TableCell className={classes.tableCellBody}>
-                            {metric.status === 1 ? (
-                              <CheckCircleOutlineIcon style={{ color: "green" }} />
-                            ) : (
-                              <ErrorOutlineIcon style={{ color: "red" }} />
-                            )}
+                        {metric.status === 1 ? (
+                          <CheckCircleOutlineIcon style={{ color: "green" }} />
+                        ) : (
+                          <ErrorOutlineIcon style={{ color: "red" }} />
+                        )}
                       </TableCell>
                       <TableCell className={classes.tableCellBody}>
                         {metric.rcount}
