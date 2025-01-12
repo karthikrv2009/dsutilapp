@@ -22,6 +22,7 @@ import LandingPage from "./components/LandingPage";
 import LoginButton from "./components/LoginButton";
 import DatabaseConfigPage from "./components/DatabaseConfigPage"; // Import the DatabaseConfigPage component
 import DataPigBlackLogo from "./components/datapigblack.png"; // Adjust the path as needed
+import DatapigHome from "./components/DataPigHome.png"; // Adjust the path to your image
 
 const theme = createTheme({
   palette: {
@@ -75,49 +76,70 @@ const Login = () => {
 
   return (
     <Stack
-      direction={{ xs: "column-reverse", md: "row" }}
+      direction="column"
+      spacing={4}
       sx={{
         justifyContent: "center",
-        gap: { xs: 6, sm: 12 },
+        alignItems: "center",
         p: 2,
         mx: "auto",
       }}
     >
+      {/* First Stack */}
+      <Box sx={{ textAlign: "center", paddingTop: 4 }}>
+        <img
+          src={DataPigBlackLogo}
+          alt="Data Pig Logo"
+          style={{
+            width: "100%",
+            maxWidth: "450px",
+            height: "auto",
+          }} // Adjust the size as needed
+        />
+      </Box>
+
+      {/* Second Stack */}
       <Stack
         direction={{ xs: "column-reverse", md: "row" }}
+        spacing={4}
         sx={{
           justifyContent: "center",
-          gap: { xs: 6, sm: 12 },
-          p: { xs: 2, sm: 4 },
-          m: "auto",
+          alignItems: "center",
+          p: 2,
+          mx: "auto",
         }}
       >
-        <Box sx={{ textAlign: "center", paddingTop: 4 }}>
-          {" "}
-          {/* Add padding to bring the logo down */}
+        <Card
+          sx={{
+            width: { xs: "100%", sm: "450px" },
+            height: { xs: "auto", sm: "450px" },
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
           <img
-            src={DataPigBlackLogo}
-            alt="Data Pig Logo"
+            src={DatapigHome}
+            alt="Data Pig Home"
             style={{
               width: "100%",
               maxWidth: "450px",
               height: "auto",
             }} // Adjust the size as needed
           />
-        </Box>
+        </Card>
         <Card
           sx={{
+            width: { xs: "100%", sm: "450px" },
+            height: { xs: "auto", sm: "450px" },
             display: "flex",
             flexDirection: "column",
-            alignSelf: "center",
-            width: "100%",
+            justifyContent: "center",
+            alignItems: "center",
             padding: theme.spacing(4),
             gap: theme.spacing(2),
             boxShadow:
               "hsla(220, 30%, 5%, 0.05) 0px 5px 15px 0px, hsla(220, 25%, 10%, 0.05) 0px 15px 35px -5px",
-            [theme.breakpoints.up("sm")]: {
-              width: "450px",
-            },
             ...theme.applyStyles("dark", {
               boxShadow:
                 "hsla(220, 30%, 5%, 0.5) 0px 5px 15px 0px, hsla(220, 25%, 10%, 0.08) 0px 15px 35px -5px",
