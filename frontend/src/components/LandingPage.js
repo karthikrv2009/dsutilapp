@@ -23,6 +23,7 @@ import Header from "./Header"; // Import the Header component
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import Modal from "react-modal";
+import SyncProblemRoundedIcon from "@mui/icons-material/SyncProblemRounded";
 
 axios.defaults.baseURL = "http://localhost:8080"; // Set the base URL for Axios
 
@@ -89,6 +90,24 @@ const LandingPage = () => {
   const [selectedDbProfile, setSelectedDbProfile] = useState("");
   const [dbProfiles, setDbProfiles] = useState([]);
 
+  const getLastCopyStatusIcon = (status) => {
+    switch (status) {
+      case 0:
+        return <SyncProblemRoundedIcon style={{ color: "orange" }} />;
+      case 1:
+        return <RotateRightRoundedIcon style={{ color: "blue" }} />;
+      case 2:
+        return <CheckCircleOutlineIcon style={{ color: "green" }} />;
+      case 3:
+        return <ErrorOutlineIcon style={{ color: "red" }} />;
+      default:
+        return null;
+    }
+  };
+
+  const getQuarantineStatus = (status) => {
+    return status === 1 ? "True" : "False";
+  };
   useEffect(() => {
     const fetchDataAsync = async () => {
       fetchData("/api/database-configs", setDbProfiles);
@@ -495,10 +514,10 @@ const LandingPage = () => {
                         {metaData.lastUpdatedFolder}
                       </TableCell>
                       <TableCell className={classes.tableCellBody}>
-                        {metaData.lastCopyStatus}
+                        {getLastCopyStatusIcon(metaData.lastCopyStatus)}
                       </TableCell>
                       <TableCell className={classes.tableCellBody}>
-                        {metaData.quarintine}
+                        {getQuarantineStatus(metaData.quarintine)}
                       </TableCell>
                       <TableCell className={classes.tableCellBody}>
                         {metaData.rowCount}
