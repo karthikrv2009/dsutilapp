@@ -15,11 +15,11 @@ public interface PipelineRepository extends JpaRepository<Pipeline, Long> {
 
         public List<Pipeline> findByFolderName(String folderName);
 
-        @Query("SELECT p FROM Pipeline p WHERE p.pipelineStartTime BETWEEN :startDate AND :endDate")
+        @Query("SELECT p FROM Pipeline p WHERE p.pipelineStartTime BETWEEN :startDate AND :endDate ORDER BY p.pipelineStartTime DESC")
         List<Pipeline> findPipelinesWithinDateRange(@Param("startDate") LocalDateTime startDate,
                         @Param("endDate") LocalDateTime endDate);
 
-        @Query("SELECT p FROM Pipeline p WHERE p.dbIdentifier = :dbIdentifier AND p.pipelineStartTime BETWEEN :startDate AND :endDate")
+        @Query("SELECT p FROM Pipeline p WHERE p.dbIdentifier = :dbIdentifier AND p.pipelineStartTime BETWEEN :startDate AND :endDate ORDER BY p.pipelineStartTime DESC")
         List<Pipeline> findPipelinesWithinDateRangeByDbIdentifier(@Param("startDate") LocalDateTime startDate,
                         @Param("endDate") LocalDateTime endDate, @Param("dbIdentifier") String dbIdentifier);
 

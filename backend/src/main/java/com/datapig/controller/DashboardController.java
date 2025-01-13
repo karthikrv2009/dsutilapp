@@ -98,6 +98,7 @@ public class DashboardController {
   public ResponseEntity<List<HealthMetrics>> getHealthMetrics(@PathVariable String pipelineId,
   @RequestParam String dbProfile) {
     List<HealthMetrics> healthMetrics = healthMetricsService.findbyPipelineIdAndDbIdentifer(pipelineId, dbProfile);
+    
     return ResponseEntity.ok(healthMetrics);
   }
 
