@@ -116,6 +116,11 @@ const LandingPage = () => {
     }
   }, [selectedDbProfile]);
 
+  useEffect(() => {
+    // Reset pipelineData to empty array whenever selectedDbProfile changes
+    setPipelineData([]);
+  }, [selectedDbProfile]);
+
   const fetchPipelineData = async () => {
     try {
       const params = {
