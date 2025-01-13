@@ -70,6 +70,8 @@ const LicenseKeyPage = () => {
   const classes = useStyles();
   const [licenseData, setLicenseData] = useState([]);
   const [environmentInfo, setEnvironmentInfo] = useState([]);
+  const [editConfig, setEditConfig] = useState(null);
+
   const [activeTab, setActiveTab] = useState(0); // Set default tab to 0
   const [openLicenseDialog, setOpenLicenseDialog] = useState(false);
   const [openEnvironmentDialog, setOpenEnvironmentDialog] = useState(false);
@@ -120,6 +122,11 @@ const LicenseKeyPage = () => {
 
   const handleTabChange = (event, newValue) => {
     setActiveTab(newValue);
+  };
+
+  const handleEditClick = (config) => {
+    setEditConfig(config);
+    setOpen(true);
   };
 
   const handleLicenseDialogOpen = () => {
@@ -182,13 +189,14 @@ const LicenseKeyPage = () => {
     }));
   };
 
-  const handleSave = async () => {
+  const handleSaveClick = async () => {
     try {
-      await axios.post("/api/database-configs/save", newConfig);
-      setConfigs((prevConfigs) => [...prevConfigs, newConfig]);
-      handleClose();
+      await axios.put(`/api/database-configs/${editConfig.id}`, editConfig);
+      setOpen(false);
+      setEditConfig(null);
+      fetchData("/api/database-configs", setConfigs); // Refresh the data
     } catch (error) {
-      console.error("Error saving config:", error);
+      console.error("Error saving data:", error);
     }
   };
 
@@ -391,6 +399,9 @@ const LicenseKeyPage = () => {
                   <TableCell className={classes.tableCellHead}>
                     Queue Listener Status
                   </TableCell>
+                  <TableCell className={classes.tableCellHead}>
+                    Actions
+                  </TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -438,6 +449,16 @@ const LicenseKeyPage = () => {
                         ) : (
                           <CheckCircleIcon style={{ color: "green" }} />
                         )}
+                      </TableCell>
+                      <TableCell className={classes.tableCellBody}>
+                        <Button
+                          variant="contained"
+                          color="secondary"
+                          onClick={() => handleEditClick(config)}
+                          className={classes.button}
+                        >
+                          Edit
+                        </Button>
                       </TableCell>
                     </TableRow>
                   ))
@@ -702,7 +723,7 @@ const LicenseKeyPage = () => {
             <Button onClick={handleClose} color="primary">
               Cancel
             </Button>
-            <Button onClick={handleSave} color="primary">
+            <Button onClick={handleSaveClick} color="primary">
               Save
             </Button>
           </DialogActions>
