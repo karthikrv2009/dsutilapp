@@ -89,7 +89,8 @@ const LicenseKeyPage = () => {
     stringOutlierPath: "",
   });
   const [configs, setConfigs] = useState([]);
-  const [open, setOpen] = useState(false);
+  const [openEdit, setOpenEdit] = useState(false);
+  const [openAdd, setOpenAdd] = useState(false);
   const [newConfig, setNewConfig] = useState({
     name: "",
     url: "",
@@ -126,7 +127,20 @@ const LicenseKeyPage = () => {
 
   const handleEditClick = (config) => {
     setEditConfig(config);
-    setOpen(true);
+    setOpenEdit(true);
+  };
+
+  const handleAddClick = () => {
+    setOpenAdd(true);
+  };
+
+  const handleCloseEdit = () => {
+    setOpenEdit(false);
+    setEditConfig(null);
+  };
+
+  const handleCloseAdd = () => {
+    setOpenAdd(false);
   };
 
   const handleLicenseDialogOpen = () => {
@@ -192,7 +206,7 @@ const LicenseKeyPage = () => {
   const handleSaveClick = async () => {
     try {
       await axios.put(`/api/database-configs/${editConfig.id}`, editConfig);
-      setOpen(false);
+      setOpenEdit(false);
       setEditConfig(null);
       fetchData("/api/database-configs", setConfigs); // Refresh the data
     } catch (error) {
@@ -236,13 +250,6 @@ const LicenseKeyPage = () => {
     } catch (error) {
       console.error("Error starting queue listener:", error);
     }
-  };
-  const handleClickOpen = () => {
-    setOpen(true);
-  };
-
-  const handleClose = () => {
-    setOpen(false);
   };
 
   return (
@@ -516,7 +523,7 @@ const LicenseKeyPage = () => {
                 variant="outlined"
                 name="d365Environment"
                 value={newEnvironment.d365Environment}
-                onChange={handleClickOpen}
+                onChange={handleEnvironmentChange}
                 fullWidth
               />
               <TextField
@@ -564,7 +571,7 @@ const LicenseKeyPage = () => {
           </DialogActions>
         </Dialog>
 
-        <Dialog open={open} onClose={handleClose}>
+        <Dialog open={openAdd} onClose={handleCloseAdd}>
           <DialogTitle>Add New Configuration</DialogTitle>
           <DialogContent>
             <DialogContentText>
@@ -720,7 +727,47 @@ const LicenseKeyPage = () => {
             </form>
           </DialogContent>
           <DialogActions>
-            <Button onClick={handleClose} color="primary">
+            <Button onClick={handleCloseAdd} color="primary">
+              Cancel
+            </Button>
+            <Button onClick={handleSaveClick} color="primary">
+              Save
+            </Button>
+          </DialogActions>
+        </Dialog>
+        <Dialog open={openEdit} onClose={handleCloseEdit}>
+          <DialogTitle>Edit Configuration</DialogTitle>
+          <DialogContent>
+            <TextField
+              margin="dense"
+              name="name"
+              label="Name"
+              type="text"
+              fullWidth
+              value={editConfig ? editConfig.name : ""}
+              onChange={handleChange}
+            />
+            <TextField
+              margin="dense"
+              name="host"
+              label="Host"
+              type="text"
+              fullWidth
+              value={editConfig ? editConfig.host : ""}
+              onChange={handleChange}
+            />
+            <TextField
+              margin="dense"
+              name="port"
+              label="Port"
+              type="text"
+              fullWidth
+              value={editConfig ? editConfig.port : ""}
+              onChange={handleChange}
+            />
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleCloseEdit} color="primary">
               Cancel
             </Button>
             <Button onClick={handleSaveClick} color="primary">
