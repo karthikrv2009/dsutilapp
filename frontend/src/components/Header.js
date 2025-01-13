@@ -63,6 +63,7 @@ const Header = ({ selectedDbProfile, setSelectedDbProfile, setDbProfiles }) => {
   const classes = useStyles();
   const navigate = useNavigate();
   const [dbProfiles, setDbProfilesLocal] = useState([]);
+  const [anchorEl, setAnchorEl] = useState(null); // State for the dropdown menu
 
   useEffect(() => {
     const fetchDataAsync = async () => {
@@ -80,8 +81,6 @@ const Header = ({ selectedDbProfile, setSelectedDbProfile, setDbProfiles }) => {
   const handleDbProfileChange = (event) => {
     setSelectedDbProfile(event.target.value);
   };
-
-  const [anchorEl, setAnchorEl] = useState(null); // State for the dropdown menu
 
   const handleMenu = (event) => {
     setAnchorEl(event.currentTarget);

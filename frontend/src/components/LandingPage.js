@@ -87,6 +87,14 @@ const LandingPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState(0); // Set default tab to 0
   const [selectedDbProfile, setSelectedDbProfile] = useState("");
+  const [dbProfiles, setDbProfiles] = useState([]);
+
+  useEffect(() => {
+    const fetchDataAsync = async () => {
+      fetchData("/api/database-configs", setDbProfiles);
+    };
+    fetchDataAsync();
+  }, []);
 
   useEffect(() => {
     if (selectedDbProfile) {
@@ -168,7 +176,12 @@ const LandingPage = () => {
 
   return (
     <div>
-      <Header /> {/* Include the Header component */}
+      <Header
+        selectedDbProfile={selectedDbProfile}
+        setSelectedDbProfile={setSelectedDbProfile}
+        setDbProfiles={setDbProfiles}
+      />{" "}
+      {/* Include the Header component */}
       <Container>
         <Tabs
           value={activeTab}
