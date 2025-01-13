@@ -382,9 +382,6 @@ const LicenseKeyPage = () => {
               <TableHead className={classes.tableHead}>
                 <TableRow>
                   <TableCell className={classes.tableCellHead}>
-                    Database Name
-                  </TableCell>
-                  <TableCell className={classes.tableCellHead}>
                     Synapse Profile Identifier(Unique)
                   </TableCell>
 
@@ -415,9 +412,6 @@ const LicenseKeyPage = () => {
                 {configs.length > 0 ? (
                   configs.map((config, index) => (
                     <TableRow key={index}>
-                      <TableCell className={classes.tableCellBody}>
-                        {config.name}
-                      </TableCell>
                       <TableCell className={classes.tableCellBody}>
                         {config.dbIdentifier}
                       </TableCell>
@@ -579,14 +573,6 @@ const LicenseKeyPage = () => {
             </DialogContentText>
             <form className={classes.form} noValidate autoComplete="off">
               <TextField
-                label="Name"
-                variant="outlined"
-                name="name"
-                value={newConfig.name}
-                onChange={handleChange}
-                fullWidth
-              />
-              <TextField
                 label="URL"
                 variant="outlined"
                 name="url"
@@ -742,14 +728,6 @@ const LicenseKeyPage = () => {
               Please fill out the form to edit the database configuration.
             </DialogContentText>
             <form className={classes.form} noValidate autoComplete="off">
-              <TextField
-                label="Name"
-                variant="outlined"
-                name="name"
-                value={editConfig ? editConfig.name : ""}
-                onChange={handleChange}
-                fullWidth
-              />
               <TextField
                 label="URL"
                 variant="outlined"
