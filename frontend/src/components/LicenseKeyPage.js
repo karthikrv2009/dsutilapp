@@ -736,38 +736,162 @@ const LicenseKeyPage = () => {
           </DialogActions>
         </Dialog>
         <Dialog open={openEdit} onClose={handleCloseEdit}>
-          <DialogTitle>Edit Configuration</DialogTitle>
+          <DialogTitle>Edit Profile </DialogTitle>
           <DialogContent>
-            <TextField
-              margin="dense"
-              name="name"
-              label="Name"
-              type="text"
-              fullWidth
-              value={editConfig ? editConfig.name : ""}
-              onChange={handleChange}
-            />
-            <TextField
-              margin="dense"
-              name="host"
-              label="Host"
-              type="text"
-              fullWidth
-              value={editConfig ? editConfig.host : ""}
-              onChange={handleChange}
-            />
-            <TextField
-              margin="dense"
-              name="port"
-              label="Port"
-              type="text"
-              fullWidth
-              value={editConfig ? editConfig.port : ""}
-              onChange={handleChange}
-            />
+            <DialogContentText>
+              Please fill out the form to edit the database configuration.
+            </DialogContentText>
+            <form className={classes.form} noValidate autoComplete="off">
+              <TextField
+                label="Name"
+                variant="outlined"
+                name="name"
+                value={editConfig ? editConfig.name : ""}
+                onChange={handleChange}
+                fullWidth
+              />
+              <TextField
+                label="URL"
+                variant="outlined"
+                name="url"
+                value={editConfig ? editConfig.url : ""}
+                onChange={handleChange}
+                fullWidth
+              />
+              <TextField
+                label="Username"
+                variant="outlined"
+                name="username"
+                value={editConfig ? editConfig.username : ""}
+                onChange={handleChange}
+                fullWidth
+              />
+              <TextField
+                label="Password"
+                variant="outlined"
+                name="password"
+                type="password"
+                value={editConfig ? editConfig.password : ""}
+                onChange={handleChange}
+                fullWidth
+              />
+              <TextField
+                label="DB Identifier"
+                variant="outlined"
+                name="dbIdentifier"
+                value={editConfig ? editConfig.dbIdentifier : ""}
+                onChange={handleChange}
+                fullWidth
+              />
+              <TextField
+                label="Driver Class Name"
+                variant="outlined"
+                name="driverClassName"
+                value={editConfig ? editConfig.driverClassName : ""}
+                onChange={handleChange}
+                fullWidth
+              />
+              <TextField
+                label="Queue Name"
+                variant="outlined"
+                name="queueName"
+                value={editConfig ? editConfig.queueName : ""}
+                onChange={handleChange}
+                fullWidth
+              />
+              <TextField
+                label="Queue SAS Token"
+                variant="outlined"
+                name="queueSasToken"
+                value={editConfig ? editConfig.queueSasToken : ""}
+                onChange={handleChange}
+                fullWidth
+              />
+              <TextField
+                label="Queue Endpoint"
+                variant="outlined"
+                name="queueEndpoint"
+                value={editConfig ? editConfig.queueEndpoint : ""}
+                onChange={handleChange}
+                fullWidth
+              />
+              <TextField
+                label="ADLS Storage Account Name"
+                variant="outlined"
+                name="adlsStorageAccountName"
+                value={editConfig ? editConfig.adlsStorageAccountName : ""}
+                onChange={handleChange}
+                fullWidth
+              />
+              <TextField
+                label="ADLS Storage Account Endpoint"
+                variant="outlined"
+                name="adlsStorageAccountEndpoint"
+                value={editConfig ? editConfig.adlsStorageAccountEndpoint : ""}
+                onChange={handleChange}
+                fullWidth
+              />
+              <TextField
+                label="ADLS Storage Account SAS Key"
+                variant="outlined"
+                name="adlsStorageAccountSasKey"
+                value={editConfig ? editConfig.adlsStorageAccountSasKey : ""}
+                onChange={handleChange}
+                fullWidth
+              />
+              <TextField
+                label="ADLS Container Name"
+                variant="outlined"
+                name="adlsContainerName"
+                value={editConfig ? editConfig.adlsContainerName : ""}
+                onChange={handleChange}
+                fullWidth
+              />
+              <TextField
+                label="ADLS Folder Name"
+                variant="outlined"
+                name="adlsFolderName"
+                value={editConfig ? editConfig.adlsFolderName : ""}
+                onChange={handleChange}
+                fullWidth
+              />
+              <TextField
+                label="ADLS CDM File Name"
+                variant="outlined"
+                name="adlsCdmFileName"
+                value={editConfig ? editConfig.adlsCdmFileName : ""}
+                onChange={handleChange}
+                fullWidth
+              />
+              <TextField
+                label="ADLS CDM File Path"
+                variant="outlined"
+                name="adlsCdmFilePath"
+                value={editConfig ? editConfig.adlsCdmFilePath : ""}
+                onChange={handleChange}
+                fullWidth
+              />
+              <TextField
+                label="Local CDM File Path"
+                variant="outlined"
+                name="localCdmFilePath"
+                value={editConfig ? editConfig.localCdmFilePath : ""}
+                onChange={handleChange}
+                fullWidth
+              />
+              <TextField
+                label="Max Threads"
+                variant="outlined"
+                name="maxThreads"
+                type="number"
+                value={editConfig ? editConfig.maxThreads : ""}
+                onChange={handleChange}
+                fullWidth
+              />
+            </form>
           </DialogContent>
           <DialogActions>
-            <Button onClick={handleCloseEdit} color="primary">
+            <Button onClick={handleCloseAdd} color="primary">
               Cancel
             </Button>
             <Button onClick={handleSaveClick} color="primary">
