@@ -1,14 +1,10 @@
 import React, { useState, useEffect } from "react";
-import SettingsRoundedIcon from "@mui/icons-material/SettingsRounded";
 import axios from "axios";
 import {
   AppBar,
   Toolbar,
   Typography,
   Button,
-  FormControl,
-  InputLabel,
-  Select,
   Menu,
   MenuItem,
   IconButton,
@@ -17,8 +13,9 @@ import {
 import { useNavigate } from "react-router-dom";
 import { makeStyles } from "@mui/styles";
 import DataPigLogo from "./datapigblack.png"; // Adjust the path as needed
-import AccountCircle from "@mui/icons-material/AccountCircle";
-
+import SettingsRoundedIcon from "@mui/icons-material/SettingsRounded";
+import AccountCircle from "@mui/icons-material/AccountCircle"; // Import the AccountCircle icon
+import HomeRoundedIcon from "@mui/icons-material/HomeRounded";
 const useStyles = makeStyles((theme) => ({
   root: {
     flexGrow: 1,
@@ -35,8 +32,7 @@ const useStyles = makeStyles((theme) => ({
   },
   logo: {
     height: 40, // Adjust the height as needed
-    marginRight: theme.spacing(5),
-    marginTop: theme.spacing(3), // Adjust the margin top as needed
+    marginRight: theme.spacing(2),
   },
   title: {
     flexGrow: 1,
@@ -63,7 +59,8 @@ const Header = ({ selectedDbProfile, setSelectedDbProfile, setDbProfiles }) => {
   const classes = useStyles();
   const navigate = useNavigate();
   const [dbProfiles, setDbProfilesLocal] = useState([]);
-  const [anchorEl, setAnchorEl] = useState(null); // State for the dropdown menu
+  const [anchorElProfiles, setAnchorElProfiles] = useState(null); // State for the profiles dropdown menu
+  const [anchorElAccount, setAnchorElAccount] = useState(null); // State for the account dropdown menu
 
   useEffect(() => {
     const fetchDataAsync = async () => {
@@ -80,18 +77,27 @@ const Header = ({ selectedDbProfile, setSelectedDbProfile, setDbProfiles }) => {
 
   const handleDbProfileChange = (event) => {
     setSelectedDbProfile(event.target.value);
+    handleCloseProfiles();
   };
 
-  const handleMenu = (event) => {
-    setAnchorEl(event.currentTarget);
+  const handleMenuProfiles = (event) => {
+    setAnchorElProfiles(event.currentTarget);
   };
 
-  const handleClose = () => {
-    setAnchorEl(null);
+  const handleCloseProfiles = () => {
+    setAnchorElProfiles(null);
+  };
+
+  const handleMenuAccount = (event) => {
+    setAnchorElAccount(event.currentTarget);
+  };
+
+  const handleCloseAccount = () => {
+    setAnchorElAccount(null);
   };
 
   const handleLogout = () => {
-    handleClose();
+    handleCloseAccount();
     navigate("/"); // Redirect to home page after logout
   };
 
@@ -99,61 +105,72 @@ const Header = ({ selectedDbProfile, setSelectedDbProfile, setDbProfiles }) => {
     <AppBar position="static" className={classes.appBar}>
       <Toolbar className={classes.toolbar}>
         <Box sx={{ display: "flex", alignItems: "center", flexGrow: 1 }}>
-          <img src={DataPigLogo} alt="Data Pig Logo" className={classes.logo} />
+          <img
+            src={DataPigLogo}
+            alt="Data Pig Logo"
+            className={classes.logo}
+            style={{ paddingTop: "8px" }}
+          />{" "}
+          {/* Add padding to bring the image down */}
         </Box>
-        <Box sx={{ display: "flex", alignItems: "right", flexGrow: 1 }}>
-          <div className={classes.buttonContainer}>
-            <FormControl sx={{ minWidth: 150, margin: 1 }}>
-              <InputLabel
-                id="dbProfile-label"
-                sx={{ color: "black", fontSize: "0.875rem" }}
+        <div className={classes.buttonContainer}>
+          <Button
+            color="inherit"
+            onClick={handleMenuProfiles}
+            className={classes.button}
+          >
+            Profiles
+          </Button>
+          <Menu
+            anchorEl={anchorElProfiles}
+            open={Boolean(anchorElProfiles)}
+            onClose={handleCloseProfiles}
+          >
+            {dbProfiles.map((profile) => (
+              <MenuItem
+                key={profile.dbIdentifier}
+                value={profile.dbIdentifier}
+                onClick={handleDbProfileChange}
               >
-                Profiles
-              </InputLabel>
-              <Select
-                labelId="dbProfile-label"
-                value={selectedDbProfile}
-                onChange={handleDbProfileChange}
-              >
-                {dbProfiles.map((profile) => (
-                  <MenuItem
-                    key={profile.dbIdentifier}
-                    value={profile.dbIdentifier}
-                  >
-                    {profile.dbIdentifier}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+                {profile.dbIdentifier}
+              </MenuItem>
+            ))}
+          </Menu>
 
-            <Button
-              color="inherit"
-              onClick={() => navigate("/license")}
-              className={classes.button}
-            >
-              <SettingsRoundedIcon />
-            </Button>
-            <IconButton
-              edge="end"
-              color="inherit"
-              onClick={handleMenu}
-              className={classes.button}
-            >
-              <AccountCircle />
-            </IconButton>
-            <Menu
-              anchorEl={anchorEl}
-              open={Boolean(anchorEl)}
-              onClose={handleClose}
-              sx={{ minWidth: 500 }} // Increase the width
-            >
-              <MenuItem disabled>
-                <Typography variant="body1">Hi Karthik!</Typography>
-              </MenuItem>{" "}
-              <MenuItem onClick={handleLogout}>Logout</MenuItem>
-            </Menu>
-          </div>
-        </Box>
+          <Button
+            color="inherit"
+            onClick={() => navigate("/landing")}
+            className={classes.button}
+          >
+            <HomeRoundedIcon />
+          </Button>
+          <Button
+            color="inherit"
+            onClick={() => navigate("/license")}
+            className={classes.button}
+          >
+            <SettingsRoundedIcon />
+          </Button>
+          <IconButton
+            edge="end"
+            color="inherit"
+            onClick={handleMenuAccount}
+            className={classes.button}
+          >
+            <AccountCircle />
+          </IconButton>
+          <Menu
+            anchorEl={anchorElAccount}
+            open={Boolean(anchorElAccount)}
+            onClose={handleCloseAccount}
+            sx={{ minWidth: 300 }} // Increase the width
+          >
+            <MenuItem disabled>
+              <Typography variant="body1">Hi Karthik!</Typography>
+            </MenuItem>
+            <MenuItem onClick={handleLogout}>Logout</MenuItem>
+          </Menu>
+        </div>
       </Toolbar>
     </AppBar>
   );
