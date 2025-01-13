@@ -532,7 +532,6 @@ const LandingPage = () => {
             },
           }}
         >
-          <Typography variant="h4">Health Metrics</Typography>
           {healthMetrics.length > 0 ? (
             <TableContainer
               component={Paper}
