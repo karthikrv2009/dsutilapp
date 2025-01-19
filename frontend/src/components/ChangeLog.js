@@ -7,9 +7,9 @@ import {
   InputLabel,
   Select,
   MenuItem,
-  Box,
   Button,
   TextField,
+  Stack,
 } from "@mui/material";
 import { makeStyles } from "@mui/styles";
 import { DateTimePicker, LocalizationProvider } from "@mui/x-date-pickers";
@@ -88,20 +88,28 @@ const ChangeLog = () => {
   };
 
   const handleSubmit = async () => {
-    const payload = {
-      dbProfile: selectedDbProfile,
-      table: selectedTable,
-      startTime: startTime.toISOString(),
-      endTime: endTime.toISOString(),
-    };
+    try {
+      const payload = {
+        dbProfile: selectedDbProfile,
+        table: selectedTable,
+        startTime: startTime.toISOString(),
+        endTime: endTime.toISOString(),
+      };
 
-    const response = await axios.post("/api/submit", payload);
+      console.log("Payload:", payload);
 
-    const createdTableName = response.data.tableName; // Assuming the response contains the table name in `tableName` field
+      const response = await axios.post("/api/submit", payload);
 
-    alert(`Form submitted successfully! Table created: ${createdTableName}`);
+      console.log("Response:", response.data);
 
-    // Handle successful response
+      // Handle successful response
+      const createdTableName = response.data.tableName; // Assuming the response contains the table name in `tableName` field
+      alert(`Form submitted successfully! Table created: ${createdTableName}`);
+    } catch (error) {
+      console.error("Error submitting form:", error);
+      // Handle error response
+      alert("Error submitting form. Please try again.");
+    }
   };
 
   return (
@@ -109,63 +117,68 @@ const ChangeLog = () => {
       <Header /> {/* Include the Header component */}
       <Container className={classes.container}>
         <Typography variant="h4" gutterBottom>
-          Change Log
+          CHANGE LOG
         </Typography>
-        <FormControl className={classes.formControl}>
-          <InputLabel id="dbProfile-label">Database Profile</InputLabel>
-          <Select
-            labelId="dbProfile-label"
-            value={selectedDbProfile}
-            onChange={handleDbProfileChange}
+        <Stack spacing={2}>
+          <FormControl className={classes.formControl}>
+            <InputLabel id="dbProfile-label">Database Profile</InputLabel>
+            <Select
+              labelId="dbProfile-label"
+              value={selectedDbProfile}
+              onChange={handleDbProfileChange}
+            >
+              {dbProfiles.map((profile) => (
+                <MenuItem
+                  key={profile.dbIdentifier}
+                  value={profile.dbIdentifier}
+                >
+                  {profile.dbIdentifier}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+          <FormControl className={classes.formControl}>
+            <InputLabel id="table-label">Table</InputLabel>
+            <Select
+              labelId="table-label"
+              value={selectedTable}
+              onChange={handleTableChange}
+              disabled={!selectedDbProfile}
+            >
+              {tables.map((table) => (
+                <MenuItem key={table} value={table}>
+                  {table}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+          <LocalizationProvider dateAdapter={AdapterDateFns}>
+            <DateTimePicker
+              label="Start Time"
+              value={startTime}
+              onChange={handleStartTimeChange}
+              renderInput={(props) => (
+                <TextField {...props} className={classes.dateTimePicker} />
+              )}
+            />
+            <DateTimePicker
+              label="End Time"
+              value={endTime}
+              onChange={handleEndTimeChange}
+              renderInput={(props) => (
+                <TextField {...props} className={classes.dateTimePicker} />
+              )}
+            />
+          </LocalizationProvider>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={handleSubmit}
+            className={classes.button}
           >
-            {dbProfiles.map((profile) => (
-              <MenuItem key={profile.dbIdentifier} value={profile.dbIdentifier}>
-                {profile.dbIdentifier}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-        <FormControl className={classes.formControl}>
-          <InputLabel id="table-label">Table</InputLabel>
-          <Select
-            labelId="table-label"
-            value={selectedTable}
-            onChange={handleTableChange}
-            disabled={!selectedDbProfile}
-          >
-            {tables.map((table) => (
-              <MenuItem key={table} value={table}>
-                {table}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-        <LocalizationProvider dateAdapter={AdapterDateFns}>
-          <DateTimePicker
-            label="Start Time"
-            value={startTime}
-            onChange={handleStartTimeChange}
-            renderInput={(props) => (
-              <TextField {...props} className={classes.dateTimePicker} />
-            )}
-          />
-          <DateTimePicker
-            label="End Time"
-            value={endTime}
-            onChange={handleEndTimeChange}
-            renderInput={(props) => (
-              <TextField {...props} className={classes.dateTimePicker} />
-            )}
-          />
-        </LocalizationProvider>
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={handleSubmit}
-          className={classes.button}
-        >
-          Submit
-        </Button>
+            Submit
+          </Button>
+        </Stack>
       </Container>
     </div>
   );
