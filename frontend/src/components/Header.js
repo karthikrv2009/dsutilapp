@@ -16,6 +16,7 @@ import DataPigLogo from "./datapigblack.png"; // Adjust the path as needed
 import SettingsRoundedIcon from "@mui/icons-material/SettingsRounded";
 import AccountCircle from "@mui/icons-material/AccountCircle"; // Import the AccountCircle icon
 import HomeRoundedIcon from "@mui/icons-material/HomeRounded";
+import QueryBuilderRoundedIcon from "@mui/icons-material/QueryBuilderRounded";
 const useStyles = makeStyles((theme) => ({
   root: {
     flexGrow: 1,
@@ -152,6 +153,13 @@ const Header = ({ selectedDbProfile, setSelectedDbProfile, setDbProfiles }) => {
             className={classes.button}
           >
             <SettingsRoundedIcon />
+          </Button>
+          <Button
+            color="inherit"
+            onClick={() => navigate("/changelog")}
+            className={classes.button}
+          >
+            <QueryBuilderRoundedIcon />
           </Button>
           <IconButton
             edge="end"
