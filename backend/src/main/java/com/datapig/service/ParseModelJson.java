@@ -270,7 +270,11 @@ public class ParseModelJson {
                 if (attribute.getMaxLength() > maxlength) {
                     return "NVARCHAR(MAX)";
                 }
-                return "NVARCHAR(" + (attribute.getMaxLength() + offset) + ")";
+                int len=100;
+                if(attribute.getMaxLength()>0){
+                    len=attribute.getMaxLength();
+                }                
+                return "NVARCHAR(" + (len + offset) + ")";
             case "boolean":
                 if (attribute.getName().equals("IsDelete")) {
                     return "NVARCHAR(10)";

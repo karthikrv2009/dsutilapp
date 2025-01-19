@@ -82,6 +82,7 @@ public class JDBCTemplateUtiltiy {
 		return new LinkedHashSet<>(tableNames);
 	}
 
+	
 	public void dropStagingTable(String tableName, String dbIdentifier) {
 		jdbcTemplate = getJdbcTemplate(dbIdentifier);
 		String dropTableSQL = "IF EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = '_staging_"
