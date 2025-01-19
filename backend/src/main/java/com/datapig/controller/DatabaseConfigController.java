@@ -11,6 +11,7 @@ import com.datapig.repository.IntitalLoadRepository;
 import com.datapig.service.AzureQueueListenerService;
 import com.datapig.service.DatabaseConfigService;
 import com.datapig.service.InitialLoadService;
+import com.datapig.service.MetaDataCatlogService;
 import com.datapig.service.dto.DatabaseConfigDTO;
 
 import org.slf4j.Logger;
@@ -19,11 +20,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import static org.junit.jupiter.api.DynamicTest.stream;
+
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/database-configs")
@@ -44,6 +49,9 @@ public class DatabaseConfigController {
 
     @Autowired
     private AzureQueueListenerService azureQueueListenerService;
+
+    @Autowired
+    private MetaDataCatlogService metaDataCatlogService;
 
     @GetMapping
     public ResponseEntity<List<DatabaseConfig>> getAllDatabaseConfigs() {
@@ -114,7 +122,8 @@ public class DatabaseConfigController {
     @GetMapping("/tables")
     public ResponseEntity<List<String>> getTables(@RequestParam String dbProfile) {
         try {
-            List<String> tables = null;// databaseConfigService.getTables(dbProfile);
+            List<String> tables = metaDataCatlogService.getAllTableNamesByDbIdentifier(dbProfile).stream()
+                    .collect(Collectors.toList());// databaseConfigService.getTables(dbProfile);
             return ResponseEntity.ok(tables);
         } catch (Exception e) {
             e.printStackTrace();
