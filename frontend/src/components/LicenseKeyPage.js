@@ -373,7 +373,7 @@ const LicenseKeyPage = () => {
             <Button
               variant="contained"
               color="primary"
-              onClick={handleEnvironmentDialogOpen}
+              onClick={handleAddClick}
             >
               Add New Profile
             </Button>
