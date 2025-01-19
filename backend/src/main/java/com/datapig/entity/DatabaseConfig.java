@@ -67,6 +67,17 @@ public class DatabaseConfig {
     @Column(name = "max_threads")
     private int maxThreads;
 
+    @Column(name = "enable_archive")
+    private boolean enableArchive;
+
+    public boolean isEnableArchive() {
+        return enableArchive;
+    }
+
+    public void setEnableArchive(boolean enableArchive) {
+        this.enableArchive = enableArchive;
+    }
+
     public String getQueueName() {
         return queueName;
     }
