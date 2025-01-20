@@ -103,7 +103,7 @@ public class PolybaseThreadService implements Runnable {
     }
 
     private HealthMetrics logHealthMetric(Pipeline pipeline, FolderSyncStatus folderSyncStatus, String methodAction,
-            long timeTaken, int status, long rowCount) {
+            long timeTaken, int status, long rowCount,String errorMsg) {
         HealthMetrics healthMetrics = new HealthMetrics();
         healthMetrics.setPipelineId(pipeline.getPipelineid());
         healthMetrics.setFolderName(folderSyncStatus.getFolder());
@@ -113,6 +113,7 @@ public class PolybaseThreadService implements Runnable {
         healthMetrics.setRcount(rowCount);
         healthMetrics.setStatus(status);
         healthMetrics.setDbIdentifier(folderSyncStatus.getDbIdentifier());
+        healthMetrics.setErrorMsg(errorMsg);
         return healthMetricsService.save(healthMetrics);
     }
 
@@ -133,14 +134,16 @@ public class PolybaseThreadService implements Runnable {
             timespent = endTime - startTime;
             status = 1;
             String methodAction = "StageDataFromADLS";
-            healthMetrics = logHealthMetric(pipeline, folderSyncStatus, methodAction, timespent, status, rowcount);
+            String errorMsg="";
+            healthMetrics = logHealthMetric(pipeline, folderSyncStatus, methodAction, timespent, status, rowcount,errorMsg);
         } catch (Exception e) {
 
             long endTime = System.currentTimeMillis();
             timespent = endTime - startTime;
             status = 2;
             String methodAction = "StageDataFromADLS";
-            healthMetrics = logHealthMetric(pipeline, folderSyncStatus, methodAction, timespent, status, rowcount);
+            String errorMsg= getMainCauseMessage(e,query);
+            healthMetrics = logHealthMetric(pipeline, folderSyncStatus, methodAction, timespent, status, rowcount,errorMsg);
             logger.warn("Execution failed: " + e.getMessage());
         }
 
@@ -184,16 +187,16 @@ public class PolybaseThreadService implements Runnable {
             timespent = endTime - startTime;
             status = 1;
             String methodAction = "DedupAndMergeFromSourceToTarget";
-            healthMetrics = logHealthMetric(pipeline, folderSyncStatus, methodAction, timespent, status, rowcount);
-
+            String errorMsg="";
+            healthMetrics = logHealthMetric(pipeline, folderSyncStatus, methodAction, timespent, status, rowcount,errorMsg);
         } catch (Exception e) {
 
             long endTime = System.currentTimeMillis();
             timespent = endTime - startTime;
             status = 2;
             String methodAction = "DedupAndMergeFromSourceToTarget";
-            healthMetrics = logHealthMetric(pipeline, folderSyncStatus, methodAction, timespent, status, rowcount);
-            logger.warn("Execution failed: " + e.getMessage());
+            String errorMsg= getMainCauseMessage(e,mergeQuery);
+            healthMetrics = logHealthMetric(pipeline, folderSyncStatus, methodAction, timespent, status, rowcount,errorMsg);            logger.warn("Execution failed: " + e.getMessage());
         }
         return healthMetrics;
     }
@@ -223,14 +226,16 @@ public class PolybaseThreadService implements Runnable {
             timespent = endTime - startTime;
             status = 1;
             String methodAction = "CleanUpStageData";
-            healthMetrics = logHealthMetric(pipeline, folderSyncStatus, methodAction, timespent, status, rowcount);
+            String errorMsg="";
+            healthMetrics = logHealthMetric(pipeline, folderSyncStatus, methodAction, timespent, status, rowcount,errorMsg);
         } catch (Exception e) {
 
             long endTime = System.currentTimeMillis();
             timespent = endTime - startTime;
             status = 2;
             String methodAction = "CleanUpStageData";
-            healthMetrics = logHealthMetric(pipeline, folderSyncStatus, methodAction, timespent, status, rowcount);
+            String errorMsg= getMainCauseMessage(e,query);
+            healthMetrics = logHealthMetric(pipeline, folderSyncStatus, methodAction, timespent, status, rowcount,errorMsg);
             logger.warn("Execution failed: " + e.getMessage());
         }
         return healthMetrics;
@@ -253,14 +258,16 @@ public class PolybaseThreadService implements Runnable {
             timespent = endTime - startTime;
             status = 1;
             String methodAction = "DeleteRecordsOnTargetTableBasedOnChangeFeed";
-            healthMetrics = logHealthMetric(pipeline, folderSyncStatus, methodAction, timespent, status, rowcount);
+            String errorMsg="";
+            healthMetrics = logHealthMetric(pipeline, folderSyncStatus, methodAction, timespent, status, rowcount,errorMsg);
         } catch (Exception e) {
 
             long endTime = System.currentTimeMillis();
             timespent = endTime - startTime;
             status = 2;
             String methodAction = "DeleteRecordsOnTargetTableBasedOnChangeFeed";
-            healthMetrics = logHealthMetric(pipeline, folderSyncStatus, methodAction, timespent, status, rowcount);
+            String errorMsg= getMainCauseMessage(e,query);
+            healthMetrics = logHealthMetric(pipeline, folderSyncStatus, methodAction, timespent, status, rowcount,errorMsg);
             logger.warn("Execution failed: " + e.getMessage());
         }
         return healthMetrics;
@@ -313,4 +320,15 @@ public class PolybaseThreadService implements Runnable {
         folderSyncStatusService.save(folderSyncStatus);
     }
 
+    public static String getMainCauseMessage(Throwable e, String query) {
+        // Navigate to the root cause
+        Throwable cause = e;
+        while (cause.getCause() != null) {
+            cause = cause.getCause();
+        }
+    
+        // Combine the cause and the query
+        return cause.getMessage() + "\n\nQuery: " + query;
+    }
+    
 }

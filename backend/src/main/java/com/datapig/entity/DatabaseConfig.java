@@ -67,6 +67,28 @@ public class DatabaseConfig {
     @Column(name = "max_threads")
     private int maxThreads;
 
+    @Column(name = "archive_enabled")
+    private boolean archiveEnabled;
+
+    @Column(name = "archive_days")
+    private int archiveDays;
+
+    public boolean isArchiveEnabled() {
+        return archiveEnabled;
+    }
+
+    public void setArchiveEnabled(boolean archiveEnabled) {
+        this.archiveEnabled = archiveEnabled;
+    }
+
+    public int getArchiveDays() {
+        return archiveDays;
+    }
+
+    public void setArchiveDays(int archiveDays) {
+        this.archiveDays = archiveDays;
+    }
+
     public String getQueueName() {
         return queueName;
     }

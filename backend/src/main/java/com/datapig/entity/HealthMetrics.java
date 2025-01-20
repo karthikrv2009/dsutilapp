@@ -2,6 +2,7 @@ package com.datapig.entity;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.Lob;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 
@@ -48,6 +49,11 @@ public class HealthMetrics {
     @Column(name = "rcount")
     private Long rcount;
 
+    @Lob
+    @Column(name = "error_msg", length = 50)
+    private String errorMsg;
+
+    
     public Long getId() {
         return id;
     }
@@ -114,6 +120,14 @@ public class HealthMetrics {
 
     public void setRcount(Long rcount) {
         this.rcount = rcount;
+    }
+
+    public String getErrorMsg() {
+        return errorMsg;
+    }
+
+    public void setErrorMsg(String errorMsg) {
+        this.errorMsg = errorMsg;
     }
 
 }
