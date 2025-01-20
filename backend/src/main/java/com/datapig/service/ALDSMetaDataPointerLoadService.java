@@ -133,6 +133,7 @@ public class ALDSMetaDataPointerLoadService {
                                                 parseModelJson.parseModelJson(dbIdentifier);
                                             }
                                         }
+
                                         loadFolderSyncStatus(metaDataPointer, tableName, dbIdentifier);
                                     }
                                     logger.info("File {} found in directory: {}", targetFileName, directoryName);
@@ -222,13 +223,17 @@ public class ALDSMetaDataPointerLoadService {
 
     private FolderSyncStatus loadFolderSyncStatus(MetaDataPointer metaDataPointer, String tableName,
             String dbIdentifier) {
+        FolderSyncStatus folderSyncStatus = null;
         Short copyStatus = 0;
-        FolderSyncStatus folderSyncStatus = new FolderSyncStatus();
-        folderSyncStatus.setFolder(metaDataPointer.getFolderName());
-        folderSyncStatus.setTableName(tableName);
-        folderSyncStatus.setCopyStatus(copyStatus);
-        folderSyncStatus.setDbIdentifier(dbIdentifier);
-        folderSyncStatus = folderSyncStatusService.save(folderSyncStatus);
+        MetaDataCatlog metaDataCatlog= metaDataCatlogService.getMetaDataCatlogByTableNameAndDbIdentifier(tableName, dbIdentifier);
+        if(metaDataCatlog!=null){
+            folderSyncStatus = new FolderSyncStatus();
+            folderSyncStatus.setFolder(metaDataPointer.getFolderName());
+            folderSyncStatus.setTableName(metaDataCatlog.getTableName());
+            folderSyncStatus.setCopyStatus(copyStatus);
+            folderSyncStatus.setDbIdentifier(dbIdentifier);
+            folderSyncStatus = folderSyncStatusService.save(folderSyncStatus);
+        }
         return folderSyncStatus;
     }
 

@@ -7,8 +7,6 @@ import com.datapig.repository.MetaDataPointerRepository;
 import com.datapig.service.dto.DBSnapshotWidget;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.TreeSet;
@@ -38,7 +36,7 @@ public class MetaDataPointerService {
     }
 
     public MetaDataPointer getFirstRecordByStageStatus(Short stageStatus, String dbIdentifier) {
-        Pageable pageable = PageRequest.of(0, 1); // Fetch only one record
+        // Fetch only one record
         // List<MetaDataPointer> results = metaDataPointerRepository
         // .findByStageStatusOrderByAdlsCreationTimestampAsc(stageStatus, pageable);
         List<MetaDataPointer> results = metaDataPointerRepository

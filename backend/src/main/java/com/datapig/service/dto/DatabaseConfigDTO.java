@@ -40,25 +40,7 @@ public class DatabaseConfigDTO {
 
     private int maxThreads;
 
-    private boolean archiveEnabled;
-
-    public boolean isArchiveEnabled() {
-        return archiveEnabled;
-    }
-
-    public void setArchiveEnabled(boolean archiveEnabled) {
-        this.archiveEnabled = archiveEnabled;
-    }
-
-    public int getArchiveDays() {
-        return archiveDays;
-    }
-
-    public void setArchiveDays(int archiveDays) {
-        this.archiveDays = archiveDays;
-    }
-
-    private int archiveDays;
+    private boolean enableArchive;
 
     private int initialLoadStatus;
 
@@ -224,6 +206,8 @@ public class DatabaseConfigDTO {
         this.queueListenerStatus = queueListenerStatus;
     }
 
+    
+
     // Method to convert DatabaseConfig to DatabaseConfigDTO
     public static DatabaseConfigDTO fromEntity(DatabaseConfig databaseConfig, int initialLoadStatus,
             int queueListenerStatus) {
@@ -248,9 +232,16 @@ public class DatabaseConfigDTO {
         dto.setMaxThreads(databaseConfig.getMaxThreads());
         dto.setInitialLoadStatus(initialLoadStatus);
         dto.setQueueListenerStatus(queueListenerStatus);
-        dto.setArchiveEnabled(databaseConfig.isArchiveEnabled());
-        dto.setArchiveDays(databaseConfig.getArchiveDays());
+        dto.setEnableArchive(databaseConfig.isEnableArchive());
         return dto;
+    }
+
+    public boolean isEnableArchive() {
+        return enableArchive;
+    }
+
+    public void setEnableArchive(boolean enableArchive) {
+        this.enableArchive = enableArchive;
     }
 
 }

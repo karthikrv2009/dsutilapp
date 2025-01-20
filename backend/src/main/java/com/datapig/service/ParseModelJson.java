@@ -130,12 +130,15 @@ public class ParseModelJson {
                 String dataFrame = values.get("dataFrame");
                 String selectQuery = values.get("selectQuery");
                 String columnNames = values.get("columnNames");
-                jDBCTemplateUtiltiy.createTableIfNotExists(tablename, dataFrame, dbIdentifier);
-                loadMetaDataCatlog(tablename, selectQuery, dataFrame, columnNames, dbIdentifier);
+                boolean flag=jDBCTemplateUtiltiy.createTableIfNotExists(tablename, dataFrame, dbIdentifier);
+                if(flag){
+                    loadMetaDataCatlog(tablename, selectQuery, dataFrame, columnNames, dbIdentifier);
+                }
             }
         }
         return resultTable;
     }
+
 
     private MetaDataCatlog loadMetaDataCatlog(String tablename, String selectQuery, String dataFrame,
             String columnNames, String dbIdentifier) {

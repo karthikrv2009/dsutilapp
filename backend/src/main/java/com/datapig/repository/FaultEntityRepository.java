@@ -13,6 +13,6 @@ import com.datapig.entity.FaultEntity;
 public interface FaultEntityRepository extends JpaRepository<FaultEntity, Long> {
 
   @Query("SELECT f FROM FaultEntity f WHERE f.tablename = :tablename AND h.dbIdentifier = :dbIdentifier ORDER BY h.tableName,h.timespent")
-  List<FaultEntity> findBytableNameAndDbIdentifier(String tablename, String dbIdentifier);
+  List<FaultEntity> findByTableNameAndDbIdentifier(String tablename, String dbIdentifier);
 
 }

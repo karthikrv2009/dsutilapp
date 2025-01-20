@@ -91,7 +91,7 @@ public class SynapseLogParserService {
                         }
                     }
                     if (!tablesInDB.contains(tableName)) {
-                        loadFolderSyncStatus(metaDataPointer, tableName);
+                        loadFolderSyncStatus(metaDataPointer, tableName, dbIdentifier);
                     }
                 }
                 updateChangeLogToReady(metaDataPointer); // Update the status after processing
@@ -104,13 +104,13 @@ public class SynapseLogParserService {
         if (metaDataPointerInDB == null) {
             DataLakeDirectoryClient directoryClient = fileSystemClient.getDirectoryClient(folderName);
             MetaDataPointer metaDataPointer = loadMetaDataPointer(directoryClient, folderName, storageAccountUrl,
-                    fileSystemName);
+                    fileSystemName,dbIdentifier);
             if (doesFileExist(directoryClient, targetFileName)) {
 
                 Set<String> tableNamesInAdls = jdbcTemplateUtiltiy
                         .getTableInFolder(metaDataPointer.getFolderName(), fileSystemName,dbIdentifier);
                 for (String tableName : tableNamesInAdls) {
-                    loadFolderSyncStatus(metaDataPointer, tableName);
+                    loadFolderSyncStatus(metaDataPointer, tableName, dbIdentifier);
                 }
                 updateChangeLogToReady(metaDataPointer); // Update the status after processing
             }
@@ -221,12 +221,10 @@ public class SynapseLogParserService {
 
     // Method to print the lease status and creation timestamp of a directory
     private MetaDataPointer loadMetaDataPointer(DataLakeDirectoryClient directoryClient, String directoryName,
-            String storageAccountUrl, String fileSystemName) {
+            String storageAccountUrl, String fileSystemName, String dbIdentifier) {
         MetaDataPointer metaDataPointer = null;
         try {
             PathProperties properties = directoryClient.getProperties();
-            // String leaseStatus = properties.getLeaseStatus() != null ?
-            // properties.getLeaseStatus().toString() : "Unknown";
             Short copyStatus = 0;
             OffsetDateTime creationTime = properties.getCreationTime();
             metaDataPointer = new MetaDataPointer();
@@ -237,23 +235,28 @@ public class SynapseLogParserService {
             metaDataPointer.setStageStatus(copyStatus);
             metaDataPointer.setStorageAccount(fileSystemName);
             metaDataPointer.setEnvironment(storageAccountUrl);
+            metaDataPointer.setDbIdentifier(dbIdentifier);
             metaDataPointer = metaDataPointerService.save(metaDataPointer);
             logger.info("  Creation Time: {}", (creationTime != null ? creationTime : "Unknown"));
         } catch (Exception e) {
-            logger.error("Failed to retrieve properties for directory: " + directoryClient.getDirectoryPath(),
-                    e.getMessage(), e);
+            logger.info("  Failed to retrieve properties for directory: {}", directoryClient.getDirectoryPath());
         }
         return metaDataPointer;
     }
 
-    private FolderSyncStatus loadFolderSyncStatus(MetaDataPointer metaDataPointer, String tableName) {
+    private FolderSyncStatus loadFolderSyncStatus(MetaDataPointer metaDataPointer, String tableName,
+            String dbIdentifier) {
+        FolderSyncStatus folderSyncStatus = null;
         Short copyStatus = 0;
-        FolderSyncStatus folderSyncStatus = new FolderSyncStatus();
-        folderSyncStatus.setFolder(metaDataPointer.getFolderName());
-        folderSyncStatus.setTableName(tableName);
-        folderSyncStatus.setCopyStatus(copyStatus);
-        folderSyncStatus.setDbIdentifier(metaDataPointer.getDbIdentifier());
-        folderSyncStatus = folderSyncStatusService.save(folderSyncStatus);
+        MetaDataCatlog metaDataCatlog= metaDataCatlogService.getMetaDataCatlogByTableNameAndDbIdentifier(tableName, dbIdentifier);
+        if(metaDataCatlog!=null){
+            folderSyncStatus = new FolderSyncStatus();
+            folderSyncStatus.setFolder(metaDataPointer.getFolderName());
+            folderSyncStatus.setTableName(metaDataCatlog.getTableName());
+            folderSyncStatus.setCopyStatus(copyStatus);
+            folderSyncStatus.setDbIdentifier(dbIdentifier);
+            folderSyncStatus = folderSyncStatusService.save(folderSyncStatus);
+        }
         return folderSyncStatus;
     }
 

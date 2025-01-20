@@ -7,7 +7,9 @@ import org.springframework.stereotype.Service;
 
 import com.datapig.component.DynamicDataSourceManager;
 import com.datapig.entity.DatabaseConfig;
+import com.datapig.entity.FaultEntity;
 import com.datapig.service.DatabaseConfigService;
+import com.datapig.service.FaultEntityService;
 
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -30,6 +32,9 @@ public class JDBCTemplateUtiltiy {
 
 	@Autowired
 	private DatabaseConfigService databaseConfigService;
+
+	@Autowired
+    private FaultEntityService faultEntityService;
 
 	public JdbcTemplate getJdbcTemplate(String dbIdentifier) {
 		// Get the DataSource from DynamicDataSourceManager
@@ -105,11 +110,13 @@ public class JDBCTemplateUtiltiy {
 				
 		return count;
 	}
-	public void createTableIfNotExists(String tableName, String dataFrame, String dbIdentifier) {
+	
+	public boolean createTableIfNotExists(String tableName, String dataFrame, String dbIdentifier) {
+	    boolean flag=false;
 		jdbcTemplate = getJdbcTemplate(dbIdentifier);
 		String checkTableSQL = "SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = ?";
 		String createTableSQL = "CREATE TABLE dbo." + tableName + " (" + dataFrame + ")";
-
+	try{
 		// Check if the table exists
 		Integer tableCount = jdbcTemplate.queryForObject(checkTableSQL, new Object[] { tableName }, Integer.class);
 
@@ -123,7 +130,29 @@ public class JDBCTemplateUtiltiy {
 		} else {
 			logger.info("Table already exists: {}", tableName);
 		}
+		flag=true;
+	}catch(Exception e){
+		flag=false;
+		FaultEntity faultEntity=new FaultEntity();
+		faultEntity.setDbIdentifier(dbIdentifier);
+		faultEntity.setTableName(tableName);
+		String errorMsg= getMainCauseMessage(e,createTableSQL);
+		faultEntity.setErrorMsg(errorMsg);
+		faultEntityService.save(faultEntity);
 	}
+	return flag;
+	}
+
+    public static String getMainCauseMessage(Throwable e, String query) {
+        // Navigate to the root cause
+        Throwable cause = e;
+        while (cause.getCause() != null) {
+            cause = cause.getCause();
+        }
+    
+        // Combine the cause and the query
+        return cause.getMessage() + "\n\nQuery: " + query;
+    }
 
 	private void createIndexes(String tableName, String dbIdentifier) {
 		jdbcTemplate = getJdbcTemplate(dbIdentifier);
