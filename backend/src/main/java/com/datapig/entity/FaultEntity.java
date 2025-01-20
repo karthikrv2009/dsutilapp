@@ -16,14 +16,14 @@ public class FaultEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "tablename", nullable = false, length = 50)
+    @Column(name = "table_name", nullable = false, length = 50)
     private String tableName;
 
     @Column(name = "db_identifier", nullable = false, length = 50)
     private String dbIdentifier;
 
     @Lob
-    @Column(name = "error_msg", length = 50)
+    @Column(name = "error_msg")
     private String errorMsg;
 
     public Long getId() {

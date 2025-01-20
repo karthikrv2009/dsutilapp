@@ -50,7 +50,7 @@ public class HealthMetrics {
     private Long rcount;
 
     @Lob
-    @Column(name = "error_msg", length = 50)
+    @Column(name = "error_msg")
     private String errorMsg;
 
     
