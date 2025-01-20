@@ -104,7 +104,8 @@ public class DatabaseConfigController {
             LocalDateTime endTime = LocalDateTime.parse(endTimeStr, formatter);
 
             // Process the payload and create the table
-            String createdTableName = null; // databaseConfigService.createTable(dbProfile, table, startTime, endTime);
+            String createdTableName = null; 
+            // databaseConfigService.createTable(dbProfile, table, startTime, endTime);
 
             Map<String, String> response = new HashMap<>();
             response.put("tableName", createdTableName);

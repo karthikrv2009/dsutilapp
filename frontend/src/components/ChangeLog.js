@@ -60,7 +60,7 @@ const ChangeLog = () => {
       const fetchTables = async () => {
         try {
           const response = await axios.get(
-            `/api/tables?dbProfile=${selectedDbProfile}`
+            `/api/database-configs/tables?dbProfile=${selectedDbProfile}`
           );
           setTables(response.data);
         } catch (error) {
@@ -98,7 +98,7 @@ const ChangeLog = () => {
 
       console.log("Payload:", payload);
 
-      const response = await axios.post("/api/submit", payload);
+      const response = await axios.post("/api/database-configs/submit", payload);
 
       console.log("Response:", response.data);
 
