@@ -19,6 +19,8 @@ import {
   DialogTitle,
   TextField,
   TableHead,
+  Checkbox,
+  FormControlLabel,
 } from "@mui/material";
 import { makeStyles } from "@mui/styles";
 import Header from "./Header"; // Import the Header component
@@ -70,7 +72,10 @@ const LicenseKeyPage = () => {
   const classes = useStyles();
   const [licenseData, setLicenseData] = useState([]);
   const [environmentInfo, setEnvironmentInfo] = useState([]);
-  const [editConfig, setEditConfig] = useState(null);
+  const [editConfig, setEditConfig] = useState({
+    // other fields
+    enableArchive: false,
+  });
 
   const [activeTab, setActiveTab] = useState(0); // Set default tab to 0
   const [openLicenseDialog, setOpenLicenseDialog] = useState(false);
@@ -110,6 +115,7 @@ const LicenseKeyPage = () => {
     adlsCdmFilePath: "",
     localCdmFilePath: "",
     maxThreads: 1,
+    enableArchive: false,
   });
 
   useEffect(() => {
@@ -196,10 +202,14 @@ const LicenseKeyPage = () => {
   };
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value, type, checked } = e.target;
     setNewConfig((prevConfig) => ({
       ...prevConfig,
-      [name]: value,
+      [name]: type === "checkbox" ? checked : value,
+    }));
+    setEditConfig((prevConfig) => ({
+      ...prevConfig,
+      [name]: type === "checkbox" ? checked : value,
     }));
   };
 
@@ -373,7 +383,7 @@ const LicenseKeyPage = () => {
             <Button
               variant="contained"
               color="primary"
-              onClick={handleEnvironmentDialogOpen}
+              onClick={handleAddClick}
             >
               Add New Profile
             </Button>
@@ -710,6 +720,18 @@ const LicenseKeyPage = () => {
                 onChange={handleChange}
                 fullWidth
               />
+
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={newConfig.enableArchive}
+                    onChange={handleChange}
+                    name="enableArchive"
+                    color="primary"
+                  />
+                }
+                label="Enable Archive"
+              />
             </form>
           </DialogContent>
           <DialogActions>
@@ -865,6 +887,17 @@ const LicenseKeyPage = () => {
                 value={editConfig ? editConfig.maxThreads : ""}
                 onChange={handleChange}
                 fullWidth
+              />
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={editConfig ? editConfig.enableArchive : false}
+                    onChange={handleChange}
+                    name="enableArchive"
+                    color="primary"
+                  />
+                }
+                label="Enable Archive"
               />
             </form>
           </DialogContent>
