@@ -9,7 +9,9 @@ import com.datapig.entity.LicenseKey;
 import com.datapig.entity.EnvironmentConfig;
 import com.datapig.service.EnvironmentConfigService;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/license")
@@ -48,5 +50,24 @@ public class LicenseKeyController {
     public ResponseEntity<EnvironmentConfig> createEnvironmentConfig(@RequestBody EnvironmentConfig environmentConfig) {
         EnvironmentConfig savedEnvironmentConfig = environmentConfigService.saveEnvironmentConfig(environmentConfig);
         return ResponseEntity.ok(savedEnvironmentConfig);
+    }
+
+    @PostMapping("/environment/validate")
+    public ResponseEntity<Map<String, Boolean>> validateEnvironmentConfig(
+            @RequestBody EnvironmentConfig environmentConfig) {
+        Map<String, Boolean> validationResults = new HashMap<>();
+
+        // Perform validation checks
+        validationResults.put("d365Environment",
+                environmentConfig.getD365Environment() != null && !environmentConfig.getD365Environment().isEmpty());
+        validationResults.put("d365EnvironmentUrl", environmentConfig.getD365EnvironmentUrl() != null
+                && !environmentConfig.getD365EnvironmentUrl().isEmpty());
+        validationResults.put("stringOffSet",
+                environmentConfig.getStringOffSet() != null && !environmentConfig.getStringOffSet().isEmpty());
+        validationResults.put("maxLength", environmentConfig.getMaxLength() > 0);
+        validationResults.put("stringOutlierPath", environmentConfig.getStringOutlierPath() != null
+                && !environmentConfig.getStringOutlierPath().isEmpty());
+
+        return ResponseEntity.ok(validationResults);
     }
 }
