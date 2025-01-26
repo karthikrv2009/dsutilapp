@@ -121,7 +121,11 @@ const LicenseKeyPage = () => {
   const [validationResults, setValidationResults] = useState({});
   const [isEditSubmitted, setIsEditSubmitted] = useState(false);
   const [editValidationResults, setEditValidationResults] = useState({});
-
+  const [isEnvSubmitted, setIsEnvSubmitted] = useState(false);
+  const [envValidationResults, setEnvValidationResults] = useState({});
+  const [editEnvironment, setEditEnvironment] = useState(null);
+  const [openEditEnvironmentDialog, setOpenEditEnvironmentDialog] =
+    useState(false);
   useEffect(() => {
     const fetchDataAsync = async () => {
       fetchData("/api/license", setLicenseData);
@@ -196,10 +200,59 @@ const LicenseKeyPage = () => {
   };
 
   const handleEnvironmentSave = async () => {
+    setIsEnvSubmitted(true); // Set the form as submitted
+    const validationResults = await validateEnvironment(newEnvironment);
+    setEnvValidationResults(validationResults); // Store validation results
+
+    if (validationResults) {
+      // Highlight fields based on validation results
+      const invalidFields = Object.keys(validationResults).filter(
+        (key) => !validationResults[key]
+      );
+      if (invalidFields.length > 0) {
+        alert("Please correct the highlighted fields.");
+        return;
+      }
+    }
+
     try {
       await axios.post("/api/license/environment", newEnvironment);
       setEnvironmentInfo((prevInfo) => [...prevInfo, newEnvironment]);
       handleEnvironmentDialogClose();
+    } catch (error) {
+      console.error("Error saving environment info:", error);
+    }
+  };
+
+  const handleEditEnvironmentClick = (environment) => {
+    setEditEnvironment(environment);
+    setOpenEditEnvironmentDialog(true);
+  };
+
+  const handleEditEnvironmentSave = async () => {
+    setIsEnvSubmitted(true); // Set the form as submitted
+    const validationResults = await validateEnvironment(editEnvironment);
+    setEnvValidationResults(validationResults); // Store validation results
+
+    if (validationResults) {
+      // Highlight fields based on validation results
+      const invalidFields = Object.keys(validationResults).filter(
+        (key) => !validationResults[key]
+      );
+      if (invalidFields.length > 0) {
+        alert("Please correct the highlighted fields.");
+        return;
+      }
+    }
+
+    try {
+      await axios.put(
+        `/api/license/environment/${editEnvironment.id}`,
+        editEnvironment
+      );
+      setOpenEditEnvironmentDialog(false);
+      setEditEnvironment(null);
+      fetchData("/api/license/environment", setEnvironmentInfo); // Refresh the data
     } catch (error) {
       console.error("Error saving environment info:", error);
     }
@@ -319,15 +372,15 @@ const LicenseKeyPage = () => {
     }
   };
 
-  const validateProfileConfig = async (config) => {
+  const validateEnvironment = async (environment) => {
     try {
       const response = await axios.post(
-        "/api/database-configs/validate",
-        config
+        "/api/license/environment/validate",
+        environment
       );
       return response.data; // Assuming the API returns an object with validation results
     } catch (error) {
-      console.error("Error validating configuration:", error);
+      console.error("Error validating environment:", error);
       return null;
     }
   };
@@ -658,6 +711,133 @@ const LicenseKeyPage = () => {
               Cancel
             </Button>
             <Button onClick={handleEnvironmentSave} color="primary">
+              Save
+            </Button>
+          </DialogActions>
+        </Dialog>
+        <Dialog
+          open={openEditEnvironmentDialog}
+          onClose={() => setOpenEditEnvironmentDialog(false)}
+        >
+          <DialogTitle>Edit Environment Information</DialogTitle>
+          <DialogContent>
+            <DialogContentText>
+              Please fill out the form to edit the environment information.
+            </DialogContentText>
+            <form className={classes.form} noValidate autoComplete="off">
+              <TextField
+                label="D365 Environment"
+                variant="outlined"
+                name="d365Environment"
+                value={editEnvironment ? editEnvironment.d365Environment : ""}
+                onChange={handleChange}
+                fullWidth
+                error={
+                  isEnvSubmitted &&
+                  envValidationResults &&
+                  !envValidationResults.d365Environment
+                }
+                helperText={
+                  isEnvSubmitted &&
+                  envValidationResults &&
+                  !envValidationResults.d365Environment
+                    ? "Invalid D365 Environment"
+                    : ""
+                }
+              />
+              <TextField
+                label="D365 Environment URL"
+                variant="outlined"
+                name="d365EnvironmentUrl"
+                value={
+                  editEnvironment ? editEnvironment.d365EnvironmentUrl : ""
+                }
+                onChange={handleChange}
+                fullWidth
+                error={
+                  isEnvSubmitted &&
+                  envValidationResults &&
+                  !envValidationResults.d365EnvironmentUrl
+                }
+                helperText={
+                  isEnvSubmitted &&
+                  envValidationResults &&
+                  !envValidationResults.d365EnvironmentUrl
+                    ? "Invalid D365 Environment URL"
+                    : ""
+                }
+              />
+              <TextField
+                label="String Offset"
+                variant="outlined"
+                name="stringOffSet"
+                value={editEnvironment ? editEnvironment.stringOffSet : ""}
+                onChange={handleChange}
+                fullWidth
+                error={
+                  isEnvSubmitted &&
+                  envValidationResults &&
+                  !envValidationResults.stringOffSet
+                }
+                helperText={
+                  isEnvSubmitted &&
+                  envValidationResults &&
+                  !envValidationResults.stringOffSet
+                    ? "Invalid String Offset"
+                    : ""
+                }
+              />
+              <TextField
+                label="Max Length"
+                variant="outlined"
+                name="maxLength"
+                type="number"
+                value={editEnvironment ? editEnvironment.maxLength : ""}
+                onChange={handleChange}
+                fullWidth
+                error={
+                  isEnvSubmitted &&
+                  envValidationResults &&
+                  !envValidationResults.maxLength
+                }
+                helperText={
+                  isEnvSubmitted &&
+                  envValidationResults &&
+                  !envValidationResults.maxLength
+                    ? "Invalid Max Length"
+                    : ""
+                }
+              />
+              <TextField
+                label="String Outlier Path"
+                variant="outlined"
+                name="stringOutlierPath"
+                value={editEnvironment ? editEnvironment.stringOutlierPath : ""}
+                onChange={handleChange}
+                fullWidth
+                error={
+                  isEnvSubmitted &&
+                  envValidationResults &&
+                  !envValidationResults.stringOutlierPath
+                }
+                helperText={
+                  isEnvSubmitted &&
+                  envValidationResults &&
+                  !envValidationResults.stringOutlierPath
+                    ? "Invalid String Outlier Path"
+                    : ""
+                }
+              />
+            </form>
+          </DialogContent>
+          <DialogActions>
+            <Button
+              onClick={() => setOpenEditEnvironmentDialog(false)}
+              color="primary"
+            >
+              Cancel
+            </Button>
+            <Button onClick={handleEditEnvironmentSave} color="primary">
               Save
             </Button>
           </DialogActions>
