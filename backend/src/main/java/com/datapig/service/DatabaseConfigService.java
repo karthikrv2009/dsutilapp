@@ -40,6 +40,30 @@ public class DatabaseConfigService {
 
     }
 
+    public void updateDatabaseConfig(Long id, DatabaseConfig config) {
+        DatabaseConfig existingConfig = databaseConfigRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Config not found"));
+        existingConfig.setUrl(config.getUrl());
+        existingConfig.setUsername(config.getUsername());
+        existingConfig.setPassword(config.getPassword());
+        existingConfig.setDbIdentifier(config.getDbIdentifier());
+        existingConfig.setDriverClassName(config.getDriverClassName());
+        existingConfig.setQueueName(config.getQueueName());
+        existingConfig.setQueueSasToken(config.getQueueSasToken());
+        existingConfig.setQueueEndpoint(config.getQueueEndpoint());
+        existingConfig.setAdlsStorageAccountName(config.getAdlsStorageAccountName());
+        existingConfig.setAdlsStorageAccountEndpoint(config.getAdlsStorageAccountEndpoint());
+        existingConfig.setAdlsStorageAccountSasKey(config.getAdlsStorageAccountSasKey());
+        existingConfig.setAdlsContainerName(config.getAdlsContainerName());
+        existingConfig.setAdlsFolderName(config.getAdlsFolderName());
+        existingConfig.setAdlsCdmFileName(config.getAdlsCdmFileName());
+        existingConfig.setAdlsCdmFilePath(config.getAdlsCdmFilePath());
+        existingConfig.setLocalCdmFilePath(config.getLocalCdmFilePath());
+        existingConfig.setMaxThreads(config.getMaxThreads());
+        existingConfig.setEnableArchive(config.isEnableArchive());
+        databaseConfigRepository.save(existingConfig);
+    }
+
     public void deleteDatabaseConfig(DatabaseConfig databaseConfig) {
         databaseConfigRepository.deleteById(databaseConfig.getId());
         dynamicDataSourceManager.removeDataSource(databaseConfig.getDbIdentifier());

@@ -117,6 +117,17 @@ public class DatabaseConfigController {
         }
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<String> updateDatabaseConfig(@PathVariable Long id, @RequestBody DatabaseConfig config) {
+        try {
+            databaseConfigService.updateDatabaseConfig(id, config);
+            return ResponseEntity.ok("Database config updated successfully");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).body("Error updating database config");
+        }
+    }
+
     @GetMapping("/tables")
     public ResponseEntity<List<String>> getTables(@RequestParam String dbProfile) {
         try {
