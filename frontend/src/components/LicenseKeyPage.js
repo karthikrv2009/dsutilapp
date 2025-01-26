@@ -226,9 +226,29 @@ const LicenseKeyPage = () => {
 
   const handleSubmitClick = async () => {
     try {
-      await axios.put(`/api/database-configs/save`, handleChange);
-      setOpenEdit(false);
-      setEditConfig(null);
+      await axios.post("/api/database-configs/save", newConfig);
+      setOpenAdd(false);
+      setNewConfig({
+        name: "",
+        url: "",
+        username: "",
+        password: "",
+        dbIdentifier: "",
+        driverClassName: "com.microsoft.sqlserver.jdbc.SQLServerDriver",
+        queueName: "",
+        queueSasToken: "",
+        queueEndpoint: "",
+        adlsStorageAccountName: "",
+        adlsStorageAccountEndpoint: "",
+        adlsStorageAccountSasKey: "",
+        adlsContainerName: "",
+        adlsFolderName: "",
+        adlsCdmFileName: "",
+        adlsCdmFilePath: "",
+        localCdmFilePath: "",
+        maxThreads: 1,
+        enableArchive: false,
+      });
       fetchData("/api/database-configs", setConfigs); // Refresh the data
     } catch (error) {
       console.error("Error saving data:", error);
