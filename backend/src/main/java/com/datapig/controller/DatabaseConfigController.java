@@ -61,7 +61,7 @@ public class DatabaseConfigController {
         Map<String, Boolean> validationResults = new HashMap<>();
 
         // Perform validation checks
-        validationResults.put("name", config.getName() != null && !config.getName().isEmpty());
+
         validationResults.put("url", config.getUrl() != null && !config.getUrl().isEmpty());
         validationResults.put("username", config.getUsername() != null && !config.getUsername().isEmpty());
         validationResults.put("password", config.getPassword() != null && !config.getPassword().isEmpty());
