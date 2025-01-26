@@ -117,7 +117,10 @@ const LicenseKeyPage = () => {
     maxThreads: 1,
     enableArchive: false,
   });
+  const [isSubmitted, setIsSubmitted] = useState(false);
   const [validationResults, setValidationResults] = useState({});
+  const [isEditSubmitted, setIsEditSubmitted] = useState(false);
+  const [editValidationResults, setEditValidationResults] = useState({});
 
   useEffect(() => {
     const fetchDataAsync = async () => {
@@ -228,7 +231,11 @@ const LicenseKeyPage = () => {
   };
 
   const handleSaveClick = async () => {
+    setIsEditSubmitted(true); // Set the form as submitted
+
     const validationResults = await validateConfig(editConfig);
+    setEditValidationResults(validationResults); // Store validation results
+
     if (validationResults) {
       // Highlight fields based on validation results
       const invalidFields = Object.keys(validationResults).filter(
@@ -251,6 +258,8 @@ const LicenseKeyPage = () => {
   };
 
   const handleSubmitClick = async () => {
+    setIsSubmitted(true); // Set the form as submitted
+
     const validationResults = await validateConfig(newConfig);
     if (validationResults) {
       // Highlight fields based on validation results
@@ -668,9 +677,13 @@ const LicenseKeyPage = () => {
                 value={newConfig.url}
                 onChange={handleChange}
                 fullWidth
-                error={validationResults && !validationResults.url}
+                error={
+                  isSubmitted && validationResults && !validationResults.url
+                }
                 helperText={
-                  validationResults && !validationResults.url ? "URL" : ""
+                  isSubmitted && validationResults && !validationResults.url
+                    ? "URL"
+                    : ""
                 }
               />
               <TextField
@@ -680,9 +693,13 @@ const LicenseKeyPage = () => {
                 value={newConfig.username}
                 onChange={handleChange}
                 fullWidth
-                error={validationResults && !validationResults.url}
+                error={
+                  isSubmitted && validationResults && !validationResults.url
+                }
                 helperText={
-                  validationResults && !validationResults.url ? "Username" : ""
+                  isSubmitted && validationResults && !validationResults.url
+                    ? "Username"
+                    : ""
                 }
               />
               <TextField
@@ -693,9 +710,13 @@ const LicenseKeyPage = () => {
                 value={newConfig.password}
                 onChange={handleChange}
                 fullWidth
-                error={validationResults && !validationResults.url}
+                error={
+                  isSubmitted && validationResults && !validationResults.url
+                }
                 helperText={
-                  validationResults && !validationResults.url ? "Password" : ""
+                  isSubmitted && validationResults && !validationResults.url
+                    ? "Password"
+                    : ""
                 }
               />
               <TextField
@@ -705,9 +726,11 @@ const LicenseKeyPage = () => {
                 value={newConfig.dbIdentifier}
                 onChange={handleChange}
                 fullWidth
-                error={validationResults && !validationResults.url}
+                error={
+                  isSubmitted && validationResults && !validationResults.url
+                }
                 helperText={
-                  validationResults && !validationResults.url
+                  isSubmitted && validationResults && !validationResults.url
                     ? "DB Identifier"
                     : ""
                 }
@@ -719,9 +742,11 @@ const LicenseKeyPage = () => {
                 value={newConfig.driverClassName}
                 onChange={handleChange}
                 fullWidth
-                error={validationResults && !validationResults.url}
+                error={
+                  isSubmitted && validationResults && !validationResults.url
+                }
                 helperText={
-                  validationResults && !validationResults.url
+                  isSubmitted && validationResults && !validationResults.url
                     ? "Driver Class Name"
                     : ""
                 }
@@ -733,9 +758,11 @@ const LicenseKeyPage = () => {
                 value={newConfig.queueName}
                 onChange={handleChange}
                 fullWidth
-                error={validationResults && !validationResults.url}
+                error={
+                  isSubmitted && validationResults && !validationResults.url
+                }
                 helperText={
-                  validationResults && !validationResults.url
+                  isSubmitted && validationResults && !validationResults.url
                     ? "Queue Name"
                     : ""
                 }
@@ -747,9 +774,11 @@ const LicenseKeyPage = () => {
                 value={newConfig.queueSasToken}
                 onChange={handleChange}
                 fullWidth
-                error={validationResults && !validationResults.url}
+                error={
+                  isSubmitted && validationResults && !validationResults.url
+                }
                 helperText={
-                  validationResults && !validationResults.url
+                  isSubmitted && validationResults && !validationResults.url
                     ? "Queue SAS Token"
                     : ""
                 }
@@ -761,9 +790,11 @@ const LicenseKeyPage = () => {
                 value={newConfig.queueEndpoint}
                 onChange={handleChange}
                 fullWidth
-                error={validationResults && !validationResults.url}
+                error={
+                  isSubmitted && validationResults && !validationResults.url
+                }
                 helperText={
-                  validationResults && !validationResults.url
+                  isSubmitted && validationResults && !validationResults.url
                     ? "Queue Endpoint"
                     : ""
                 }
@@ -775,9 +806,11 @@ const LicenseKeyPage = () => {
                 value={newConfig.adlsStorageAccountName}
                 onChange={handleChange}
                 fullWidth
-                error={validationResults && !validationResults.url}
+                error={
+                  isSubmitted && validationResults && !validationResults.url
+                }
                 helperText={
-                  validationResults && !validationResults.url
+                  isSubmitted && validationResults && !validationResults.url
                     ? "ADLS Storage Account Name"
                     : ""
                 }
@@ -789,9 +822,11 @@ const LicenseKeyPage = () => {
                 value={newConfig.adlsStorageAccountEndpoint}
                 onChange={handleChange}
                 fullWidth
-                error={validationResults && !validationResults.url}
+                error={
+                  isSubmitted && validationResults && !validationResults.url
+                }
                 helperText={
-                  validationResults && !validationResults.url
+                  isSubmitted && validationResults && !validationResults.url
                     ? "ADLS Storage Account Endpoint"
                     : ""
                 }
@@ -803,9 +838,11 @@ const LicenseKeyPage = () => {
                 value={newConfig.adlsStorageAccountSasKey}
                 onChange={handleChange}
                 fullWidth
-                error={validationResults && !validationResults.url}
+                error={
+                  isSubmitted && validationResults && !validationResults.url
+                }
                 helperText={
-                  validationResults && !validationResults.url
+                  isSubmitted && validationResults && !validationResults.url
                     ? "ADLS Storage Account SAS Key"
                     : ""
                 }
@@ -817,9 +854,11 @@ const LicenseKeyPage = () => {
                 value={newConfig.adlsContainerName}
                 onChange={handleChange}
                 fullWidth
-                error={validationResults && !validationResults.url}
+                error={
+                  isSubmitted && validationResults && !validationResults.url
+                }
                 helperText={
-                  validationResults && !validationResults.url
+                  isSubmitted && validationResults && !validationResults.url
                     ? "ADLS Container Name"
                     : ""
                 }
@@ -831,9 +870,11 @@ const LicenseKeyPage = () => {
                 value={newConfig.adlsFolderName}
                 onChange={handleChange}
                 fullWidth
-                error={validationResults && !validationResults.url}
+                error={
+                  isSubmitted && validationResults && !validationResults.url
+                }
                 helperText={
-                  validationResults && !validationResults.url
+                  isSubmitted && validationResults && !validationResults.url
                     ? "ADLS Folder Name"
                     : ""
                 }
@@ -845,9 +886,11 @@ const LicenseKeyPage = () => {
                 value={newConfig.adlsCdmFileName}
                 onChange={handleChange}
                 fullWidth
-                error={validationResults && !validationResults.url}
+                error={
+                  isSubmitted && validationResults && !validationResults.url
+                }
                 helperText={
-                  validationResults && !validationResults.url
+                  isSubmitted && validationResults && !validationResults.url
                     ? "ADLS CDM File Name"
                     : ""
                 }
@@ -859,9 +902,11 @@ const LicenseKeyPage = () => {
                 value={newConfig.adlsCdmFilePath}
                 onChange={handleChange}
                 fullWidth
-                error={validationResults && !validationResults.url}
+                error={
+                  isSubmitted && validationResults && !validationResults.url
+                }
                 helperText={
-                  validationResults && !validationResults.url
+                  isSubmitted && validationResults && !validationResults.url
                     ? "ADLS CDM File Path"
                     : ""
                 }
@@ -873,9 +918,11 @@ const LicenseKeyPage = () => {
                 value={newConfig.localCdmFilePath}
                 onChange={handleChange}
                 fullWidth
-                error={validationResults && !validationResults.url}
+                error={
+                  isSubmitted && validationResults && !validationResults.url
+                }
                 helperText={
-                  validationResults && !validationResults.url
+                  isSubmitted && validationResults && !validationResults.url
                     ? "Local CDM File Path"
                     : ""
                 }
@@ -888,9 +935,11 @@ const LicenseKeyPage = () => {
                 value={newConfig.maxThreads}
                 onChange={handleChange}
                 fullWidth
-                error={validationResults && !validationResults.url}
+                error={
+                  isSubmitted && validationResults && !validationResults.url
+                }
                 helperText={
-                  validationResults && !validationResults.url
+                  isSubmitted && validationResults && !validationResults.url
                     ? "Max Threads"
                     : ""
                 }
@@ -932,9 +981,17 @@ const LicenseKeyPage = () => {
                 value={editConfig ? editConfig.url : ""}
                 onChange={handleChange}
                 fullWidth
-                error={validationResults && !validationResults.url}
+                error={
+                  isEditSubmitted &&
+                  editValidationResults &&
+                  !editValidationResults.url
+                }
                 helperText={
-                  validationResults && !validationResults.url ? "URL" : ""
+                  isEditSubmitted &&
+                  editValidationResults &&
+                  !editValidationResults.url
+                    ? "Invalid URL"
+                    : ""
                 }
               />
               <TextField
@@ -944,9 +1001,17 @@ const LicenseKeyPage = () => {
                 value={editConfig ? editConfig.username : ""}
                 onChange={handleChange}
                 fullWidth
-                error={validationResults && !validationResults.url}
+                error={
+                  isEditSubmitted &&
+                  editValidationResults &&
+                  !editValidationResults.username
+                }
                 helperText={
-                  validationResults && !validationResults.url ? "Username" : ""
+                  isEditSubmitted &&
+                  editValidationResults &&
+                  !editValidationResults.username
+                    ? "Invalid Username"
+                    : ""
                 }
               />
               <TextField
@@ -957,9 +1022,17 @@ const LicenseKeyPage = () => {
                 value={editConfig ? editConfig.password : ""}
                 onChange={handleChange}
                 fullWidth
-                error={validationResults && !validationResults.url}
+                error={
+                  isEditSubmitted &&
+                  editValidationResults &&
+                  !editValidationResults.password
+                }
                 helperText={
-                  validationResults && !validationResults.url ? "Password" : ""
+                  isEditSubmitted &&
+                  editValidationResults &&
+                  !editValidationResults.password
+                    ? "Invalid Password"
+                    : ""
                 }
               />
               <TextField
@@ -969,10 +1042,16 @@ const LicenseKeyPage = () => {
                 value={editConfig ? editConfig.dbIdentifier : ""}
                 onChange={handleChange}
                 fullWidth
-                error={validationResults && !validationResults.url}
+                error={
+                  isEditSubmitted &&
+                  editValidationResults &&
+                  !editValidationResults.dbIdentifier
+                }
                 helperText={
-                  validationResults && !validationResults.url
-                    ? "DB Identifier"
+                  isEditSubmitted &&
+                  editValidationResults &&
+                  !editValidationResults.dbIdentifier
+                    ? "Invalid DB Identifier"
                     : ""
                 }
               />
@@ -983,10 +1062,16 @@ const LicenseKeyPage = () => {
                 value={editConfig ? editConfig.driverClassName : ""}
                 onChange={handleChange}
                 fullWidth
-                error={validationResults && !validationResults.url}
+                error={
+                  isEditSubmitted &&
+                  editValidationResults &&
+                  !editValidationResults.driverClassName
+                }
                 helperText={
-                  validationResults && !validationResults.url
-                    ? "Driver Class Name"
+                  isEditSubmitted &&
+                  editValidationResults &&
+                  !editValidationResults.driverClassName
+                    ? "Invalid Driver Class Name"
                     : ""
                 }
               />
@@ -997,10 +1082,16 @@ const LicenseKeyPage = () => {
                 value={editConfig ? editConfig.queueName : ""}
                 onChange={handleChange}
                 fullWidth
-                error={validationResults && !validationResults.url}
+                error={
+                  isEditSubmitted &&
+                  editValidationResults &&
+                  !editValidationResults.queueName
+                }
                 helperText={
-                  validationResults && !validationResults.url
-                    ? "Queue Name"
+                  isEditSubmitted &&
+                  editValidationResults &&
+                  !editValidationResults.queueName
+                    ? "Invalid Queue Name"
                     : ""
                 }
               />
@@ -1011,10 +1102,16 @@ const LicenseKeyPage = () => {
                 value={editConfig ? editConfig.queueSasToken : ""}
                 onChange={handleChange}
                 fullWidth
-                error={validationResults && !validationResults.url}
+                error={
+                  isEditSubmitted &&
+                  editValidationResults &&
+                  !editValidationResults.queueSasToken
+                }
                 helperText={
-                  validationResults && !validationResults.url
-                    ? "Queue SAS Token"
+                  isEditSubmitted &&
+                  editValidationResults &&
+                  !editValidationResults.queueSasToken
+                    ? "Invalid Queue SAS Token"
                     : ""
                 }
               />
@@ -1025,10 +1122,16 @@ const LicenseKeyPage = () => {
                 value={editConfig ? editConfig.queueEndpoint : ""}
                 onChange={handleChange}
                 fullWidth
-                error={validationResults && !validationResults.url}
+                error={
+                  isEditSubmitted &&
+                  editValidationResults &&
+                  !editValidationResults.queueEndpoint
+                }
                 helperText={
-                  validationResults && !validationResults.url
-                    ? "Queue Endpoint"
+                  isEditSubmitted &&
+                  editValidationResults &&
+                  !editValidationResults.queueEndpoint
+                    ? "Invalid Queue Endpoint"
                     : ""
                 }
               />
@@ -1039,10 +1142,16 @@ const LicenseKeyPage = () => {
                 value={editConfig ? editConfig.adlsStorageAccountName : ""}
                 onChange={handleChange}
                 fullWidth
-                error={validationResults && !validationResults.url}
+                error={
+                  isEditSubmitted &&
+                  editValidationResults &&
+                  !editValidationResults.adlsStorageAccountName
+                }
                 helperText={
-                  validationResults && !validationResults.url
-                    ? "ADLS Storage Account Name"
+                  isEditSubmitted &&
+                  editValidationResults &&
+                  !editValidationResults.adlsStorageAccountName
+                    ? "Invalid ADLS Storage Account Name"
                     : ""
                 }
               />
@@ -1053,10 +1162,16 @@ const LicenseKeyPage = () => {
                 value={editConfig ? editConfig.adlsStorageAccountEndpoint : ""}
                 onChange={handleChange}
                 fullWidth
-                error={validationResults && !validationResults.url}
+                error={
+                  isEditSubmitted &&
+                  editValidationResults &&
+                  !editValidationResults.adlsStorageAccountEndpoint
+                }
                 helperText={
-                  validationResults && !validationResults.url
-                    ? "ADLS Storage Account Endpoint"
+                  isEditSubmitted &&
+                  editValidationResults &&
+                  !editValidationResults.adlsStorageAccountEndpoint
+                    ? "Invalid ADLS Storage Account Endpoint"
                     : ""
                 }
               />
@@ -1067,10 +1182,16 @@ const LicenseKeyPage = () => {
                 value={editConfig ? editConfig.adlsStorageAccountSasKey : ""}
                 onChange={handleChange}
                 fullWidth
-                error={validationResults && !validationResults.url}
+                error={
+                  isEditSubmitted &&
+                  editValidationResults &&
+                  !editValidationResults.adlsStorageAccountSasKey
+                }
                 helperText={
-                  validationResults && !validationResults.url
-                    ? "ADLS Storage Account SAS Key"
+                  isEditSubmitted &&
+                  editValidationResults &&
+                  !editValidationResults.adlsStorageAccountSasKey
+                    ? "Invalid ADLS Storage Account SAS Key"
                     : ""
                 }
               />
@@ -1081,9 +1202,11 @@ const LicenseKeyPage = () => {
                 value={editConfig ? editConfig.adlsContainerName : ""}
                 onChange={handleChange}
                 fullWidth
-                error={validationResults && !validationResults.url}
+                error={
+                  isSubmitted && validationResults && !validationResults.url
+                }
                 helperText={
-                  validationResults && !validationResults.url
+                  isSubmitted && validationResults && !validationResults.url
                     ? "ADLS Container Name"
                     : ""
                 }
@@ -1095,10 +1218,16 @@ const LicenseKeyPage = () => {
                 value={editConfig ? editConfig.adlsFolderName : ""}
                 onChange={handleChange}
                 fullWidth
-                error={validationResults && !validationResults.url}
+                error={
+                  isEditSubmitted &&
+                  editValidationResults &&
+                  !editValidationResults.adlsContainerName
+                }
                 helperText={
-                  validationResults && !validationResults.url
-                    ? "ADLS Folder Name"
+                  isEditSubmitted &&
+                  editValidationResults &&
+                  !editValidationResults.adlsContainerName
+                    ? "Invalid ADLS Container Name"
                     : ""
                 }
               />
@@ -1109,10 +1238,16 @@ const LicenseKeyPage = () => {
                 value={editConfig ? editConfig.adlsCdmFileName : ""}
                 onChange={handleChange}
                 fullWidth
-                error={validationResults && !validationResults.url}
+                error={
+                  isEditSubmitted &&
+                  editValidationResults &&
+                  !editValidationResults.adlsCdmFileName
+                }
                 helperText={
-                  validationResults && !validationResults.url
-                    ? "ADLS CDM File Name"
+                  isEditSubmitted &&
+                  editValidationResults &&
+                  !editValidationResults.adlsCdmFileName
+                    ? "Invalid ADLS CDM File Name"
                     : ""
                 }
               />
@@ -1123,10 +1258,16 @@ const LicenseKeyPage = () => {
                 value={editConfig ? editConfig.adlsCdmFilePath : ""}
                 onChange={handleChange}
                 fullWidth
-                error={validationResults && !validationResults.url}
+                error={
+                  isEditSubmitted &&
+                  editValidationResults &&
+                  !editValidationResults.adlsCdmFilePath
+                }
                 helperText={
-                  validationResults && !validationResults.url
-                    ? "ADLS CDM File Path"
+                  isEditSubmitted &&
+                  editValidationResults &&
+                  !editValidationResults.adlsCdmFilePath
+                    ? "Invalid ADLS CDM File Path"
                     : ""
                 }
               />
@@ -1137,10 +1278,16 @@ const LicenseKeyPage = () => {
                 value={editConfig ? editConfig.localCdmFilePath : ""}
                 onChange={handleChange}
                 fullWidth
-                error={validationResults && !validationResults.url}
+                error={
+                  isEditSubmitted &&
+                  editValidationResults &&
+                  !editValidationResults.localCdmFilePath
+                }
                 helperText={
-                  validationResults && !validationResults.url
-                    ? "Local CDM File Path"
+                  isEditSubmitted &&
+                  editValidationResults &&
+                  !editValidationResults.localCdmFilePath
+                    ? "Invalid Local CDM File Path"
                     : ""
                 }
               />
@@ -1152,10 +1299,16 @@ const LicenseKeyPage = () => {
                 value={editConfig ? editConfig.maxThreads : ""}
                 onChange={handleChange}
                 fullWidth
-                error={validationResults && !validationResults.url}
+                error={
+                  isEditSubmitted &&
+                  editValidationResults &&
+                  !editValidationResults.maxThreads
+                }
                 helperText={
-                  validationResults && !validationResults.url
-                    ? "Max Threads"
+                  isEditSubmitted &&
+                  editValidationResults &&
+                  !editValidationResults.maxThreads
+                    ? "Invalid Max Threads"
                     : ""
                 }
               />

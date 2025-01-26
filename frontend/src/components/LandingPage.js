@@ -90,6 +90,7 @@ const LandingPage = () => {
   const [activeTab, setActiveTab] = useState(0); // Set default tab to 0
   const [selectedDbProfile, setSelectedDbProfile] = useState("");
   const [dbProfiles, setDbProfiles] = useState([]);
+  const [refreshInterval, setRefreshInterval] = useState(300000);
 
   const getLastCopyStatusIcon = (status) => {
     switch (status) {
@@ -133,8 +134,10 @@ const LandingPage = () => {
         );
       };
       fetchDataAsync();
+      const intervalId = setInterval(fetchDataAsync, refreshInterval);
+      return () => clearInterval(intervalId); // Clear interval on component unmount
     }
-  }, [selectedDbProfile]);
+  }, [selectedDbProfile, refreshInterval]);
 
   useEffect(() => {
     // Reset pipelineData to empty array whenever selectedDbProfile changes
@@ -190,6 +193,11 @@ const LandingPage = () => {
     setHealthMetrics([]);
   };
 
+  const handleRefreshIntervalChange = (event) => {
+    const value = event.target.value;
+    setRefreshInterval(value);
+  };
+
   const handleTabChange = (event, newValue) => {
     setActiveTab(newValue);
   };
@@ -216,6 +224,7 @@ const LandingPage = () => {
           <Tab label="Current Status" />
           <Tab label="Pipeline Information" />
           <Tab label="MetaData Catalog" />
+          <Tab label="Refresh Interval" />
         </Tabs>
 
         {activeTab === 0 && (
@@ -534,6 +543,25 @@ const LandingPage = () => {
                 )}
               </TableBody>
             </Table>
+          </div>
+        )}
+        {activeTab === 3 && (
+          <div>
+            <FormControl variant="outlined" className={classes.formControl}>
+              <InputLabel id="refresh-interval-label">
+                Refresh Interval
+              </InputLabel>
+              <Select
+                labelId="refresh-interval-label"
+                value={refreshInterval}
+                onChange={handleRefreshIntervalChange}
+                label="Refresh Interval"
+              >
+                <MenuItem value={30000}>30 seconds</MenuItem>
+                <MenuItem value={60000}>1 minute</MenuItem>
+                <MenuItem value={300000}>5 minutes</MenuItem>
+              </Select>
+            </FormControl>
           </div>
         )}
 
