@@ -46,11 +46,11 @@ public class LicenseKeyController {
         return ResponseEntity.ok(environmentConfigs);
     }
 
-    @PutMapping("/environment/{id}")
-    public ResponseEntity<String> updateEnvironmentConfigs(@PathVariable Long id,
+    @PutMapping("/environment/{d365Environment}")
+    public ResponseEntity<String> updateEnvironmentConfigs(@PathVariable String d365Environment,
             @RequestBody EnvironmentConfig environmentConfig) {
         try {
-            environmentConfigService.updateEnvironmentConfigs(id, environmentConfig);
+            environmentConfigService.updateEnvironmentConfigs(d365Environment, environmentConfig);
             return ResponseEntity.ok("Database config updated successfully");
         } catch (Exception e) {
             e.printStackTrace();

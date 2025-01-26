@@ -30,8 +30,8 @@ public class EnvironmentConfigService {
         return environmentConfigRepository.findAll();
     }
 
-    public void updateEnvironmentConfigs(Long id, EnvironmentConfig environmentConfig) {
-        EnvironmentConfig existingEnvironmentConfig = environmentConfigRepository.findById(id).get();
+    public void updateEnvironmentConfigs(String id, EnvironmentConfig environmentConfig) {
+        EnvironmentConfig existingEnvironmentConfig = environmentConfigRepository.findByD365Environment(id);
         existingEnvironmentConfig.setD365Environment(existingEnvironmentConfig.getD365Environment());
         existingEnvironmentConfig.setD365EnvironmentUrl(existingEnvironmentConfig.getD365EnvironmentUrl());
         existingEnvironmentConfig.setMaxLength(environmentConfig.getMaxLength());

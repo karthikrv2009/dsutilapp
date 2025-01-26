@@ -8,4 +8,5 @@ import com.datapig.entity.EnvironmentConfig;
 @Repository
 public interface EnvironmentConfigRepository extends JpaRepository<EnvironmentConfig, Long> {
 
+    EnvironmentConfig findByD365Environment(String d365Environment);
 }

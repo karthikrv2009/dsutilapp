@@ -247,7 +247,7 @@ const LicenseKeyPage = () => {
 
     try {
       await axios.put(
-        `/api/license/environment/${editEnvironment.id}`,
+        `/api/license/environment/${editEnvironment.d365Environment}`,
         editEnvironment
       );
       setOpenEditEnvironmentDialog(false);
@@ -742,7 +742,12 @@ const LicenseKeyPage = () => {
                 variant="outlined"
                 name="d365Environment"
                 value={editEnvironment ? editEnvironment.d365Environment : ""}
-                onChange={handleChange}
+                onChange={(e) =>
+                  setEditEnvironment({
+                    ...editEnvironment,
+                    d365Environment: e.target.value,
+                  })
+                }
                 fullWidth
                 error={
                   isEnvSubmitted &&
@@ -764,7 +769,12 @@ const LicenseKeyPage = () => {
                 value={
                   editEnvironment ? editEnvironment.d365EnvironmentUrl : ""
                 }
-                onChange={handleChange}
+                onChange={(e) =>
+                  setEditEnvironment({
+                    ...editEnvironment,
+                    d365EnvironmentUrl: e.target.value,
+                  })
+                }
                 fullWidth
                 error={
                   isEnvSubmitted &&
@@ -784,7 +794,12 @@ const LicenseKeyPage = () => {
                 variant="outlined"
                 name="stringOffSet"
                 value={editEnvironment ? editEnvironment.stringOffSet : ""}
-                onChange={handleChange}
+                onChange={(e) =>
+                  setEditEnvironment({
+                    ...editEnvironment,
+                    stringOffSet: e.target.value,
+                  })
+                }
                 fullWidth
                 error={
                   isEnvSubmitted &&
@@ -805,7 +820,12 @@ const LicenseKeyPage = () => {
                 name="maxLength"
                 type="number"
                 value={editEnvironment ? editEnvironment.maxLength : ""}
-                onChange={handleChange}
+                onChange={(e) =>
+                  setEditEnvironment({
+                    ...editEnvironment,
+                    maxLength: e.target.value,
+                  })
+                }
                 fullWidth
                 error={
                   isEnvSubmitted &&
@@ -825,7 +845,12 @@ const LicenseKeyPage = () => {
                 variant="outlined"
                 name="stringOutlierPath"
                 value={editEnvironment ? editEnvironment.stringOutlierPath : ""}
-                onChange={handleChange}
+                onChange={(e) =>
+                  setEditEnvironment({
+                    ...editEnvironment,
+                    stringOutlierPath: e.target.value,
+                  })
+                }
                 fullWidth
                 error={
                   isEnvSubmitted &&
@@ -1518,7 +1543,7 @@ const LicenseKeyPage = () => {
             </form>
           </DialogContent>
           <DialogActions>
-            <Button onClick={handleCloseAdd} color="primary">
+            <Button onClick={handleCloseEdit} color="primary">
               Cancel
             </Button>
             <Button onClick={handleSaveClick} color="primary">
