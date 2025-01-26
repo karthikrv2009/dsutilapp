@@ -117,6 +117,7 @@ const LicenseKeyPage = () => {
     maxThreads: 1,
     enableArchive: false,
   });
+  const [validationResults, setValidationResults] = useState({});
 
   useEffect(() => {
     const fetchDataAsync = async () => {
@@ -213,7 +214,32 @@ const LicenseKeyPage = () => {
     }));
   };
 
+  const validateConfig = async (config) => {
+    try {
+      const response = await axios.post(
+        "/api/database-configs/validate",
+        config
+      );
+      return response.data; // Assuming the API returns an object with validation results
+    } catch (error) {
+      console.error("Error validating configuration:", error);
+      return null;
+    }
+  };
+
   const handleSaveClick = async () => {
+    const validationResults = await validateConfig(editConfig);
+    if (validationResults) {
+      // Highlight fields based on validation results
+      const invalidFields = Object.keys(validationResults).filter(
+        (key) => !validationResults[key]
+      );
+      if (invalidFields.length > 0) {
+        alert("Please correct the highlighted fields.");
+        return;
+      }
+    }
+
     try {
       await axios.put(`/api/database-configs/${editConfig.id}`, editConfig);
       setOpenEdit(false);
@@ -225,6 +251,17 @@ const LicenseKeyPage = () => {
   };
 
   const handleSubmitClick = async () => {
+    const validationResults = await validateConfig(newConfig);
+    if (validationResults) {
+      // Highlight fields based on validation results
+      const invalidFields = Object.keys(validationResults).filter(
+        (key) => !validationResults[key]
+      );
+      if (invalidFields.length > 0) {
+        alert("Please correct the highlighted fields.");
+        return;
+      }
+    }
     try {
       await axios.post("/api/database-configs/save", newConfig);
       setOpenAdd(false);
@@ -273,6 +310,18 @@ const LicenseKeyPage = () => {
     }
   };
 
+  const validateProfileConfig = async (config) => {
+    try {
+      const response = await axios.post(
+        "/api/database-configs/validate",
+        config
+      );
+      return response.data; // Assuming the API returns an object with validation results
+    } catch (error) {
+      console.error("Error validating configuration:", error);
+      return null;
+    }
+  };
   const handleStartQueueListener = async (dbIdentifier) => {
     try {
       await axios.post(`/api/database-configs/start-queue-listener`, {
@@ -606,10 +655,10 @@ const LicenseKeyPage = () => {
         </Dialog>
 
         <Dialog open={openAdd} onClose={handleCloseAdd}>
-          <DialogTitle>Add New Configuration</DialogTitle>
+          <DialogTitle>Add New Profile</DialogTitle>
           <DialogContent>
             <DialogContentText>
-              Please fill out the form to add a new database configuration.
+              Please fill out the form to add a new profile configuration
             </DialogContentText>
             <form className={classes.form} noValidate autoComplete="off">
               <TextField
@@ -619,6 +668,10 @@ const LicenseKeyPage = () => {
                 value={newConfig.url}
                 onChange={handleChange}
                 fullWidth
+                error={validationResults && !validationResults.url}
+                helperText={
+                  validationResults && !validationResults.url ? "URL" : ""
+                }
               />
               <TextField
                 label="Username"
@@ -627,6 +680,10 @@ const LicenseKeyPage = () => {
                 value={newConfig.username}
                 onChange={handleChange}
                 fullWidth
+                error={validationResults && !validationResults.url}
+                helperText={
+                  validationResults && !validationResults.url ? "Username" : ""
+                }
               />
               <TextField
                 label="Password"
@@ -636,6 +693,10 @@ const LicenseKeyPage = () => {
                 value={newConfig.password}
                 onChange={handleChange}
                 fullWidth
+                error={validationResults && !validationResults.url}
+                helperText={
+                  validationResults && !validationResults.url ? "Password" : ""
+                }
               />
               <TextField
                 label="DB Identifier"
@@ -644,6 +705,12 @@ const LicenseKeyPage = () => {
                 value={newConfig.dbIdentifier}
                 onChange={handleChange}
                 fullWidth
+                error={validationResults && !validationResults.url}
+                helperText={
+                  validationResults && !validationResults.url
+                    ? "DB Identifier"
+                    : ""
+                }
               />
               <TextField
                 label="Driver Class Name"
@@ -652,6 +719,12 @@ const LicenseKeyPage = () => {
                 value={newConfig.driverClassName}
                 onChange={handleChange}
                 fullWidth
+                error={validationResults && !validationResults.url}
+                helperText={
+                  validationResults && !validationResults.url
+                    ? "Driver Class Name"
+                    : ""
+                }
               />
               <TextField
                 label="Queue Name"
@@ -660,6 +733,12 @@ const LicenseKeyPage = () => {
                 value={newConfig.queueName}
                 onChange={handleChange}
                 fullWidth
+                error={validationResults && !validationResults.url}
+                helperText={
+                  validationResults && !validationResults.url
+                    ? "Queue Name"
+                    : ""
+                }
               />
               <TextField
                 label="Queue SAS Token"
@@ -668,6 +747,12 @@ const LicenseKeyPage = () => {
                 value={newConfig.queueSasToken}
                 onChange={handleChange}
                 fullWidth
+                error={validationResults && !validationResults.url}
+                helperText={
+                  validationResults && !validationResults.url
+                    ? "Queue SAS Token"
+                    : ""
+                }
               />
               <TextField
                 label="Queue Endpoint"
@@ -676,6 +761,12 @@ const LicenseKeyPage = () => {
                 value={newConfig.queueEndpoint}
                 onChange={handleChange}
                 fullWidth
+                error={validationResults && !validationResults.url}
+                helperText={
+                  validationResults && !validationResults.url
+                    ? "Queue Endpoint"
+                    : ""
+                }
               />
               <TextField
                 label="ADLS Storage Account Name"
@@ -684,6 +775,12 @@ const LicenseKeyPage = () => {
                 value={newConfig.adlsStorageAccountName}
                 onChange={handleChange}
                 fullWidth
+                error={validationResults && !validationResults.url}
+                helperText={
+                  validationResults && !validationResults.url
+                    ? "ADLS Storage Account Name"
+                    : ""
+                }
               />
               <TextField
                 label="ADLS Storage Account Endpoint"
@@ -692,6 +789,12 @@ const LicenseKeyPage = () => {
                 value={newConfig.adlsStorageAccountEndpoint}
                 onChange={handleChange}
                 fullWidth
+                error={validationResults && !validationResults.url}
+                helperText={
+                  validationResults && !validationResults.url
+                    ? "ADLS Storage Account Endpoint"
+                    : ""
+                }
               />
               <TextField
                 label="ADLS Storage Account SAS Key"
@@ -700,6 +803,12 @@ const LicenseKeyPage = () => {
                 value={newConfig.adlsStorageAccountSasKey}
                 onChange={handleChange}
                 fullWidth
+                error={validationResults && !validationResults.url}
+                helperText={
+                  validationResults && !validationResults.url
+                    ? "ADLS Storage Account SAS Key"
+                    : ""
+                }
               />
               <TextField
                 label="ADLS Container Name"
@@ -708,6 +817,12 @@ const LicenseKeyPage = () => {
                 value={newConfig.adlsContainerName}
                 onChange={handleChange}
                 fullWidth
+                error={validationResults && !validationResults.url}
+                helperText={
+                  validationResults && !validationResults.url
+                    ? "ADLS Container Name"
+                    : ""
+                }
               />
               <TextField
                 label="ADLS Folder Name"
@@ -716,6 +831,12 @@ const LicenseKeyPage = () => {
                 value={newConfig.adlsFolderName}
                 onChange={handleChange}
                 fullWidth
+                error={validationResults && !validationResults.url}
+                helperText={
+                  validationResults && !validationResults.url
+                    ? "ADLS Folder Name"
+                    : ""
+                }
               />
               <TextField
                 label="ADLS CDM File Name"
@@ -724,6 +845,12 @@ const LicenseKeyPage = () => {
                 value={newConfig.adlsCdmFileName}
                 onChange={handleChange}
                 fullWidth
+                error={validationResults && !validationResults.url}
+                helperText={
+                  validationResults && !validationResults.url
+                    ? "ADLS CDM File Name"
+                    : ""
+                }
               />
               <TextField
                 label="ADLS CDM File Path"
@@ -732,6 +859,12 @@ const LicenseKeyPage = () => {
                 value={newConfig.adlsCdmFilePath}
                 onChange={handleChange}
                 fullWidth
+                error={validationResults && !validationResults.url}
+                helperText={
+                  validationResults && !validationResults.url
+                    ? "ADLS CDM File Path"
+                    : ""
+                }
               />
               <TextField
                 label="Local CDM File Path"
@@ -740,6 +873,12 @@ const LicenseKeyPage = () => {
                 value={newConfig.localCdmFilePath}
                 onChange={handleChange}
                 fullWidth
+                error={validationResults && !validationResults.url}
+                helperText={
+                  validationResults && !validationResults.url
+                    ? "Local CDM File Path"
+                    : ""
+                }
               />
               <TextField
                 label="Max Threads"
@@ -749,6 +888,12 @@ const LicenseKeyPage = () => {
                 value={newConfig.maxThreads}
                 onChange={handleChange}
                 fullWidth
+                error={validationResults && !validationResults.url}
+                helperText={
+                  validationResults && !validationResults.url
+                    ? "Max Threads"
+                    : ""
+                }
               />
 
               <FormControlLabel
@@ -787,6 +932,10 @@ const LicenseKeyPage = () => {
                 value={editConfig ? editConfig.url : ""}
                 onChange={handleChange}
                 fullWidth
+                error={validationResults && !validationResults.url}
+                helperText={
+                  validationResults && !validationResults.url ? "URL" : ""
+                }
               />
               <TextField
                 label="Username"
@@ -795,6 +944,10 @@ const LicenseKeyPage = () => {
                 value={editConfig ? editConfig.username : ""}
                 onChange={handleChange}
                 fullWidth
+                error={validationResults && !validationResults.url}
+                helperText={
+                  validationResults && !validationResults.url ? "Username" : ""
+                }
               />
               <TextField
                 label="Password"
@@ -804,6 +957,10 @@ const LicenseKeyPage = () => {
                 value={editConfig ? editConfig.password : ""}
                 onChange={handleChange}
                 fullWidth
+                error={validationResults && !validationResults.url}
+                helperText={
+                  validationResults && !validationResults.url ? "Password" : ""
+                }
               />
               <TextField
                 label="DB Identifier"
@@ -812,6 +969,12 @@ const LicenseKeyPage = () => {
                 value={editConfig ? editConfig.dbIdentifier : ""}
                 onChange={handleChange}
                 fullWidth
+                error={validationResults && !validationResults.url}
+                helperText={
+                  validationResults && !validationResults.url
+                    ? "DB Identifier"
+                    : ""
+                }
               />
               <TextField
                 label="Driver Class Name"
@@ -820,6 +983,12 @@ const LicenseKeyPage = () => {
                 value={editConfig ? editConfig.driverClassName : ""}
                 onChange={handleChange}
                 fullWidth
+                error={validationResults && !validationResults.url}
+                helperText={
+                  validationResults && !validationResults.url
+                    ? "Driver Class Name"
+                    : ""
+                }
               />
               <TextField
                 label="Queue Name"
@@ -828,6 +997,12 @@ const LicenseKeyPage = () => {
                 value={editConfig ? editConfig.queueName : ""}
                 onChange={handleChange}
                 fullWidth
+                error={validationResults && !validationResults.url}
+                helperText={
+                  validationResults && !validationResults.url
+                    ? "Queue Name"
+                    : ""
+                }
               />
               <TextField
                 label="Queue SAS Token"
@@ -836,6 +1011,12 @@ const LicenseKeyPage = () => {
                 value={editConfig ? editConfig.queueSasToken : ""}
                 onChange={handleChange}
                 fullWidth
+                error={validationResults && !validationResults.url}
+                helperText={
+                  validationResults && !validationResults.url
+                    ? "Queue SAS Token"
+                    : ""
+                }
               />
               <TextField
                 label="Queue Endpoint"
@@ -844,6 +1025,12 @@ const LicenseKeyPage = () => {
                 value={editConfig ? editConfig.queueEndpoint : ""}
                 onChange={handleChange}
                 fullWidth
+                error={validationResults && !validationResults.url}
+                helperText={
+                  validationResults && !validationResults.url
+                    ? "Queue Endpoint"
+                    : ""
+                }
               />
               <TextField
                 label="ADLS Storage Account Name"
@@ -852,6 +1039,12 @@ const LicenseKeyPage = () => {
                 value={editConfig ? editConfig.adlsStorageAccountName : ""}
                 onChange={handleChange}
                 fullWidth
+                error={validationResults && !validationResults.url}
+                helperText={
+                  validationResults && !validationResults.url
+                    ? "ADLS Storage Account Name"
+                    : ""
+                }
               />
               <TextField
                 label="ADLS Storage Account Endpoint"
@@ -860,6 +1053,12 @@ const LicenseKeyPage = () => {
                 value={editConfig ? editConfig.adlsStorageAccountEndpoint : ""}
                 onChange={handleChange}
                 fullWidth
+                error={validationResults && !validationResults.url}
+                helperText={
+                  validationResults && !validationResults.url
+                    ? "ADLS Storage Account Endpoint"
+                    : ""
+                }
               />
               <TextField
                 label="ADLS Storage Account SAS Key"
@@ -868,6 +1067,12 @@ const LicenseKeyPage = () => {
                 value={editConfig ? editConfig.adlsStorageAccountSasKey : ""}
                 onChange={handleChange}
                 fullWidth
+                error={validationResults && !validationResults.url}
+                helperText={
+                  validationResults && !validationResults.url
+                    ? "ADLS Storage Account SAS Key"
+                    : ""
+                }
               />
               <TextField
                 label="ADLS Container Name"
@@ -876,6 +1081,12 @@ const LicenseKeyPage = () => {
                 value={editConfig ? editConfig.adlsContainerName : ""}
                 onChange={handleChange}
                 fullWidth
+                error={validationResults && !validationResults.url}
+                helperText={
+                  validationResults && !validationResults.url
+                    ? "ADLS Container Name"
+                    : ""
+                }
               />
               <TextField
                 label="ADLS Folder Name"
@@ -884,6 +1095,12 @@ const LicenseKeyPage = () => {
                 value={editConfig ? editConfig.adlsFolderName : ""}
                 onChange={handleChange}
                 fullWidth
+                error={validationResults && !validationResults.url}
+                helperText={
+                  validationResults && !validationResults.url
+                    ? "ADLS Folder Name"
+                    : ""
+                }
               />
               <TextField
                 label="ADLS CDM File Name"
@@ -892,6 +1109,12 @@ const LicenseKeyPage = () => {
                 value={editConfig ? editConfig.adlsCdmFileName : ""}
                 onChange={handleChange}
                 fullWidth
+                error={validationResults && !validationResults.url}
+                helperText={
+                  validationResults && !validationResults.url
+                    ? "ADLS CDM File Name"
+                    : ""
+                }
               />
               <TextField
                 label="ADLS CDM File Path"
@@ -900,6 +1123,12 @@ const LicenseKeyPage = () => {
                 value={editConfig ? editConfig.adlsCdmFilePath : ""}
                 onChange={handleChange}
                 fullWidth
+                error={validationResults && !validationResults.url}
+                helperText={
+                  validationResults && !validationResults.url
+                    ? "ADLS CDM File Path"
+                    : ""
+                }
               />
               <TextField
                 label="Local CDM File Path"
@@ -908,6 +1137,12 @@ const LicenseKeyPage = () => {
                 value={editConfig ? editConfig.localCdmFilePath : ""}
                 onChange={handleChange}
                 fullWidth
+                error={validationResults && !validationResults.url}
+                helperText={
+                  validationResults && !validationResults.url
+                    ? "Local CDM File Path"
+                    : ""
+                }
               />
               <TextField
                 label="Max Threads"
@@ -917,6 +1152,12 @@ const LicenseKeyPage = () => {
                 value={editConfig ? editConfig.maxThreads : ""}
                 onChange={handleChange}
                 fullWidth
+                error={validationResults && !validationResults.url}
+                helperText={
+                  validationResults && !validationResults.url
+                    ? "Max Threads"
+                    : ""
+                }
               />
               <FormControlLabel
                 control={

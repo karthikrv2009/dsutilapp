@@ -56,6 +56,44 @@ public class DatabaseConfigController {
         return ResponseEntity.ok(configs);
     }
 
+    @PostMapping("/validate")
+    public ResponseEntity<Map<String, Boolean>> validateDatabaseConfig(@RequestBody DatabaseConfig config) {
+        Map<String, Boolean> validationResults = new HashMap<>();
+
+        // Perform validation checks
+        validationResults.put("name", config.getName() != null && !config.getName().isEmpty());
+        validationResults.put("url", config.getUrl() != null && !config.getUrl().isEmpty());
+        validationResults.put("username", config.getUsername() != null && !config.getUsername().isEmpty());
+        validationResults.put("password", config.getPassword() != null && !config.getPassword().isEmpty());
+        validationResults.put("dbIdentifier", config.getDbIdentifier() != null && !config.getDbIdentifier().isEmpty());
+        validationResults.put("driverClassName",
+                config.getDriverClassName() != null && !config.getDriverClassName().isEmpty());
+        validationResults.put("queueName", config.getQueueName() != null && !config.getQueueName().isEmpty());
+        validationResults.put("queueSasToken",
+                config.getQueueSasToken() != null && !config.getQueueSasToken().isEmpty());
+        validationResults.put("queueEndpoint",
+                config.getQueueEndpoint() != null && !config.getQueueEndpoint().isEmpty());
+        validationResults.put("adlsStorageAccountName",
+                config.getAdlsStorageAccountName() != null && !config.getAdlsStorageAccountName().isEmpty());
+        validationResults.put("adlsStorageAccountEndpoint",
+                config.getAdlsStorageAccountEndpoint() != null && !config.getAdlsStorageAccountEndpoint().isEmpty());
+        validationResults.put("adlsStorageAccountSasKey",
+                config.getAdlsStorageAccountSasKey() != null && !config.getAdlsStorageAccountSasKey().isEmpty());
+        validationResults.put("adlsContainerName",
+                config.getAdlsContainerName() != null && !config.getAdlsContainerName().isEmpty());
+        validationResults.put("adlsFolderName",
+                config.getAdlsFolderName() != null && !config.getAdlsFolderName().isEmpty());
+        validationResults.put("adlsCdmFileName",
+                config.getAdlsCdmFileName() != null && !config.getAdlsCdmFileName().isEmpty());
+        validationResults.put("adlsCdmFilePath",
+                config.getAdlsCdmFilePath() != null && !config.getAdlsCdmFilePath().isEmpty());
+        validationResults.put("localCdmFilePath",
+                config.getLocalCdmFilePath() != null && !config.getLocalCdmFilePath().isEmpty());
+        validationResults.put("maxThreads", config.getMaxThreads() > 0);
+
+        return ResponseEntity.ok(validationResults);
+    }
+
     @PostMapping("/save")
     public ResponseEntity<DatabaseConfigDTO> saveDatabaseConfig(@RequestBody DatabaseConfig databaseConfig) {
         dynamicDataSourceManager.addDataSource(databaseConfig.getDbIdentifier(), databaseConfig.getUrl(),
