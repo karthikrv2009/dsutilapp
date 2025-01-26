@@ -493,6 +493,9 @@ const LicenseKeyPage = () => {
                   <TableCell className={classes.tableCellHead}>
                     D365 Environment URL
                   </TableCell>
+                  <TableCell className={classes.tableCellHead}>
+                    Actions
+                  </TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -504,6 +507,15 @@ const LicenseKeyPage = () => {
                       </TableCell>
                       <TableCell className={classes.tableCellBody}>
                         {info.d365EnvironmentUrl}
+                      </TableCell>
+                      <TableCell className={classes.tableCellBody}>
+                        <Button
+                          variant="contained"
+                          color="secondary"
+                          onClick={() => handleEditEnvironmentClick(info)}
+                        >
+                          Edit
+                        </Button>
                       </TableCell>
                     </TableRow>
                   ))
