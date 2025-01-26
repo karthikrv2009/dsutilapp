@@ -29,4 +29,14 @@ public class EnvironmentConfigService {
     public List<EnvironmentConfig> getAllEnvironmentConfigs() {
         return environmentConfigRepository.findAll();
     }
+
+    public void updateEnvironmentConfigs(Long id, EnvironmentConfig environmentConfig) {
+        EnvironmentConfig existingEnvironmentConfig = environmentConfigRepository.findById(id).get();
+        existingEnvironmentConfig.setD365Environment(existingEnvironmentConfig.getD365Environment());
+        existingEnvironmentConfig.setD365EnvironmentUrl(existingEnvironmentConfig.getD365EnvironmentUrl());
+        existingEnvironmentConfig.setMaxLength(environmentConfig.getMaxLength());
+        existingEnvironmentConfig.setStringOffSet(environmentConfig.getStringOffSet());
+        existingEnvironmentConfig.setStringOutlierPath(environmentConfig.getStringOutlierPath());
+        environmentConfigRepository.save(existingEnvironmentConfig);
+    }
 }

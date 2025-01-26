@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.*;
 
 import com.datapig.service.LicenseKeyService;
 import com.datapig.entity.LicenseKey;
+import com.datapig.entity.DatabaseConfig;
 import com.datapig.entity.EnvironmentConfig;
 import com.datapig.service.EnvironmentConfigService;
 
@@ -45,11 +46,16 @@ public class LicenseKeyController {
         return ResponseEntity.ok(environmentConfigs);
     }
 
-    // POST method for /api/license/environment
-    @PostMapping("/environment")
-    public ResponseEntity<EnvironmentConfig> createEnvironmentConfig(@RequestBody EnvironmentConfig environmentConfig) {
-        EnvironmentConfig savedEnvironmentConfig = environmentConfigService.saveEnvironmentConfig(environmentConfig);
-        return ResponseEntity.ok(savedEnvironmentConfig);
+    @PutMapping("/environment/{id}")
+    public ResponseEntity<String> updateEnvironmentConfigs(@PathVariable Long id,
+            @RequestBody EnvironmentConfig environmentConfig) {
+        try {
+            environmentConfigService.updateEnvironmentConfigs(id, environmentConfig);
+            return ResponseEntity.ok("Database config updated successfully");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).body("Error updating database config");
+        }
     }
 
     @PostMapping("/environment/validate")
