@@ -224,6 +224,16 @@ const LicenseKeyPage = () => {
     }
   };
 
+  const handleSubmitClick = async () => {
+    try {
+      await axios.put(`/api/database-configs/save`, handleChange);
+      setOpenEdit(false);
+      setEditConfig(null);
+      fetchData("/api/database-configs", setConfigs); // Refresh the data
+    } catch (error) {
+      console.error("Error saving data:", error);
+    }
+  };
   const handleStartInitialLoad = async (dbIdentifier) => {
     try {
       await axios.post(`/api/database-configs/start-initial-load`, {
@@ -738,8 +748,8 @@ const LicenseKeyPage = () => {
             <Button onClick={handleCloseAdd} color="primary">
               Cancel
             </Button>
-            <Button onClick={handleSaveClick} color="primary">
-              Save
+            <Button onClick={handleSubmitClick} color="primary">
+              Submit
             </Button>
           </DialogActions>
         </Dialog>
