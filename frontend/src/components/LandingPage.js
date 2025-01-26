@@ -13,6 +13,7 @@ import {
   Tabs,
   Tab,
   Container,
+  Tooltip,
   Select,
   MenuItem,
   FormControl,
@@ -630,7 +631,9 @@ const LandingPage = () => {
                         {metric.status === 1 ? (
                           <CheckCircleOutlineIcon style={{ color: "green" }} />
                         ) : (
-                          <ErrorOutlineIcon style={{ color: "red" }} />
+                          <Tooltip title={metric.errorMsg || "Error"}>
+                            <ErrorOutlineIcon style={{ color: "red" }} />
+                          </Tooltip>
                         )}
                       </TableCell>
                       <TableCell className={classes.tableCellBody}>
