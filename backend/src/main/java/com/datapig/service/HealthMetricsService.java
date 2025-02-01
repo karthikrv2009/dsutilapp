@@ -34,4 +34,8 @@ public class HealthMetricsService {
         return entityOptional;
     }
 
+    public List<HealthMetrics> findByfolderNameAndDbIdentifierAndTableNameAndStatus(String folderName, String dbIdentifier,String tableName,int status){
+        return healthMetricsRepository.findByfolderNameAndDbIdentifierAndTableNameAndStatus(folderName, dbIdentifier, tableName, status);
+    }
+
 }

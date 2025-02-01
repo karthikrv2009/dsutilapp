@@ -8,8 +8,10 @@ import com.azure.storage.file.datalake.DataLakeFileClient;
 import com.azure.storage.file.datalake.DataLakeFileSystemClient;
 import com.azure.storage.file.datalake.DataLakeFileSystemClientBuilder;
 import com.azure.storage.file.datalake.models.PathProperties;
+import com.datapig.component.BulkLoadErrorHandler;
 import com.datapig.entity.DatabaseConfig;
 import com.datapig.entity.FolderSyncStatus;
+import com.datapig.entity.HealthMetrics;
 import com.datapig.entity.MetaDataCatlog;
 import com.datapig.entity.MetaDataPointer;
 import com.datapig.utility.JDBCTemplateUtiltiy;
@@ -47,6 +49,12 @@ public class SynapseLogParserService {
     private FolderSyncStatusService folderSyncStatusService;
 
     @Autowired
+    private BulkLoadErrorHandler bulkLoadErrorHandler;
+
+    @Autowired
+    private HealthMetricsService healthMetricsService;
+
+    @Autowired
     private PolybaseService polybaseService;
 
     @Autowired
@@ -56,7 +64,7 @@ public class SynapseLogParserService {
 
         Set<String> tableNamesInMetadataCatalogDB = metaDataCatlogService.getAllTableNamesByDbIdentifier(databaseConfig.getDbIdentifier());
         String dbIdentifier=databaseConfig.getDbIdentifier();
-        String fileSystemName = databaseConfig.getAdlsStorageAccountName();
+        String fileSystemName = databaseConfig.getAdlsContainerName();
         String targetFileName = databaseConfig.getAdlsCdmFileName();
 
         String storageAccountUrl = databaseConfig.getAdlsStorageAccountEndpoint();
@@ -117,7 +125,7 @@ public class SynapseLogParserService {
         }
 
         // Retry Error logic
-        TreeSet<MetaDataPointer> failedMetaDataPointers = errorHandle();
+        TreeSet<MetaDataPointer> failedMetaDataPointers = errorHandle(dbIdentifier);;
         for (MetaDataPointer metaDataPointer : failedMetaDataPointers) {
             polybaseService.startSyncInFolder(metaDataPointer,databaseConfig);
         }
@@ -128,42 +136,65 @@ public class SynapseLogParserService {
         }
     }
 
-    private TreeSet<MetaDataPointer> errorHandle() {
-        List<MetaDataPointer> metaDataPointerList = new ArrayList<MetaDataPointer>();
+    private TreeSet<MetaDataPointer> errorHandle(String dbIdentifier) {
+        List<MetaDataPointer> metaDataPointerList = new ArrayList<>();
         TreeSet<MetaDataPointer> orderedSet = null;
         short failStatus = 3;
-        List<MetaDataCatlog> metaDataCatlogs = metaDataCatlogService.findBylastCopyStatus(failStatus);
+        List<MetaDataCatlog> metaDataCatlogs = metaDataCatlogService.findBylastCopyStatusAndDbIdentifier(failStatus,
+                dbIdentifier);
+        
         for (MetaDataCatlog failMetaDataCatlog : metaDataCatlogs) {
+            List<HealthMetrics> nhealthMetrics=healthMetricsService.findByfolderNameAndDbIdentifierAndTableNameAndStatus(failMetaDataCatlog.getLastUpdatedFolder(), failMetaDataCatlog.getDbIdentifier(),failMetaDataCatlog.getTableName(),2);
+            for(HealthMetrics healthMetrics:nhealthMetrics){
+                bulkLoadErrorHandler.fixTruncateError(healthMetrics);
+            }
+            
             if (failMetaDataCatlog.getRetry() == 3) {
-                quarintineTable(failMetaDataCatlog);
+                failMetaDataCatlog=quarintineTable(failMetaDataCatlog);
             }
             if ((failMetaDataCatlog.getQuarintine() != 1) && (failMetaDataCatlog.getRetry() <= 3)) {
+                System.out.println("Input :"+failMetaDataCatlog.getLastUpdatedFolder()+"==>"+ dbIdentifier);
                 MetaDataPointer metaDataPointer = metaDataPointerService
-                        .getMetaDataPointer(failMetaDataCatlog.getLastUpdatedFolder());
+                        .getMetaDataPointerBydbIdentifierAndFolder(dbIdentifier,failMetaDataCatlog.getLastUpdatedFolder());
+                                System.out.println("MeteDataPointer ==>"+metaDataPointer.getFolderName());
+                
                 if (metaDataPointer != null) {
-                    updateErrorTableToStart(failMetaDataCatlog, metaDataPointer);
+                    failMetaDataCatlog=updateErrorTableToStart(failMetaDataCatlog, metaDataPointer, dbIdentifier);
+                    metaDataPointerList.add(metaDataPointer);
                 }
-                metaDataPointerList.add(metaDataPointer);
+                
             }
 
         }
         if (metaDataPointerList != null) {
-            // Create a TreeSet with a custom comparator for stageStartTime
+            System.out.println("metaDataPointerList size: " + metaDataPointerList.size());
+            for (MetaDataPointer pointer : metaDataPointerList) {
+                if (pointer == null) {
+                    System.out.println("Found a null element in metaDataPointerList");
+                } else if (pointer.getStageStartTime() == null) {
+                    System.out.println("Found an element with null stageStartTime");
+                }
+            }
             orderedSet = new TreeSet<>(Comparator.comparing(MetaDataPointer::getStageStartTime));
             orderedSet.addAll(metaDataPointerList);
-        }
+        } 
+        
         return orderedSet;
     }
 
-    private void quarintineTable(MetaDataCatlog metaDataCatlog) {
+    private MetaDataCatlog quarintineTable(MetaDataCatlog metaDataCatlog) {
         int quarintine = 1;
         metaDataCatlog.setQuarintine(quarintine);
-        metaDataCatlogService.save(metaDataCatlog);
+        metaDataCatlog=metaDataCatlogService.save(metaDataCatlog);
+        return metaDataCatlog;
     }
 
-    private void updateErrorTableToStart(MetaDataCatlog metaDataCatlog, MetaDataPointer metaDataPointer) {
-        FolderSyncStatus folderSyncStatus = folderSyncStatusService.getFolderSyncStatusOnFolderAndTableName(
-                metaDataPointer.getFolderName(), metaDataCatlog.getTableName());
+    private MetaDataCatlog updateErrorTableToStart(MetaDataCatlog metaDataCatlog, MetaDataPointer metaDataPointer,
+            String dbIdentifier) {
+        MetaDataCatlog metaDataCatlog2=null;
+        FolderSyncStatus folderSyncStatus = folderSyncStatusService
+                .getFolderSyncStatusOnFolderAndTableNameAndDBIdentifier(
+                        metaDataPointer.getFolderName(), metaDataCatlog.getTableName(), dbIdentifier);
         if (folderSyncStatus != null) {
             Short copyStatus = 0;
             folderSyncStatus.setCopyStatus(copyStatus);
@@ -175,8 +206,9 @@ public class SynapseLogParserService {
             int retry = metaDataCatlog.getRetry();
             retry = retry + 1;
             metaDataCatlog.setRetry(retry);
-            metaDataCatlogService.save(metaDataCatlog);
+            metaDataCatlog2=metaDataCatlogService.save(metaDataCatlog);
         }
+        return metaDataCatlog2;
     }
 
     // Method to get Table per folder from FolderSyncStatus in DB

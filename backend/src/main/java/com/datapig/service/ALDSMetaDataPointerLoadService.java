@@ -11,9 +11,10 @@ import com.azure.storage.file.datalake.DataLakeFileSystemClient;
 import com.azure.storage.file.datalake.DataLakeFileSystemClientBuilder;
 import com.azure.storage.file.datalake.models.PathItem;
 import com.azure.storage.file.datalake.models.PathProperties;
-
+import com.datapig.component.BulkLoadErrorHandler;
 import com.datapig.entity.DatabaseConfig;
 import com.datapig.entity.FolderSyncStatus;
+import com.datapig.entity.HealthMetrics;
 import com.datapig.entity.IntialLoad;
 import com.datapig.entity.MetaDataCatlog;
 import com.datapig.entity.MetaDataPointer;
@@ -59,6 +60,12 @@ public class ALDSMetaDataPointerLoadService {
 
     @Autowired
     private DatabaseConfigService databaseConfigService;
+
+    @Autowired
+    private BulkLoadErrorHandler bulkLoadErrorHandler;
+
+    @Autowired
+    private HealthMetricsService healthMetricsService;
 
     @Lazy
     @Autowired
@@ -149,23 +156,61 @@ public class ALDSMetaDataPointerLoadService {
             intialLoad.setStagestatus(2);
             intialLoad = initialLoadService.save(intialLoad);
         }
+
         Short pointerCopyStatus = 1;
         TreeSet<MetaDataPointer> metaDataPointers = metaDataPointerService
                 .getMetaDataPointerBystageStatusandDbidentifier(pointerCopyStatus, dbIdentifier);
         for (MetaDataPointer metaDataPointer : metaDataPointers) {
             startProcessing(metaDataPointer,databaseConfig);
         }
-        Short copyStatus = 0;
-        List<FolderSyncStatus> pendingTablesInFolder = folderSyncStatusService
-                .getFolderSyncStatusBycopyStatusandDbidentifier(copyStatus, dbIdentifier);
-        if (pendingTablesInFolder.isEmpty()) {
-            intialLoad.setEndtimestamp(LocalDateTime.now());
-            intialLoad.setStatus(2);
 
-            initialLoadService.save(intialLoad);
+        boolean flag=true;        
+        while(flag){
+            Short copyStatus = 0;
+            List<FolderSyncStatus> pendingTablesInFolder = folderSyncStatusService
+                    .getFolderSyncStatusBycopyStatusandDbidentifier(copyStatus, dbIdentifier);
+            int count=0;
+            short failstatus=3;
+            List<MetaDataCatlog> failMetaDataCatalogLst=metaDataCatlogService.findBylastCopyStatusAndDbIdentifier(failstatus, dbIdentifier);                
+            for(MetaDataCatlog metaDataCatlog:failMetaDataCatalogLst){
+                if(metaDataCatlog.getQuarintine()!=1){
+                    count=count+1;
+                }
+            }
+            if(count!=0){
+                TreeSet<MetaDataPointer> failedMetaDataPointers = errorHandle(dbIdentifier);
+                for(MetaDataPointer metaDataPointer:failedMetaDataPointers){
+                    startProcessing(metaDataPointer, databaseConfig);
+                }
+                List<MetaDataPointer> metaDataPointerList=new ArrayList<MetaDataPointer>();
+                for(FolderSyncStatus folderSyncStatus:pendingTablesInFolder){
+                    if(metaDataCatlogService.getMetaDataCatlogByTableNameAndDbIdentifier(folderSyncStatus.getTableName(), dbIdentifier).getQuarintine()!=1){
+                        MetaDataPointer metaDataPointer=metaDataPointerService.getMetaDataPointerBydbIdentifierAndFolder(dbIdentifier, folderSyncStatus.getFolder());
+                        if(metaDataPointer!=null){
+                            metaDataPointerList.add(metaDataPointer);
+                        }
+                    }
+                }
+                TreeSet<MetaDataPointer> orderedSet = new TreeSet<>(Comparator.comparing(MetaDataPointer::getStageStartTime));
+                orderedSet.addAll(metaDataPointerList);
+                for(MetaDataPointer metaDataPointer:orderedSet){
+                    startProcessing(metaDataPointer, databaseConfig);
+                }
+            
+        }
+        else{
+            if (pendingTablesInFolder.isEmpty()) {
+                intialLoad.setEndtimestamp(LocalDateTime.now());
+                intialLoad.setStatus(2);
+                initialLoadService.save(intialLoad);
+            }
+            flag=false;
         }
     }
 
+    }
+
+    
     // Method to check if a file exists in a specified directory
     private boolean doesFileExist(DataLakeDirectoryClient directoryClient, String fileName) {
         try {
@@ -252,37 +297,56 @@ public class ALDSMetaDataPointerLoadService {
         short failStatus = 3;
         List<MetaDataCatlog> metaDataCatlogs = metaDataCatlogService.findBylastCopyStatusAndDbIdentifier(failStatus,
                 dbIdentifier);
+        
         for (MetaDataCatlog failMetaDataCatlog : metaDataCatlogs) {
+            List<HealthMetrics> nhealthMetrics=healthMetricsService.findByfolderNameAndDbIdentifierAndTableNameAndStatus(failMetaDataCatlog.getLastUpdatedFolder(), failMetaDataCatlog.getDbIdentifier(),failMetaDataCatlog.getTableName(),2);
+            for(HealthMetrics healthMetrics:nhealthMetrics){
+                bulkLoadErrorHandler.fixTruncateError(healthMetrics);
+            }
+            
             if (failMetaDataCatlog.getRetry() == 3) {
-                quarintineTable(failMetaDataCatlog);
+                failMetaDataCatlog=quarintineTable(failMetaDataCatlog);
             }
             if ((failMetaDataCatlog.getQuarintine() != 1) && (failMetaDataCatlog.getRetry() <= 3)) {
+                System.out.println("Input :"+failMetaDataCatlog.getLastUpdatedFolder()+"==>"+ dbIdentifier);
                 MetaDataPointer metaDataPointer = metaDataPointerService
-                        .getMetaDataPointerBydbIdentifierAndFolder(failMetaDataCatlog.getLastUpdatedFolder(),
-                                dbIdentifier);
+                        .getMetaDataPointerBydbIdentifierAndFolder(dbIdentifier,failMetaDataCatlog.getLastUpdatedFolder());
+                                System.out.println("MeteDataPointer ==>"+metaDataPointer.getFolderName());
+                
                 if (metaDataPointer != null) {
-                    updateErrorTableToStart(failMetaDataCatlog, metaDataPointer, dbIdentifier);
+                    failMetaDataCatlog=updateErrorTableToStart(failMetaDataCatlog, metaDataPointer, dbIdentifier);
+                    metaDataPointerList.add(metaDataPointer);
                 }
-                metaDataPointerList.add(metaDataPointer);
+                
             }
 
         }
         if (metaDataPointerList != null) {
-            // Create a TreeSet with a custom comparator for stageStartTime
+            System.out.println("metaDataPointerList size: " + metaDataPointerList.size());
+            for (MetaDataPointer pointer : metaDataPointerList) {
+                if (pointer == null) {
+                    System.out.println("Found a null element in metaDataPointerList");
+                } else if (pointer.getStageStartTime() == null) {
+                    System.out.println("Found an element with null stageStartTime");
+                }
+            }
             orderedSet = new TreeSet<>(Comparator.comparing(MetaDataPointer::getStageStartTime));
             orderedSet.addAll(metaDataPointerList);
-        }
+        } 
+        
         return orderedSet;
     }
 
-    private void quarintineTable(MetaDataCatlog metaDataCatlog) {
+    private MetaDataCatlog quarintineTable(MetaDataCatlog metaDataCatlog) {
         int quarintine = 1;
         metaDataCatlog.setQuarintine(quarintine);
-        metaDataCatlogService.save(metaDataCatlog);
+        metaDataCatlog=metaDataCatlogService.save(metaDataCatlog);
+        return metaDataCatlog;
     }
 
-    private void updateErrorTableToStart(MetaDataCatlog metaDataCatlog, MetaDataPointer metaDataPointer,
+    private MetaDataCatlog updateErrorTableToStart(MetaDataCatlog metaDataCatlog, MetaDataPointer metaDataPointer,
             String dbIdentifier) {
+        MetaDataCatlog metaDataCatlog2=null;
         FolderSyncStatus folderSyncStatus = folderSyncStatusService
                 .getFolderSyncStatusOnFolderAndTableNameAndDBIdentifier(
                         metaDataPointer.getFolderName(), metaDataCatlog.getTableName(), dbIdentifier);
@@ -297,8 +361,9 @@ public class ALDSMetaDataPointerLoadService {
             int retry = metaDataCatlog.getRetry();
             retry = retry + 1;
             metaDataCatlog.setRetry(retry);
-            metaDataCatlogService.save(metaDataCatlog);
+            metaDataCatlog2=metaDataCatlogService.save(metaDataCatlog);
         }
+        return metaDataCatlog2;
     }
 
     private void startProcessing(MetaDataPointer metaDataPointer,DatabaseConfig databaseConfig) {

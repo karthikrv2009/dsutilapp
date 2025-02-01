@@ -1,6 +1,8 @@
 C:\Users\Administrator\Documents\GitHub\dsutilapp\backend\src\main\java\com\datapig\entity\Pipeline.java
 C:\Users\Administrator\Documents\GitHub\dsutilapp\backend\src\main\java\com\datapig\service\MetaDataCatlogService.java
 C:\Users\Administrator\Documents\GitHub\dsutilapp\backend\src\main\java\com\datapig\entity\MetaDataCatlog.java
+C:\Users\Administrator\Documents\GitHub\dsutilapp\backend\src\main\java\com\datapig\component\BulkLoadErrorHandler.java
+C:\Users\Administrator\Documents\GitHub\dsutilapp\backend\src\main\java\com\datapig\repository\FaultEntityRepository.java
 C:\Users\Administrator\Documents\GitHub\dsutilapp\backend\src\main\java\com\datapig\service\SynapseLogParserService.java
 C:\Users\Administrator\Documents\GitHub\dsutilapp\backend\src\main\java\com\datapig\controller\FileUploadController.java
 C:\Users\Administrator\Documents\GitHub\dsutilapp\backend\src\main\java\com\datapig\repository\DatabaseConfigRepository.java
@@ -11,6 +13,7 @@ C:\Users\Administrator\Documents\GitHub\dsutilapp\backend\src\main\java\com\data
 C:\Users\Administrator\Documents\GitHub\dsutilapp\backend\src\main\java\com\datapig\entity\LicenseKey.java
 C:\Users\Administrator\Documents\GitHub\dsutilapp\backend\src\main\java\com\datapig\entity\EnvironmentConfig.java
 C:\Users\Administrator\Documents\GitHub\dsutilapp\backend\src\main\java\com\datapig\repository\HealthMetricsRepository.java
+C:\Users\Administrator\Documents\GitHub\dsutilapp\backend\src\main\java\com\datapig\component\DatabaseConfigScheduler.java
 C:\Users\Administrator\Documents\GitHub\dsutilapp\backend\src\main\java\com\datapig\entity\DatabaseConfig.java
 C:\Users\Administrator\Documents\GitHub\dsutilapp\backend\src\main\java\com\datapig\repository\LicenseKeyRepository.java
 C:\Users\Administrator\Documents\GitHub\dsutilapp\backend\src\main\java\com\datapig\repository\PipelineRepository.java
@@ -34,18 +37,21 @@ C:\Users\Administrator\Documents\GitHub\dsutilapp\backend\src\main\java\com\data
 C:\Users\Administrator\Documents\GitHub\dsutilapp\backend\src\main\java\com\datapig\service\dto\DashboardData.java
 C:\Users\Administrator\Documents\GitHub\dsutilapp\backend\src\main\java\com\datapig\controller\DatabaseConfigController.java
 C:\Users\Administrator\Documents\GitHub\dsutilapp\backend\src\main\java\com\datapig\repository\FolderSyncStatusRepository.java
+C:\Users\Administrator\Documents\GitHub\dsutilapp\backend\src\main\java\com\datapig\entity\FaultEntity.java
 C:\Users\Administrator\Documents\GitHub\dsutilapp\backend\src\main\java\com\datapig\service\dto\ModelAnnotation.java
 C:\Users\Administrator\Documents\GitHub\dsutilapp\backend\src\main\java\com\datapig\entity\MetaDataPointer.java
 C:\Users\Administrator\Documents\GitHub\dsutilapp\backend\src\main\java\com\datapig\service\dto\ModelTraitArgument.java
 C:\Users\Administrator\Documents\GitHub\dsutilapp\backend\src\main\java\com\datapig\controller\HomeController.java
 C:\Users\Administrator\Documents\GitHub\dsutilapp\backend\src\main\java\com\datapig\entity\HealthMetrics.java
 C:\Users\Administrator\Documents\GitHub\dsutilapp\backend\src\main\java\com\datapig\utility\JDBCTemplateUtiltiy.java
+C:\Users\Administrator\Documents\GitHub\dsutilapp\backend\src\main\java\com\datapig\repository\ArchivedFolderRepository.java
 C:\Users\Administrator\Documents\GitHub\dsutilapp\backend\src\main\java\com\datapig\entity\IntialLoad.java
 C:\Users\Administrator\Documents\GitHub\dsutilapp\backend\src\main\java\com\datapig\config\SecurityConfig.java
 C:\Users\Administrator\Documents\GitHub\dsutilapp\backend\src\main\java\com\datapig\repository\MetaDataCatlogRepository.java
 C:\Users\Administrator\Documents\GitHub\dsutilapp\backend\src\main\java\com\datapig\service\dto\ModelTableAttributes.java
 C:\Users\Administrator\Documents\GitHub\dsutilapp\backend\src\main\java\com\datapig\service\PolybaseThreadService.java
 C:\Users\Administrator\Documents\GitHub\dsutilapp\backend\src\main\java\com\datapig\controller\LicenseKeyController.java
+C:\Users\Administrator\Documents\GitHub\dsutilapp\backend\src\main\java\com\datapig\entity\ArchivedFolder.java
 C:\Users\Administrator\Documents\GitHub\dsutilapp\backend\src\main\java\com\datapig\service\MetaDataPointerService.java
 C:\Users\Administrator\Documents\GitHub\dsutilapp\backend\src\main\java\com\datapig\service\dto\ConfigurationRequest.java
 C:\Users\Administrator\Documents\GitHub\dsutilapp\backend\src\main\java\com\datapig\service\dto\LicenseKeyDTO.java
@@ -58,5 +64,8 @@ C:\Users\Administrator\Documents\GitHub\dsutilapp\backend\src\main\java\com\data
 C:\Users\Administrator\Documents\GitHub\dsutilapp\backend\src\main\java\com\datapig\controller\DashboardController.java
 C:\Users\Administrator\Documents\GitHub\dsutilapp\backend\src\main\java\com\datapig\component\DynamicDataSourceManager.java
 C:\Users\Administrator\Documents\GitHub\dsutilapp\backend\src\main\java\com\datapig\repository\IntitalLoadRepository.java
+C:\Users\Administrator\Documents\GitHub\dsutilapp\backend\src\main\java\com\datapig\service\ArchivedFolderService.java
 C:\Users\Administrator\Documents\GitHub\dsutilapp\backend\src\main\java\com\datapig\service\dto\DBSnapshotWidget.java
+C:\Users\Administrator\Documents\GitHub\dsutilapp\backend\src\main\java\com\datapig\component\DataPigValidator.java
 C:\Users\Administrator\Documents\GitHub\dsutilapp\backend\src\main\java\com\datapig\service\LicenseKeyService.java
+C:\Users\Administrator\Documents\GitHub\dsutilapp\backend\src\main\java\com\datapig\service\FaultEntityService.java

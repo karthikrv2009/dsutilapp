@@ -76,10 +76,16 @@ public class PolybaseThreadService implements Runnable {
                     healthMetrics = cleanupTargetTable(tableName);
                 }
             }
-
             if (healthMetrics != null) {
                 if ((healthMetrics.getStatus() == 1) && (healthMetrics.getMethodname()
                         .equalsIgnoreCase("DeleteRecordsOnTargetTableBasedOnChangeFeed"))) {
+                    healthMetrics = cleanupSourceTable(tableName);
+                }
+            }
+
+            if (healthMetrics != null) {
+                if ((healthMetrics.getStatus() == 1) && (healthMetrics.getMethodname()
+                        .equalsIgnoreCase("DeleteRecordsOnSourceTableBasedOnChangeFeed"))) {
                     healthMetrics = createMergeSql(tableName, columnNames);
                 }
             }
@@ -125,7 +131,7 @@ public class PolybaseThreadService implements Runnable {
         String query = "INSERT INTO dbo._staging_" + tableName +
                 " SELECT " + selectColumn +
                 " FROM OPENROWSET(BULK '/" + folder + "/" + tableName + "/*.csv', FORMAT = 'CSV', DATA_SOURCE = '"
-                + dataSource + "') " +
+                + dataSource + "',CODEPAGE='65001') " +
                 "WITH (" + dataFrame + ") AS " + tableName;
         logger.info(query);
         try {
@@ -206,19 +212,15 @@ public class PolybaseThreadService implements Runnable {
         int rowcount = 0;
         long startTime = System.currentTimeMillis();
 
-        String query = "DELETE FROM _staging_" + tableName + "\r\n" + //
-                "WHERE NOT EXISTS (\r\n" + //
-                "    SELECT 1\r\n" + //
-                "    FROM (\r\n" + //
-                "        SELECT id, versionnumber, MAX(sinkmodifiedon) AS latest_modifieddate\r\n" + //
-                "        FROM _staging_" + tableName + "\r\n" + //
-                "        GROUP BY id, versionnumber\r\n" + //
-                "    ) subquery\r\n" + //
-                "    WHERE subquery.id = _staging_" + tableName + ".id\r\n" + //
-                "      AND subquery.versionnumber = _staging_" + tableName + ".versionnumber\r\n" + //
-                "      AND subquery.latest_modifieddate = _staging_" + tableName + ".sinkmodifiedon\r\n" + //
-                ") AND  _staging_" + tableName + ".IsDelete NOT in ('1','True')\r\n" + //
-                "";
+        String query = "DELETE t \r\n" + 
+                        "FROM dbo._staging_"+tableName+" t JOIN\r\n" + 
+                        "(SELECT id,SinkModifiedon,versionnumber,\r\n" + 
+                        "ROW_NUMBER() over (PARTITION BY id ORDER BY SinkModifiedon DESC,versionnumber DESC) AS RowNum\r\n" + 
+                        "FROM dbo._staging_"+tableName+" WHERE IsDelete NOT IN ('1','True')) as s\r\n" + 
+                        "ON s.Id=t.Id\r\n" + 
+                        "AND s.versionnumber=t.versionnumber\r\n" + 
+                        "AND s.SinkModifiedOn=t.SinkModifiedOn\r\n" + 
+                        "AND s.RowNum>1";
 
         try {
             rowcount = jdbcTemplate.update(query);
@@ -272,6 +274,38 @@ public class PolybaseThreadService implements Runnable {
         }
         return healthMetrics;
     }
+
+    private HealthMetrics cleanupSourceTable(String tableName) {
+        tableName="dbo._staging_"+tableName;
+        HealthMetrics healthMetrics = null;
+        int rowcount = 0;
+        long startTime = System.currentTimeMillis();
+
+        String query = "DELETE \n" + //
+                "FROM " + tableName + "\n" + //
+                "WHERE IsDelete IN ('1', 'True');";
+
+        try {
+            rowcount = jdbcTemplate.update(query);
+            long endTime = System.currentTimeMillis();
+            timespent = endTime - startTime;
+            status = 1;
+            String methodAction = "DeleteRecordsOnSourceTableBasedOnChangeFeed";
+            String errorMsg="";
+            healthMetrics = logHealthMetric(pipeline, folderSyncStatus, methodAction, timespent, status, rowcount,errorMsg);
+        } catch (Exception e) {
+
+            long endTime = System.currentTimeMillis();
+            timespent = endTime - startTime;
+            status = 2;
+            String methodAction = "DeleteRecordsOnSourceTableBasedOnChangeFeed";
+            String errorMsg= getMainCauseMessage(e,query);
+            healthMetrics = logHealthMetric(pipeline, folderSyncStatus, methodAction, timespent, status, rowcount,errorMsg);
+            logger.warn("Execution failed: " + e.getMessage());
+        }
+        return healthMetrics;
+    }
+
 
     private void createStagingTable(String tableName, String dataFrame) {
         String dropTableSQL = "IF EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = '_staging_"

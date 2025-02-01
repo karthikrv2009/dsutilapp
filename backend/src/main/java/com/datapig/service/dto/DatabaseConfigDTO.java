@@ -2,6 +2,8 @@ package com.datapig.service.dto;
 
 import com.datapig.entity.DatabaseConfig;
 
+import jakarta.persistence.Column;
+
 public class DatabaseConfigDTO {
 
     private Long id;
@@ -46,6 +48,9 @@ public class DatabaseConfigDTO {
 
     private int queueListenerStatus;
 
+    @Column(name = "default_profile")
+    private boolean defaultProfile;
+   
     public Long getId() {
         return id;
     }
@@ -233,6 +238,7 @@ public class DatabaseConfigDTO {
         dto.setInitialLoadStatus(initialLoadStatus);
         dto.setQueueListenerStatus(queueListenerStatus);
         dto.setEnableArchive(databaseConfig.isEnableArchive());
+        dto.setDefaultProfile(databaseConfig.isDefaultProfile());
         return dto;
     }
 
@@ -242,6 +248,14 @@ public class DatabaseConfigDTO {
 
     public void setEnableArchive(boolean enableArchive) {
         this.enableArchive = enableArchive;
+    }
+
+    public boolean isDefaultProfile() {
+        return defaultProfile;
+    }
+
+    public void setDefaultProfile(boolean defaultProfile) {
+        this.defaultProfile = defaultProfile;
     }
 
 }

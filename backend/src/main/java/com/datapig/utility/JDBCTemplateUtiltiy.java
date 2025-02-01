@@ -50,6 +50,27 @@ public class JDBCTemplateUtiltiy {
 		return new JdbcTemplate(dataSource);
 	}
 
+	public boolean alterTable(String dbIdentifier,String tableName,String columnDef){
+		jdbcTemplate = getJdbcTemplate(dbIdentifier);
+		boolean flag=false;
+		String alterTable="ALTER TABLE ["+tableName+"]\r\n" + //
+						"ALTER COLUMN"+columnDef+";";
+						try{
+							jdbcTemplate.execute(alterTable);
+							logger.info("Table created: {}", tableName);
+							flag=true;
+						}catch(Exception e){
+							flag=false;
+							FaultEntity faultEntity=new FaultEntity();
+							faultEntity.setDbIdentifier(dbIdentifier);
+							faultEntity.setTableName(tableName);
+							String errorMsg= getMainCauseMessage(e,alterTable);
+							faultEntity.setErrorMsg(errorMsg);
+							faultEntityService.save(faultEntity);
+						}
+		return flag;
+	}	
+
 	public Set<String> getTableInFolder(String folderName, String DATA_SOURCE,String dbIdentifier) {
 		jdbcTemplate = getJdbcTemplate(dbIdentifier);
 		Set<String> tables = new LinkedHashSet<>();

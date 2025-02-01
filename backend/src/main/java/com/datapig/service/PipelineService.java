@@ -23,6 +23,7 @@ public class PipelineService {
         return entityOptional;
     }
 
+
     public List<Pipeline> getPipelinesWithinLastDays(int days, String dbIdentifier) {
         // Calculate the end date as the current date and time
         LocalDateTime endDate = LocalDateTime.now();

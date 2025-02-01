@@ -2,7 +2,7 @@ package com.datapig.controller;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-
+import com.datapig.component.DataPigValidator;
 import com.datapig.component.DynamicDataSourceManager;
 import com.datapig.entity.DatabaseConfig;
 import com.datapig.entity.IntialLoad;
@@ -50,6 +50,9 @@ public class DatabaseConfigController {
     @Autowired
     private MetaDataCatlogService metaDataCatlogService;
 
+    @Autowired
+    private DataPigValidator dataPigValidator;
+    
     @GetMapping
     public ResponseEntity<List<DatabaseConfig>> getAllDatabaseConfigs() {
         List<DatabaseConfig> configs = databaseConfigService.getAllDatabaseConfigs();
@@ -59,41 +62,70 @@ public class DatabaseConfigController {
     @PostMapping("/validate")
     public ResponseEntity<Map<String, Boolean>> validateDatabaseConfig(@RequestBody DatabaseConfig config) {
         Map<String, Boolean> validationResults = new HashMap<>();
-
-        // Perform validation checks
-
+    
+        // Perform null/empty validation checks for fields (before calling the validation methods)
         validationResults.put("url", config.getUrl() != null && !config.getUrl().isEmpty());
         validationResults.put("username", config.getUsername() != null && !config.getUsername().isEmpty());
         validationResults.put("password", config.getPassword() != null && !config.getPassword().isEmpty());
         validationResults.put("dbIdentifier", config.getDbIdentifier() != null && !config.getDbIdentifier().isEmpty());
-        validationResults.put("driverClassName",
-                config.getDriverClassName() != null && !config.getDriverClassName().isEmpty());
+        validationResults.put("driverClassName", config.getDriverClassName() != null && !config.getDriverClassName().isEmpty());
         validationResults.put("queueName", config.getQueueName() != null && !config.getQueueName().isEmpty());
-        validationResults.put("queueSasToken",
-                config.getQueueSasToken() != null && !config.getQueueSasToken().isEmpty());
-        validationResults.put("queueEndpoint",
-                config.getQueueEndpoint() != null && !config.getQueueEndpoint().isEmpty());
-        validationResults.put("adlsStorageAccountName",
-                config.getAdlsStorageAccountName() != null && !config.getAdlsStorageAccountName().isEmpty());
-        validationResults.put("adlsStorageAccountEndpoint",
-                config.getAdlsStorageAccountEndpoint() != null && !config.getAdlsStorageAccountEndpoint().isEmpty());
-        validationResults.put("adlsStorageAccountSasKey",
-                config.getAdlsStorageAccountSasKey() != null && !config.getAdlsStorageAccountSasKey().isEmpty());
-        validationResults.put("adlsContainerName",
-                config.getAdlsContainerName() != null && !config.getAdlsContainerName().isEmpty());
-        validationResults.put("adlsFolderName",
-                config.getAdlsFolderName() != null && !config.getAdlsFolderName().isEmpty());
-        validationResults.put("adlsCdmFileName",
-                config.getAdlsCdmFileName() != null && !config.getAdlsCdmFileName().isEmpty());
-        validationResults.put("adlsCdmFilePath",
-                config.getAdlsCdmFilePath() != null && !config.getAdlsCdmFilePath().isEmpty());
-        validationResults.put("localCdmFilePath",
-                config.getLocalCdmFilePath() != null && !config.getLocalCdmFilePath().isEmpty());
+        validationResults.put("queueSasToken", config.getQueueSasToken() != null && !config.getQueueSasToken().isEmpty());
+        validationResults.put("queueEndpoint", config.getQueueEndpoint() != null && !config.getQueueEndpoint().isEmpty());
+        validationResults.put("adlsStorageAccountName", config.getAdlsStorageAccountName() != null && !config.getAdlsStorageAccountName().isEmpty());
+        validationResults.put("adlsStorageAccountEndpoint", config.getAdlsStorageAccountEndpoint() != null && !config.getAdlsStorageAccountEndpoint().isEmpty());
+        validationResults.put("adlsStorageAccountSasKey", config.getAdlsStorageAccountSasKey() != null && !config.getAdlsStorageAccountSasKey().isEmpty());
+        validationResults.put("adlsContainerName", config.getAdlsContainerName() != null && !config.getAdlsContainerName().isEmpty());
+        validationResults.put("adlsFolderName", config.getAdlsFolderName() != null && !config.getAdlsFolderName().isEmpty());
+        validationResults.put("adlsCdmFileName", config.getAdlsCdmFileName() != null && !config.getAdlsCdmFileName().isEmpty());
+        validationResults.put("adlsCdmFilePath", config.getAdlsCdmFilePath() != null && !config.getAdlsCdmFilePath().isEmpty());
+        validationResults.put("localCdmFilePath", config.getLocalCdmFilePath() != null && !config.getLocalCdmFilePath().isEmpty());
         validationResults.put("maxThreads", config.getMaxThreads() > 0);
-
+    
+        // Validate DB connection
+        boolean dbConnectionValid = dataPigValidator.checkDBConnection(config.getUrl(), config.getUsername(), config.getPassword(), config.getDriverClassName());
+        if (!dbConnectionValid) {
+            validationResults.put("url", false);
+            validationResults.put("username", false);
+            validationResults.put("password", false);
+            validationResults.put("dbIdentifier", false);
+            validationResults.put("driverClassName", false);
+        } else {
+            validationResults.put("dbConnection", true);  // DB connection is valid
+        }
+    
+        // Validate ADLS Queue connection
+        boolean adlsQueueConnectionValid = dataPigValidator.checkADLSQueueConnection(config.getQueueName(), config.getQueueEndpoint(), config.getQueueSasToken());
+        if (!adlsQueueConnectionValid) {
+            validationResults.put("queueName", false);
+            validationResults.put("queueEndpoint", false);
+            validationResults.put("queueSasToken", false);
+        } else {
+            validationResults.put("adlsQueueConnection", true);  // ADLS Queue connection is valid
+        }
+    
+        // Check if the model.json exists in the ADLS container
+        boolean modelJsonExistenceValid = dataPigValidator.checkModelJsonExistence(config.getAdlsStorageAccountEndpoint(), config.getAdlsContainerName(), config.getAdlsStorageAccountSasKey());
+        if (!modelJsonExistenceValid) {
+            validationResults.put("adlsContainerName", false);
+            validationResults.put("adlsStorageAccountSasKey", false);
+            validationResults.put("adlsStorageAccountEndpoint", false);
+        } else {
+            validationResults.put("modelJsonExistence", true);  // Model.json exists in ADLS
+        }
+    
+        // Validate local folder path
+        boolean localFilePathValid = dataPigValidator.checkFilePathExist(config.getLocalCdmFilePath());
+        if (!localFilePathValid) {
+            validationResults.put("localCdmFilePath", false);
+        } else {
+            validationResults.put("localFilePath", true);  // Local file path is valid
+        }
+    
+        // After all validations are done, return the validation results map
         return ResponseEntity.ok(validationResults);
     }
-
+    
     @PostMapping("/save")
     public ResponseEntity<DatabaseConfigDTO> saveDatabaseConfig(@RequestBody DatabaseConfig databaseConfig) {
         dynamicDataSourceManager.addDataSource(databaseConfig.getDbIdentifier(), databaseConfig.getUrl(),

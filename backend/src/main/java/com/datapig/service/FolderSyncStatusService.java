@@ -122,7 +122,7 @@ public class FolderSyncStatusService {
 
         // Error Tables
         folderCopyStatus = 2;
-        List<FolderSyncStatus> errorTables = folderSyncStatusRepository.findBycopyStatus(folderCopyStatus);
+        List<FolderSyncStatus> errorTables = folderSyncStatusRepository.findBycopyStatusAndDbIdentifier(folderCopyStatus, dbIdentifier);
         if (errorTables != null && errorTables.size() > 0) {
             Set<String> errortables = new HashSet<String>();
             for (FolderSyncStatus f : errorTables) {

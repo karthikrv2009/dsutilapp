@@ -6,7 +6,6 @@ import org.springframework.web.bind.annotation.*;
 
 import com.datapig.service.LicenseKeyService;
 import com.datapig.entity.LicenseKey;
-import com.datapig.entity.DatabaseConfig;
 import com.datapig.entity.EnvironmentConfig;
 import com.datapig.service.EnvironmentConfigService;
 

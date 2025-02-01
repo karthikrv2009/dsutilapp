@@ -70,14 +70,23 @@ public class DatabaseConfig {
     @Column(name = "enable_archive")
     private boolean enableArchive;
 
+    @Column(name = "default_profile")
+    private boolean defaultProfile;
+
+    
     public boolean isEnableArchive() {
         return enableArchive;
     }
 
-    public void setEnableArchive(boolean enableArchive) {
-        this.enableArchive = enableArchive;
+    public void setEnableArchive(Boolean enableArchive) {
+        if (enableArchive == null) {
+            // If the value is not set (null), assign default value of false (or 0)
+            this.enableArchive = false;
+        } else {
+            this.enableArchive = enableArchive;
+        }
     }
-
+    
     public String getQueueName() {
         return queueName;
     }
@@ -220,6 +229,14 @@ public class DatabaseConfig {
 
     public void setMaxThreads(int maxThreads) {
         this.maxThreads = maxThreads;
+    }
+
+    public boolean isDefaultProfile() {
+        return defaultProfile;
+    }
+
+    public void setDefaultProfile(boolean defaultProfile) {
+        this.defaultProfile = defaultProfile;
     }
 
 }

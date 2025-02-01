@@ -2,6 +2,7 @@ package com.datapig.service;
 
 import java.util.List;
 
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -61,11 +62,23 @@ public class DatabaseConfigService {
         existingConfig.setLocalCdmFilePath(config.getLocalCdmFilePath());
         existingConfig.setMaxThreads(config.getMaxThreads());
         existingConfig.setEnableArchive(config.isEnableArchive());
-        databaseConfigRepository.save(existingConfig);
+        existingConfig.setDefaultProfile(config.isDefaultProfile());
+        DatabaseConfig databaseConfig=databaseConfigRepository.save(existingConfig);
+        if(databaseConfig.isDefaultProfile()){
+            updateDatabaseConfigs(databaseConfig.getDbIdentifier());
+        }
     }
-
     public void deleteDatabaseConfig(DatabaseConfig databaseConfig) {
         databaseConfigRepository.deleteById(databaseConfig.getId());
         dynamicDataSourceManager.removeDataSource(databaseConfig.getDbIdentifier());
     }
+
+    @Transactional
+    public void updateDatabaseConfigs(String dbIdentifier) {
+        // First update: set all other dbIdentifiers to 'isDefault = 0'
+        databaseConfigRepository.updateDefaultsExcept(dbIdentifier);
+        // Second update: set the specific dbIdentifier to 'isDefault = 1'
+        databaseConfigRepository.updateSpecificDatabase(dbIdentifier);
+    }
+    
 }

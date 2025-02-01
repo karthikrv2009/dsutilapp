@@ -100,7 +100,7 @@ public class MetaDataPointerService {
     }
 
     public MetaDataPointer getMetaDataPointerBydbIdentifierAndFolder(String dbIdentifier, String folder) {
-        return metaDataPointerRepository.findBydbIdentifierAndFolderName(dbIdentifier, folder);
+        return metaDataPointerRepository.findByFolderNameAndDbIdentifier(folder, dbIdentifier);
     }
 
 }
