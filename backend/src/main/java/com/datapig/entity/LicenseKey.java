@@ -1,5 +1,7 @@
 package com.datapig.entity;
 
+import java.util.Date;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 
@@ -16,6 +18,7 @@ public class LicenseKey {
     private String licenseType;
     private String validity;
     private String licenseKey;
+    private Date startDate;
 
     // Getters and Setters
     public Long getId() {
@@ -56,5 +59,13 @@ public class LicenseKey {
 
     public void setLicenseKey(String licenseKey) {
         this.licenseKey = licenseKey;
+    }
+
+    public Date getStartDate() {
+        return startDate;
+    }
+
+    public void setStartDate(Date startDate) {
+        this.startDate = startDate;
     }
 }
