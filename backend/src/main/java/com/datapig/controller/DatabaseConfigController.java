@@ -9,6 +9,7 @@ import com.datapig.entity.IntialLoad;
 import com.datapig.repository.IntitalLoadRepository;
 
 import com.datapig.service.AzureQueueListenerService;
+import com.datapig.service.CDCLoaderService;
 import com.datapig.service.DatabaseConfigService;
 import com.datapig.service.InitialLoadService;
 import com.datapig.service.MetaDataCatlogService;
@@ -53,6 +54,9 @@ public class DatabaseConfigController {
     @Autowired
     private DataPigValidator dataPigValidator;
     
+    @Autowired
+    private CDCLoaderService cDCLoaderService;
+
     @GetMapping
     public ResponseEntity<List<DatabaseConfig>> getAllDatabaseConfigs() {
         List<DatabaseConfig> configs = databaseConfigService.getAllDatabaseConfigs();
@@ -177,7 +181,7 @@ public class DatabaseConfigController {
 
             // Process the payload and create the table
             String createdTableName = null;
-            // databaseConfigService.createTable(dbProfile, table, startTime, endTime);
+            cDCLoaderService.loadCDC(dbProfile, table, startTime, endTime);;
 
             Map<String, String> response = new HashMap<>();
             response.put("tableName", createdTableName);

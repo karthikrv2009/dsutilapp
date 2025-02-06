@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
@@ -18,6 +19,16 @@ public interface FolderSyncStatusRepository extends JpaRepository<FolderSyncStat
 
         List<FolderSyncStatus> findBycopyStatusAndDbIdentifier(Short copyStatus, String dbIdentifier);
 
+        @Query("SELECT f FROM FolderSyncStatus f " +
+        "INNER JOIN MetaDataPointer m ON m.foldername = f.folder AND m.dbIdentifier = f.dbIdentifier " +
+        "WHERE f.tableName = :tableName " +
+        "AND m.adlscreationtimestamp BETWEEN :startTimestamp AND :endTimestamp")
+        List<FolderSyncStatus> findFolderSyncStatusByTimestampRange(
+        @Param("tableName") String tableName, 
+        @Param("startTimestamp") LocalDateTime startTimestamp, 
+        @Param("endTimestamp") LocalDateTime endTimestamp);
+
+        
         @Query("SELECT COUNT(f) FROM FolderSyncStatus f WHERE f.copyStatus = :copyStatus")
         long countByCopyStatus(@Param("copyStatus") Short copyStatus);
 

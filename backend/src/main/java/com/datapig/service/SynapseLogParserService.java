@@ -95,7 +95,8 @@ public class SynapseLogParserService {
                 for (String tableName : tableNamesInAdls) {
                     if (!tableNamesInMetadataCatalogDB.contains(tableName)) {
                         if (modelJsonDownloader.downloadFile(databaseConfig.getDbIdentifier())) {
-                            parseModelJson.parseModelJson(metaDataPointer.getDbIdentifier());
+                            boolean forCDC=false;
+                            parseModelJson.parseModelJson(dbIdentifier,forCDC);
                         }
                     }
                     if (!tablesInDB.contains(tableName)) {

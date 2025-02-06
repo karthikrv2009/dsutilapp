@@ -44,7 +44,8 @@ public class InitialLoadService {
         IntialLoad initialLoad = intitalLoadRepository.findByName(dbIdentifier);
         if (initialLoad == null) {
             if (modelJsonDownloader.downloadFile(databaseConfig.getDbIdentifier())) {
-                parseModelJson.parseModelJson(dbIdentifier);
+                boolean forCDC=false;
+                parseModelJson.parseModelJson(dbIdentifier,forCDC);
                 initialLoad = new IntialLoad();
                 initialLoad.setName(dbIdentifier);
                 initialLoad.setStatus(0);

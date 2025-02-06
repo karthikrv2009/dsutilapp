@@ -18,8 +18,8 @@ public class PipelineService {
         return pipelineRepository.save(pipeline);
     }
 
-    public List<Pipeline> findByFolderName(String folderName) {
-        java.util.List<Pipeline> entityOptional = pipelineRepository.findByFolderName(folderName);
+    public List<Pipeline> findByFolderName(String folderName,String dbIdentifier) {
+        java.util.List<Pipeline> entityOptional = pipelineRepository.findByFolderNameAndDbIdentifier(folderName);
         return entityOptional;
     }
 

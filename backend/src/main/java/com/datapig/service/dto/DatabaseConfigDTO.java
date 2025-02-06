@@ -214,7 +214,7 @@ public class DatabaseConfigDTO {
     
 
     // Method to convert DatabaseConfig to DatabaseConfigDTO
-    public static DatabaseConfigDTO fromEntity(DatabaseConfig databaseConfig, int initialLoadStatus,
+    public DatabaseConfigDTO fromEntity(DatabaseConfig databaseConfig, int initialLoadStatus,
             int queueListenerStatus) {
         DatabaseConfigDTO dto = new DatabaseConfigDTO();
         dto.setId(databaseConfig.getId());

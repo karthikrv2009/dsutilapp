@@ -13,7 +13,7 @@ import com.datapig.entity.Pipeline;
 @Repository
 public interface PipelineRepository extends JpaRepository<Pipeline, Long> {
 
-        public List<Pipeline> findByFolderName(String folderName);
+        public List<Pipeline> findByFolderNameAndDbIdentifier(String folderName);
 
         @Query("SELECT p FROM Pipeline p WHERE p.pipelineStartTime BETWEEN :startDate AND :endDate ORDER BY p.pipelineStartTime DESC")
         List<Pipeline> findPipelinesWithinDateRange(@Param("startDate") LocalDateTime startDate,

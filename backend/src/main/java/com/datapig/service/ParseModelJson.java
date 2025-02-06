@@ -53,7 +53,7 @@ public class ParseModelJson {
 
     private static final Logger logger = LoggerFactory.getLogger(ParseModelJson.class);
 
-    public List<ModelTable> parseModelJson(String dbIdentifier) {
+    public List<ModelTable> parseModelJson(String dbIdentifier,boolean forCDC) {
         DatabaseConfig databaseConfig=databaseConfigService.getDatabaseConfigByIdentifier(dbIdentifier);
         EnvironmentConfig environmentConfig=environmentConfigService.getEnvironmentConfig();
 

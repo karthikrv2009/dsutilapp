@@ -137,8 +137,9 @@ public class ALDSMetaDataPointerLoadService {
                                     for (String tableName : tableNames) {
                                         if (!tableNamesInDB.contains(tableName)) {
                                             if (modelJsonDownloader.downloadFile(databaseConfig.getDbIdentifier())) {
-                                                parseModelJson.parseModelJson(dbIdentifier);
-                                            }
+                                                boolean forCDC=false;
+                                                parseModelJson.parseModelJson(dbIdentifier,forCDC);
+                                                                            }
                                         }
 
                                         loadFolderSyncStatus(metaDataPointer, tableName, dbIdentifier);
