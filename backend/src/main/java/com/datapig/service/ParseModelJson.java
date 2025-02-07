@@ -8,6 +8,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.file.Paths;
 import java.util.Properties;
 
 import java.util.ArrayList;
@@ -22,6 +23,7 @@ import org.slf4j.LoggerFactory;
 
 import com.datapig.service.dto.ModelRoot;
 import com.datapig.service.dto.ModelEntity;
+import com.datapig.entity.ChangeDataTrackingCatalog;
 import com.datapig.entity.DatabaseConfig;
 import com.datapig.entity.EnvironmentConfig;
 import com.datapig.entity.MetaDataCatlog;
@@ -50,6 +52,9 @@ public class ParseModelJson {
 
     @Autowired
     private EnvironmentConfigService environmentConfigService;
+
+    @Autowired
+    private ChangeDataTrackingCatalogService changeDataTrackingCatalogService;
 
     private static final Logger logger = LoggerFactory.getLogger(ParseModelJson.class);
 
@@ -139,6 +144,114 @@ public class ParseModelJson {
         return resultTable;
     }
 
+            // Method to create a subdirectory 'cdc' and update the file path
+    public static String createSubDirectoryAndUpdatePath(String filePath) {
+            // Convert the input file path to a Path object
+            java.nio.file.Path path = Paths.get(filePath);
+    
+            // Get the parent directory of the file
+            java.nio.file.Path parentPath = path.getParent();
+    
+            // Create the 'cdc' subdirectory within the parent folder
+            if (parentPath != null) {
+                File cdcDir = new File(parentPath.toString(), "cdc");
+                if (!cdcDir.exists()) {
+                    boolean created = cdcDir.mkdirs(); // Create the 'cdc' directory if it doesn't exist
+                    if (created) {
+                        System.out.println("Created 'cdc' subdirectory: " + cdcDir.getPath());
+                    } else {
+                        System.out.println("'cdc' directory already exists.");
+                    }
+                }
+    
+                // Construct the new file path with 'cdc' as a subdirectory
+                java.nio.file.Path newFilePath = parentPath.resolve("cdc").resolve(path.getFileName());
+                return newFilePath.toString();
+            }
+            
+            return null;
+        }
+
+    public List<ModelTable> parseCdcModelJson(String dbIdentifier,String cdcTableName,String tableName) {
+        DatabaseConfig databaseConfig=databaseConfigService.getDatabaseConfigByIdentifier(dbIdentifier);
+        EnvironmentConfig environmentConfig=environmentConfigService.getEnvironmentConfig();
+
+        String modelCdcJSONPath = createSubDirectoryAndUpdatePath(databaseConfig.getLocalCdmFilePath());
+        File file = new File(modelCdcJSONPath);
+        StringBuilder content = new StringBuilder(); // To accumulate the file content
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file)))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                content.append(line).append("\n"); // Append each line with a newline
+            }
+        } catch (IOException e) {
+            System.err.println("Error reading file: " + e.getMessage());
+        }
+
+        // Convert StringBuilder to a String
+        String modelJson = content.toString();
+
+        // Print the file content as a single string
+        System.out.println(modelJson);
+
+        Gson gson = new Gson();
+        ModelRoot root = gson.fromJson(modelJson, ModelRoot.class);
+
+        List<ModelTable> resultTable = new ArrayList<>();
+        ModelTable iter = null;
+        for (ModelEntity entity : root.getEntities()) {
+            
+            for (ModelAttribute attribute : entity.getAttributes()) {
+                for (ModelTable tbl : resultTable) {
+                    if (tbl.getTableName().equals(entity.getName())) {
+                        iter = tbl;
+                    }
+                }
+                if (attribute.getName() != null) {
+                    if (iter != null) {
+                        List<ModelTableAttributes> attributes = iter.getAttributes();
+                        ModelTableAttributes attr = new ModelTableAttributes();
+                        attr.setAttributeName(attribute.getName());
+                        attr.setDataType(attribute.getDataType());
+                        attributes.add(attr);
+                    } else {
+                        ModelTable table = new ModelTable();
+                        table.setTableName(entity.getName());
+                        List<ModelTableAttributes> attributes = new ArrayList<ModelTableAttributes>();
+                        ModelTableAttributes attr = new ModelTableAttributes();
+                        attr.setAttributeName(attribute.getName());
+                        attr.setDataType(attribute.getDataType());
+                        attributes.add(attr);
+                        table.setAttributes(attributes);
+                        resultTable.add(table);
+                    }
+                }
+                iter = null;
+            }
+        }
+
+        // Output some parsed data
+        logger.info("Name: " + root.getName());
+        logger.info("Description: " + root.getDescription());
+        logger.info("Version: " + root.getVersion());
+
+        Map<String, Map<String, String>> sqlTypeMap = createSqlTypeMap(root,environmentConfig);
+
+        Set<String> tablenames = sqlTypeMap.keySet();
+        for (String tablename : tablenames) {
+            if (tableName.equalsIgnoreCase(tablename)) {
+                Map<String, String> values = sqlTypeMap.get(tablename);
+                String dataFrame = values.get("dataFrame");
+                String selectQuery = values.get("selectQuery");
+                String columnNames = values.get("columnNames");
+                boolean flag=jDBCTemplateUtiltiy.createCdcTableIfNotExists(cdcTableName, dataFrame, dbIdentifier);
+                if(flag){
+                    loadChangeDataTrackingCatalog(cdcTableName, selectQuery, dataFrame, columnNames, dbIdentifier);
+                }
+            }
+        }
+        return resultTable;
+    }
 
     private MetaDataCatlog loadMetaDataCatlog(String tablename, String selectQuery, String dataFrame,
             String columnNames, String dbIdentifier) {
@@ -149,6 +262,18 @@ public class ParseModelJson {
         catalog.setSelectColumn(selectQuery);
         catalog.setDbIdentifier(dbIdentifier);
         catalog = metaDataCatlogService.save(catalog);
+        return catalog;
+    }
+
+    private ChangeDataTrackingCatalog loadChangeDataTrackingCatalog(String tablename, String selectQuery, String dataFrame,
+            String columnNames, String dbIdentifier) {
+        ChangeDataTrackingCatalog catalog = new ChangeDataTrackingCatalog();
+        catalog.setCdcTableName(tablename);
+        catalog.setColumnNames(columnNames);
+        catalog.setDataFrame(dataFrame);
+        catalog.setSelectColumn(selectQuery);
+        catalog.setDbIdentifier(dbIdentifier);
+        catalog = changeDataTrackingCatalogService.save(catalog);
         return catalog;
     }
 

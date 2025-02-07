@@ -26,8 +26,12 @@ public class ChangeDataTrackingPointer {
     private String folderName;
 
     //0=not started,1=rehydration started,2=rehydration completed
-    @Column(name="rehydration_status", nullable = false, length = 50)
-    private int rehydration_status;
+    @Column(name="rehydration_status")
+    private int rehydrationStatus;
+
+    //0=not started,1= success,2 =fail
+    @Column(name="stage_status")
+    private int stageStatus;
 
     public Long getId() {
         return id;
@@ -43,6 +47,14 @@ public class ChangeDataTrackingPointer {
 
     public void setDbIdentifier(String dbIdentifier) {
         this.dbIdentifier = dbIdentifier;
+    }
+
+    public int getStageStatus() {
+        return stageStatus;
+    }
+
+    public void setStageStatus(int stageStatus) {
+        this.stageStatus = stageStatus;
     }
 
     public String getCdcTableName() {
@@ -61,14 +73,12 @@ public class ChangeDataTrackingPointer {
         this.folderName = folderName;
     }
 
-    public int getRehydration_status() {
-        return rehydration_status;
+    public int getRehydrationStatus() {
+        return rehydrationStatus;
     }
 
-    public void setRehydration_status(int rehydration_status) {
-        this.rehydration_status = rehydration_status;
+    public void setRehydrationStatus(int rehydrationStatus) {
+        this.rehydrationStatus = rehydrationStatus;
     }
-
-    
 
 }

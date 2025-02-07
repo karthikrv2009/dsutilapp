@@ -14,4 +14,5 @@ public interface ChangeDataTrackingRepository   extends JpaRepository<ChangeData
 
     List<ChangeDataTracking> findByTableNameAndDbIdentifier(String tableName,String dbIdentifier);
     
+    List<ChangeDataTracking> findByStageStatusAndDbIdentifier(int stageStatus,String dbIdentifier);
 }

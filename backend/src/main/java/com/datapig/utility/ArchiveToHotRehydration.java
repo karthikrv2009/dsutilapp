@@ -17,12 +17,12 @@ public class ArchiveToHotRehydration {
 
     private BlobServiceClient blobServiceClient;
 
-    public ArchiveToHotRehydration(String storageAccountUrl,String sasToken) {
-            // Create a BlobServiceClient using the storage account URL and SAS token
-            this.blobServiceClient = new BlobServiceClientBuilder()
-                    .endpoint(storageAccountUrl)
-                    .sasToken(sasToken)
-                    .buildClient();
+    public ArchiveToHotRehydration(String storageAccountUrl, String sasToken) {
+        // Create a BlobServiceClient using the storage account URL and SAS token
+        this.blobServiceClient = new BlobServiceClientBuilder()
+                .endpoint(storageAccountUrl)
+                .sasToken(sasToken)
+                .buildClient();
     }
 
     // Method to rehydrate a blob or folder to Hot tier
@@ -47,12 +47,59 @@ public class ArchiveToHotRehydration {
         }
     }
 
+    // Method to check the rehydration status for a specific blob
+    public boolean checkRehydrationStatusForBlob(String containerName, String blobName) {
+        try {
+            // Get the BlobContainerClient
+            BlobContainerClient containerClient = blobServiceClient.getBlobContainerClient(containerName);
 
+            // Get the blob client for the specific blob
+            BlobClient blobClient = containerClient.getBlobClient(blobName);
+
+            // Check the access tier of the specific blob
+            if (blobClient.getProperties().getAccessTier() == AccessTier.HOT) {
+                System.out.println("Blob " + blobName + " is successfully rehydrated to Hot tier.");
+                return true; // Rehydrated successfully
+            } else {
+                System.out.println("Blob " + blobName + " is not in Hot tier.");
+                return false; // Blob is not yet rehydrated
+            }
+        } catch (BlobStorageException e) {
+            System.err.println("Error checking rehydration status for blob: " + e.getMessage());
+            return false; // Return false in case of error
+        }
+    }
+
+    // Method to rehydrate a specific blob to the Hot tier
+    public boolean rehydrateBlobToHotTier(String containerName, String blobName) {
+        try {
+            // Get the BlobContainerClient
+            BlobContainerClient containerClient = blobServiceClient.getBlobContainerClient(containerName);
+
+            // Get the blob client for the specific blob
+            BlobClient blobClient = containerClient.getBlobClient(blobName);
+
+            // Check if the blob is in Archive tier and rehydrate it
+            if (blobClient.getProperties().getAccessTier() == AccessTier.ARCHIVE) {
+                blobClient.setAccessTier(AccessTier.HOT);
+                System.out.println("Rehydrating blob: " + blobName + " to Hot tier.");
+                return true; // Successfully rehydrated
+            } else {
+                System.out.println("Blob " + blobName + " is not in Archive tier. No rehydration needed.");
+                return false; // Blob is not in Archive tier
+            }
+        } catch (BlobStorageException e) {
+            System.err.println("Error rehydrating blob: " + e.getMessage());
+            return false; // Return false in case of error
+        }
+    }
+
+    // Method to check if any blob in the folder has been rehydrated to Hot tier
     public boolean checkRehydrationStatus(String containerName, String path) {
         try {
             // Get the BlobContainerClient
             BlobContainerClient containerClient = blobServiceClient.getBlobContainerClient(containerName);
-    
+
             // Check each blob in the folder
             for (BlobItem blobItem : containerClient.listBlobsByHierarchy(path)) {
                 // Check the access tier of the blob
@@ -69,7 +116,5 @@ public class ArchiveToHotRehydration {
             return false;
         }
     }
-    
-
 }
 

@@ -164,6 +164,37 @@ public class JDBCTemplateUtiltiy {
 	return flag;
 	}
 
+public boolean createCdcTableIfNotExists(String tableCdcName, String dataFrame, String dbIdentifier) {
+	    String tableName=tableCdcName;
+		boolean flag=false;
+		jdbcTemplate = getJdbcTemplate(dbIdentifier);
+		String checkTableSQL = "SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = ?";
+		String createTableSQL = "CREATE TABLE dbo." + tableName + " (" + dataFrame + ")";
+	try{
+		// Check if the table exists
+		Integer tableCount = jdbcTemplate.queryForObject(checkTableSQL, new Object[] { tableName }, Integer.class);
+
+		if (tableCount != null && tableCount == 0) {
+			// Create the table if it does not exist
+			jdbcTemplate.execute(createTableSQL);
+			logger.info("Table created: {}", tableName);
+
+		} else {
+			logger.info("Table already exists: {}", tableName);
+		}
+		flag=true;
+	}catch(Exception e){
+		flag=false;
+		FaultEntity faultEntity=new FaultEntity();
+		faultEntity.setDbIdentifier(dbIdentifier);
+		faultEntity.setTableName(tableName);
+		String errorMsg= getMainCauseMessage(e,createTableSQL);
+		faultEntity.setErrorMsg(errorMsg);
+		faultEntityService.save(faultEntity);
+	}
+	return flag;
+	}
+
     public static String getMainCauseMessage(Throwable e, String query) {
         // Navigate to the root cause
         Throwable cause = e;

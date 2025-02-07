@@ -21,4 +21,8 @@ public class ChangeDataTrackingService {
     public ChangeDataTracking save(ChangeDataTracking changeDataTracking){
         return changeDataTrackingRepository.save(changeDataTracking);
     }
+
+    public List<ChangeDataTracking> findByStageStatusAndDbIdentifier(int stageStatus,String dbIdentifier){
+      return  changeDataTrackingRepository.findByStageStatusAndDbIdentifier(stageStatus, dbIdentifier);
+    }
 }

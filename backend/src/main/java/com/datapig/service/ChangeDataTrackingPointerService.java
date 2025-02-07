@@ -14,8 +14,25 @@ public class ChangeDataTrackingPointerService {
     @Autowired
     ChangeDataTrackingPointerRepository changeDataTrackingPointerRepository;
 
+    public List<ChangeDataTrackingPointer>  findByDbIdentifierAndStageStatus(String dbIdentifier,int stageStatus){
+        return changeDataTrackingPointerRepository.findByDbIdentifierAndStageStatus(dbIdentifier, stageStatus);
+    }
+    
     public List<ChangeDataTrackingPointer> findByCdcTableNameAndDbIdentifier(String cdcTableName,String dbIdentifier){
         return changeDataTrackingPointerRepository.findByCdcTableNameAndDbIdentifier(cdcTableName, dbIdentifier);
+    }
+
+    public List<ChangeDataTrackingPointer>  findByDbIdentifierAndFolderName(String dbIdentifier,String folderName){
+        return changeDataTrackingPointerRepository.findByDbIdentifierAndFolderName(dbIdentifier, folderName);
+    }
+
+
+    public ChangeDataTrackingPointer save(ChangeDataTrackingPointer changeDataTrackingPointer){
+        return changeDataTrackingPointerRepository.save(changeDataTrackingPointer);
+    }
+
+    public List<ChangeDataTrackingPointer>  findByCdcTableNameAndDbIdentifierAndRehydrationStatus(String cdcTableName,String dbIdentifier,int status){
+        return changeDataTrackingPointerRepository.findByCdcTableNameAndDbIdentifierAndRehydrationStatus(cdcTableName, dbIdentifier, status);
     }
 
 }

@@ -12,4 +12,10 @@ public interface ChangeDataTrackingPointerRepository  extends JpaRepository<Chan
 
     List<ChangeDataTrackingPointer> findByCdcTableNameAndDbIdentifier(String cdcTableName,String dbIdentifier);
 
+    List<ChangeDataTrackingPointer>  findByCdcTableNameAndDbIdentifierAndRehydrationStatus(String cdcTableName,String dbIdentifier,int status);
+
+    List<ChangeDataTrackingPointer>  findByDbIdentifierAndStageStatus(String dbIdentifier,int stageStatus);
+
+    List<ChangeDataTrackingPointer>  findByDbIdentifierAndFolderName(String dbIdentifier,String folderName);
+
 }

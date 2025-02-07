@@ -12,7 +12,9 @@ public class ChangeDataTrackingCatalogService {
     @Autowired
     ChangeDataTrackingCatalogRepository changeDataTrackingCatalogRepository;
     
-    
+    public ChangeDataTrackingCatalog save(ChangeDataTrackingCatalog changeDataTrackingCatalog){
+        return changeDataTrackingCatalogRepository.save(changeDataTrackingCatalog);
+    }
     public ChangeDataTrackingCatalog findbyCdcTableNameAndDbIdentifier(String cdcTableName,String dbIdentifier){
         return changeDataTrackingCatalogRepository.findbyCdcTableNameAndDbIdentifier(cdcTableName, dbIdentifier);
     }

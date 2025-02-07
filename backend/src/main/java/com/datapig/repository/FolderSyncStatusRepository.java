@@ -21,10 +21,10 @@ public interface FolderSyncStatusRepository extends JpaRepository<FolderSyncStat
 
         @Query("SELECT f FROM FolderSyncStatus f " +
         "INNER JOIN MetaDataPointer m ON m.foldername = f.folder AND m.dbIdentifier = f.dbIdentifier " +
-        "WHERE f.tableName = :tableName " +
+        "WHERE f.tableName = :tableName AND f.dbIdentifier = :dbIdentifier" +
         "AND m.adlscreationtimestamp BETWEEN :startTimestamp AND :endTimestamp")
         List<FolderSyncStatus> findFolderSyncStatusByTimestampRange(
-        @Param("tableName") String tableName, 
+        @Param("tableName") String tableName,@Param("dbIdentifier") String dbIdentifier, 
         @Param("startTimestamp") LocalDateTime startTimestamp, 
         @Param("endTimestamp") LocalDateTime endTimestamp);
 

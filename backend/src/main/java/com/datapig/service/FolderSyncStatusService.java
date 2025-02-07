@@ -1,5 +1,6 @@
 package com.datapig.service;
 
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
 
@@ -136,4 +137,11 @@ public class FolderSyncStatusService {
         return folderSyncStatusDTO;
     }
 
+    public  List<FolderSyncStatus> findFolderSyncStatusByTimestampRange(
+        String tableName, String dbIdentifier,
+        LocalDateTime startTimestamp, 
+        LocalDateTime endTimestamp){
+            return folderSyncStatusRepository.findFolderSyncStatusByTimestampRange(tableName, dbIdentifier,startTimestamp, endTimestamp);
+        }
+        
 }
