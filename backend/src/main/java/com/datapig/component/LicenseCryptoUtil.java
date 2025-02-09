@@ -41,21 +41,6 @@ public class LicenseCryptoUtil {
         return LicenseData.fromString(decryptedString);
     }
 
-    // Main method for testing
-    public static void main(String[] args) {
-        try {
-            SecretKey secretKey = generateSecretKey();
-            LicenseData originalData = new LicenseData("dataverse-datapigdemoe-unq3971a4f47cb9ef11b8e46045bd003", "PO12345", 365);
-            String encryptedData = encrypt(originalData, secretKey);
-            LicenseData decryptedData = decrypt(encryptedData, secretKey);
-
-            System.out.println("Original Data: " + originalData);
-            System.out.println("Encrypted Data: " + encryptedData);
-            System.out.println("Decrypted Data: " + decryptedData);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
     /*
      * public static void main(String[] args) {
      * try {
