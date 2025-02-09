@@ -39,7 +39,7 @@ public class LicenseCryptoUtil {
     public static void main(String[] args) {
         try {
             SecretKey secretKey = generateSecretKey();
-            LicenseData originalData = new LicenseData("abcd@12345", "PO12345", 365);
+            LicenseData originalData = new LicenseData("dataverse-datapigdemoe-unq3971a4f47cb9ef11b8e46045bd003", "PO12345", 365);
             String encryptedData = encrypt(originalData, secretKey);
             LicenseData decryptedData = decrypt(encryptedData, secretKey);
 

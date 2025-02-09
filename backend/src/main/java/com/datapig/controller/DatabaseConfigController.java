@@ -139,8 +139,14 @@ public class DatabaseConfigController {
 
         DatabaseConfigDTO databaseConfigDTO = new DatabaseConfigDTO();
 
-        databaseConfigDTO = databaseConfigDTO.fromEntity(databaseConfig, intialLoad.getStagestatus(),
-                intialLoad.getStagestatus());
+        if(intialLoad!=null){
+            databaseConfigDTO = databaseConfigDTO.fromEntity(databaseConfig, intialLoad.getStagestatus(),
+            intialLoad.getStagestatus());
+        }
+        else{
+            databaseConfigDTO = databaseConfigDTO.fromEntity(databaseConfig, 0,
+            0);
+        }
 
         databaseConfigService.saveDatabaseConfig(databaseConfig);
 
