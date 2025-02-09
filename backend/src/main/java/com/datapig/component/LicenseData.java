@@ -4,11 +4,34 @@ public class LicenseData {
     private String environment;
     private String purchaseOrder;
     private int days;
+    private String companyName;
+    private String licenseType;
 
-    public LicenseData(String environment, String purchaseOrder, int days) {
+    public LicenseData() {
+    }
+
+    public LicenseData(String environment, String purchaseOrder, int days, String companyName, String licenseType) {
         this.environment = environment;
         this.purchaseOrder = purchaseOrder;
         this.days = days;
+        this.companyName = companyName;
+        this.licenseType = licenseType;
+    }
+
+    public String getCompanyName() {
+        return companyName;
+    }
+
+    public void setCompanyName(String companyName) {
+        this.companyName = companyName;
+    }
+
+    public String getLicenseType() {
+        return licenseType;
+    }
+
+    public void setLicenseType(String licenseType) {
+        this.licenseType = licenseType;
     }
 
     public String getEnvironment() {
@@ -37,11 +60,21 @@ public class LicenseData {
 
     @Override
     public String toString() {
-        return environment + "," + purchaseOrder + "," + days;
+        return environment + "," + purchaseOrder + "," + days + "," + companyName + "," + licenseType;
     }
 
     public static LicenseData fromString(String data) {
         String[] parts = data.split(",");
-        return new LicenseData(parts[0], parts[1], Integer.parseInt(parts[2]));
+        if (parts.length < 4) {
+            throw new IllegalArgumentException("Invalid data format: " + data);
+        }
+        LicenseData licenseData = new LicenseData();
+        licenseData.setEnvironment(parts[0]);
+        licenseData.setPurchaseOrder(parts[1]);
+        licenseData.setDays(Integer.parseInt(parts[2]));
+        licenseData.setCompanyName(parts[3]);
+        licenseData.setLicenseType(parts[4]);
+        return licenseData;
     }
+
 }

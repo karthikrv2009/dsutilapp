@@ -36,6 +36,9 @@ public class LicenseCheck {
     @Autowired
     private LicenseKeyService licenseKeyService;
 
+    @Autowired
+    private LicenseCryptoUtil LicenseCryptoUtil;
+
     @Scheduled(fixedRate = 14400000) // 4 hours in milliseconds
     public void checkLicense() {
         try {
