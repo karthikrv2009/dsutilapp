@@ -31,7 +31,7 @@ public class LicenseKeyService {
 
         try {
 
-            SecretKey secretKey = licenseCryptoUtil.generateSecretKey();
+            SecretKey secretKey = licenseCryptoUtil.loadSecretKey();
             LicenseData licenseData = licenseCryptoUtil.decrypt(licenseKey.getLicenseKey(), secretKey);
             licenseKey.setCompanyName(licenseData.getCompanyName());
             licenseKey.setLicenseType(licenseData.getLicenseType());

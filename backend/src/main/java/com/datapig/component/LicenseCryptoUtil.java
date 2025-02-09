@@ -5,6 +5,7 @@ import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
@@ -19,6 +20,9 @@ public class LicenseCryptoUtil {
     private static final String ALGORITHM = "AES";
     private static final String TRANSFORMATION = "AES";
     private static final String KEY_FILE = "secret.key";
+
+    @Value("${secret.key.path}")
+    private String keyFilePath;
 
     public void generateAndSaveSecretKey() throws Exception {
         KeyGenerator keyGenerator = KeyGenerator.getInstance(ALGORITHM);
@@ -64,7 +68,7 @@ public class LicenseCryptoUtil {
 
     // Method to load the secret key from a file
     public SecretKey loadSecretKey() throws IOException {
-        File keyFile = new File(KEY_FILE);
+        File keyFile = new File(keyFilePath);
         byte[] keyBytes = new byte[(int) keyFile.length()];
         try (FileInputStream fis = new FileInputStream(keyFile)) {
             fis.read(keyBytes);
@@ -75,13 +79,16 @@ public class LicenseCryptoUtil {
     // Main method for testing
     /*
      * public static void main(String[] args) {
+     * LicenseCryptoUtil licenseCryptoUtil = new LicenseCryptoUtil();
      * try {
-     * SecretKey secretKey = generateSecretKey();
+     * // licenseCryptoUtil.generateAndSaveSecretKey();
+     * SecretKey secretKey = licenseCryptoUtil.loadSecretKey();
      * LicenseData originalData = new
      * LicenseData("dataverse-datapigdemoe-unq3971a4f47cb9ef11b8e46045bd003",
      * "PO123", 365, "Acme Inc.", "Enterprise");
-     * String encryptedData = encrypt(originalData, secretKey);
-     * LicenseData decryptedData = decrypt(encryptedData, secretKey);
+     * String encryptedData = licenseCryptoUtil.encrypt(originalData, secretKey);
+     * LicenseData decryptedData = licenseCryptoUtil.decrypt(encryptedData,
+     * secretKey);
      * 
      * System.out.println("Original Data: " + originalData);
      * System.out.println("Encrypted Data: " + encryptedData);
@@ -89,6 +96,6 @@ public class LicenseCryptoUtil {
      * } catch (Exception e) {
      * e.printStackTrace();
      * }
-     * }
      */
+
 }

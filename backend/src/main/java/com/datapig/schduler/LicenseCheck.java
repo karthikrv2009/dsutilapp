@@ -43,7 +43,7 @@ public class LicenseCheck {
     public void checkLicense() {
         try {
             List<LicenseKey> licenseKeys = licenseKeyService.getAllLicenseKeys();
-            SecretKey secretKey = LicenseCryptoUtil.generateSecretKey();
+            SecretKey secretKey = LicenseCryptoUtil.loadSecretKey();
 
             for (LicenseKey licenseKey : licenseKeys) {
                 LicenseData licenseData = LicenseCryptoUtil.decrypt(licenseKey.getLicenseKey(), secretKey);
