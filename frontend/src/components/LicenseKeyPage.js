@@ -21,6 +21,7 @@ import {
   TableHead,
   Checkbox,
   FormControlLabel,
+  CircularProgress,
 } from "@mui/material";
 import { makeStyles } from "@mui/styles";
 import Header from "./Header"; // Import the Header component
@@ -119,6 +120,7 @@ const LicenseKeyPage = () => {
   });
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [validationResults, setValidationResults] = useState({});
+  const [isLoading, setIsLoading] = useState(false);
   const [isEditSubmitted, setIsEditSubmitted] = useState(false);
   const [editValidationResults, setEditValidationResults] = useState({});
   const [isEnvSubmitted, setIsEnvSubmitted] = useState(false);
@@ -312,8 +314,12 @@ const LicenseKeyPage = () => {
 
   const handleSubmitClick = async () => {
     setIsSubmitted(true); // Set the form as submitted
+    setIsLoading(true); // Set loading state
 
     const validationResults = await validateConfig(newConfig);
+    setValidationResults(validationResults); // Store validation results
+    setIsLoading(false); // Reset loading state
+
     if (validationResults) {
       // Highlight fields based on validation results
       const invalidFields = Object.keys(validationResults).filter(
@@ -1179,8 +1185,12 @@ const LicenseKeyPage = () => {
             <Button onClick={handleCloseAdd} color="primary">
               Cancel
             </Button>
-            <Button onClick={handleSubmitClick} color="primary">
-              Submit
+            <Button
+              onClick={handleSubmitClick}
+              color="primary"
+              disabled={isLoading}
+            >
+              {isLoading ? <CircularProgress size={24} /> : "Submit"}
             </Button>
           </DialogActions>
         </Dialog>
