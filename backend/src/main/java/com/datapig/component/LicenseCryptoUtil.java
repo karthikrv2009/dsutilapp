@@ -3,16 +3,37 @@ package com.datapig.component;
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
 
 import org.springframework.stereotype.Component;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.Base64;
 
-@Component
+//@Component
 public class LicenseCryptoUtil {
 
     private static final String ALGORITHM = "AES";
     private static final String TRANSFORMATION = "AES";
+    private static final String KEY_FILE = "secret.key";
+
+    public void generateAndSaveSecretKey() throws Exception {
+        KeyGenerator keyGenerator = KeyGenerator.getInstance(ALGORITHM);
+        keyGenerator.init(256); // AES-256
+        SecretKey secretKey = keyGenerator.generateKey();
+        saveSecretKey(secretKey);
+    }
+
+    // Method to save the secret key to a file
+    private static void saveSecretKey(SecretKey secretKey) throws IOException {
+        byte[] keyBytes = secretKey.getEncoded();
+        try (FileOutputStream fos = new FileOutputStream(KEY_FILE)) {
+            fos.write(keyBytes);
+        }
+    }
 
     // Method to generate a secret key
     public SecretKey generateSecretKey() throws Exception {
@@ -41,6 +62,17 @@ public class LicenseCryptoUtil {
         return LicenseData.fromString(decryptedString);
     }
 
+    // Method to load the secret key from a file
+    public SecretKey loadSecretKey() throws IOException {
+        File keyFile = new File(KEY_FILE);
+        byte[] keyBytes = new byte[(int) keyFile.length()];
+        try (FileInputStream fis = new FileInputStream(keyFile)) {
+            fis.read(keyBytes);
+        }
+        return new SecretKeySpec(keyBytes, ALGORITHM);
+    }
+
+    // Main method for testing
     /*
      * public static void main(String[] args) {
      * try {

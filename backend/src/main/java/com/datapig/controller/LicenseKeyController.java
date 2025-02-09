@@ -49,6 +49,12 @@ public class LicenseKeyController {
         return ResponseEntity.ok(environmentConfigs);
     }
 
+    @PostMapping("/environment/save")
+    public ResponseEntity<EnvironmentConfig> createEnvironmentConfig(@RequestBody EnvironmentConfig environmentConfig) {
+        EnvironmentConfig savedEnvironmentConfig = environmentConfigService.saveEnvironmentConfig(environmentConfig);
+        return ResponseEntity.ok(savedEnvironmentConfig);
+    }
+
     @PutMapping("/environment/{d365Environment}")
     public ResponseEntity<String> updateEnvironmentConfigs(@PathVariable String d365Environment,
             @RequestBody EnvironmentConfig environmentConfig) {
