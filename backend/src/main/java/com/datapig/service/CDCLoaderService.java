@@ -52,13 +52,13 @@ public class CDCLoaderService {
         for(ChangeDataTrackingPointer changeDataTrackingPointer:lChangeDataTrackingPointers){
             String path="/"+changeDataTrackingPointer.getFolderName()+"/"+changeDataTracking.getTableName();
             if(changeDataTrackingPointer.getFolderName().contains("/model.json")){
-                boolean flag=archiveToHotRehydration.rehydrateBlobToHotTier(containerName, path);
+                boolean flag=archiveToHotRehydration.rehydrateBlobToHotTier(containerName, path,databaseConfig);
                 if(flag){
                     updateRehydrationToStart(changeDataTrackingPointer);
                 }
             }
             else{
-                boolean flag=archiveToHotRehydration.rehydrateToHotTier(containerName, path);
+                boolean flag=archiveToHotRehydration.rehydrateToHotTier(containerName, path,databaseConfig);
                 if(flag){
                     updateRehydrationToStart(changeDataTrackingPointer);
                 }

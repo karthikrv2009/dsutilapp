@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 public class MetaDataPointer {
 
     @Id
-    @Column(name = "foldername", length = 50, nullable = false)
+    @Column(name = "folder_name", length = 50, nullable = false)
     private String folderName;
 
     @Column(name = "adlscreationtimestamp")

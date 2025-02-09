@@ -16,7 +16,7 @@ public class ChangeDataTrackingCatalogService {
         return changeDataTrackingCatalogRepository.save(changeDataTrackingCatalog);
     }
     public ChangeDataTrackingCatalog findbyCdcTableNameAndDbIdentifier(String cdcTableName,String dbIdentifier){
-        return changeDataTrackingCatalogRepository.findbyCdcTableNameAndDbIdentifier(cdcTableName, dbIdentifier);
+        return changeDataTrackingCatalogRepository.findByCdcTableNameAndDbIdentifier(cdcTableName, dbIdentifier);
     }
 
 }

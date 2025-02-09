@@ -8,6 +8,7 @@ import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.models.AccessTier;
 import com.azure.storage.blob.models.BlobStorageException;
+import com.datapig.entity.DatabaseConfig;
 import com.azure.storage.blob.models.BlobItem;
 
 
@@ -15,19 +16,16 @@ import com.azure.storage.blob.models.BlobItem;
 @Service
 public class ArchiveToHotRehydration {
 
-    private BlobServiceClient blobServiceClient;
-
-    public ArchiveToHotRehydration(String storageAccountUrl, String sasToken) {
-        // Create a BlobServiceClient using the storage account URL and SAS token
-        this.blobServiceClient = new BlobServiceClientBuilder()
-                .endpoint(storageAccountUrl)
-                .sasToken(sasToken)
-                .buildClient();
-    }
 
     // Method to rehydrate a blob or folder to Hot tier
-    public boolean rehydrateToHotTier(String containerName, String path) {
+    public boolean rehydrateToHotTier(String containerName, String path,DatabaseConfig config) {
         try {
+            
+              // Create a BlobServiceClient using the storage account URL and SAS token
+        BlobServiceClient blobServiceClient = new BlobServiceClientBuilder()
+        .endpoint(config.getAdlsStorageAccountEndpoint())
+        .sasToken(config.getAdlsStorageAccountSasKey())
+        .buildClient();
             // Get the BlobContainerClient
             BlobContainerClient containerClient = blobServiceClient.getBlobContainerClient(containerName);
 
@@ -48,8 +46,12 @@ public class ArchiveToHotRehydration {
     }
 
     // Method to check the rehydration status for a specific blob
-    public boolean checkRehydrationStatusForBlob(String containerName, String blobName) {
+    public boolean checkRehydrationStatusForBlob(String containerName, String blobName,DatabaseConfig config) {
         try {
+            BlobServiceClient blobServiceClient = new BlobServiceClientBuilder()
+            .endpoint(config.getAdlsStorageAccountEndpoint())
+            .sasToken(config.getAdlsStorageAccountSasKey())
+            .buildClient();
             // Get the BlobContainerClient
             BlobContainerClient containerClient = blobServiceClient.getBlobContainerClient(containerName);
 
@@ -71,8 +73,12 @@ public class ArchiveToHotRehydration {
     }
 
     // Method to rehydrate a specific blob to the Hot tier
-    public boolean rehydrateBlobToHotTier(String containerName, String blobName) {
+    public boolean rehydrateBlobToHotTier(String containerName, String blobName,DatabaseConfig config) {
         try {
+            BlobServiceClient blobServiceClient = new BlobServiceClientBuilder()
+            .endpoint(config.getAdlsStorageAccountEndpoint())
+            .sasToken(config.getAdlsStorageAccountSasKey())
+            .buildClient();
             // Get the BlobContainerClient
             BlobContainerClient containerClient = blobServiceClient.getBlobContainerClient(containerName);
 
@@ -95,8 +101,12 @@ public class ArchiveToHotRehydration {
     }
 
     // Method to check if any blob in the folder has been rehydrated to Hot tier
-    public boolean checkRehydrationStatus(String containerName, String path) {
+    public boolean checkRehydrationStatus(String containerName, String path,DatabaseConfig config) {
         try {
+            BlobServiceClient blobServiceClient = new BlobServiceClientBuilder()
+            .endpoint(config.getAdlsStorageAccountEndpoint())
+            .sasToken(config.getAdlsStorageAccountSasKey())
+            .buildClient();
             // Get the BlobContainerClient
             BlobContainerClient containerClient = blobServiceClient.getBlobContainerClient(containerName);
 

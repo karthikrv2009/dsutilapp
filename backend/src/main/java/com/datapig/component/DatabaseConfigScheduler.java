@@ -252,13 +252,13 @@ public class DatabaseConfigScheduler {
                 for(ChangeDataTrackingPointer changeDataTrackingPointer:pointers){
                     String path="/"+changeDataTrackingPointer.getFolderName()+"/"+changeDataTracking.getTableName();
                     if(changeDataTrackingPointer.getFolderName().contains("/model.json")){
-                        boolean flag=archiveToHotRehydration.rehydrateBlobToHotTier(databaseConfig.getAdlsContainerName(), path);
+                        boolean flag=archiveToHotRehydration.rehydrateBlobToHotTier(databaseConfig.getAdlsContainerName(), path,databaseConfig);
                         if(flag){
                             updateRehydrationToStart(changeDataTrackingPointer);
                         }
                     }
                     else{
-                        boolean flag=archiveToHotRehydration.rehydrateToHotTier(databaseConfig.getAdlsContainerName(), path);
+                        boolean flag=archiveToHotRehydration.rehydrateToHotTier(databaseConfig.getAdlsContainerName(), path,databaseConfig);
                         if(flag){
                             updateRehydrationToStart(changeDataTrackingPointer);
                         }
@@ -269,13 +269,13 @@ public class DatabaseConfigScheduler {
                 for(ChangeDataTrackingPointer changeDataTrackingPointer:pointersStarted){
                     String path="/"+changeDataTrackingPointer.getFolderName()+"/"+changeDataTracking.getTableName();
                     if(changeDataTrackingPointer.getFolderName().contains("/model.json")){
-                        boolean flag=archiveToHotRehydration.checkRehydrationStatusForBlob(databaseConfig.getAdlsContainerName(), path);
+                        boolean flag=archiveToHotRehydration.checkRehydrationStatusForBlob(databaseConfig.getAdlsContainerName(), path,databaseConfig);
                         if(flag){
                             updateRehydrationToComplete(changeDataTrackingPointer);
                         }
                     }
                     else{
-                        boolean flag=archiveToHotRehydration.checkRehydrationStatus(databaseConfig.getAdlsContainerName(), path);
+                        boolean flag=archiveToHotRehydration.checkRehydrationStatus(databaseConfig.getAdlsContainerName(), path,databaseConfig);
                         if(flag){
                             updateRehydrationToComplete(changeDataTrackingPointer);
                             updateStageStatusToComplete(changeDataTrackingPointer);

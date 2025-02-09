@@ -20,13 +20,16 @@ public interface FolderSyncStatusRepository extends JpaRepository<FolderSyncStat
         List<FolderSyncStatus> findBycopyStatusAndDbIdentifier(Short copyStatus, String dbIdentifier);
 
         @Query("SELECT f FROM FolderSyncStatus f " +
-        "INNER JOIN MetaDataPointer m ON m.foldername = f.folder AND m.dbIdentifier = f.dbIdentifier " +
-        "WHERE f.tableName = :tableName AND f.dbIdentifier = :dbIdentifier" +
+        "JOIN MetaDataPointer m ON m.folderName = f.folder AND m.dbIdentifier = f.dbIdentifier " +
+        "WHERE f.tableName = :tableName AND f.dbIdentifier = :dbIdentifier " +
         "AND m.adlscreationtimestamp BETWEEN :startTimestamp AND :endTimestamp")
-        List<FolderSyncStatus> findFolderSyncStatusByTimestampRange(
-        @Param("tableName") String tableName,@Param("dbIdentifier") String dbIdentifier, 
-        @Param("startTimestamp") LocalDateTime startTimestamp, 
-        @Param("endTimestamp") LocalDateTime endTimestamp);
+ List<FolderSyncStatus> findFolderSyncStatusByTimestampRange(
+     @Param("tableName") String tableName,
+     @Param("dbIdentifier") String dbIdentifier, 
+     @Param("startTimestamp") LocalDateTime startTimestamp, 
+     @Param("endTimestamp") LocalDateTime endTimestamp);
+ 
+ 
 
         
         @Query("SELECT COUNT(f) FROM FolderSyncStatus f WHERE f.copyStatus = :copyStatus")

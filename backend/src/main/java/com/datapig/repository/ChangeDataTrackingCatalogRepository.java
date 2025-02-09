@@ -8,6 +8,6 @@ import com.datapig.entity.ChangeDataTrackingCatalog;
 @Repository
 public interface ChangeDataTrackingCatalogRepository extends JpaRepository<ChangeDataTrackingCatalog, Long> {
 
-    ChangeDataTrackingCatalog findbyCdcTableNameAndDbIdentifier(String cdcTableName,String dbIdentifier);
+    ChangeDataTrackingCatalog findByCdcTableNameAndDbIdentifier(String cdcTableName,String dbIdentifier);
 
 }
