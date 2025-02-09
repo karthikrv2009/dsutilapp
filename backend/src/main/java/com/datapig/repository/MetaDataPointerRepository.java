@@ -40,7 +40,7 @@ public interface MetaDataPointerRepository extends JpaRepository<MetaDataPointer
 
     int countByStageStatus(Short stageStatus);
 
-    @Query("SELECT m FROM MetaDataPointer m WHERE m.dbIdentifier = :dbIdentifier AND m.folderName NOT IN (SELECT a.folderName from ArchivedFolder a)")
+    @Query("SELECT m FROM MetaDataPointer m WHERE m.dbIdentifier = :dbIdentifier AND m.folderName NOT IN (SELECT a.folderName from ArchivedFolder a) AND m.stageStatus=2")
     List<MetaDataPointer> listMetaDataPointerArchived( String dbIdentifier);
   
 }

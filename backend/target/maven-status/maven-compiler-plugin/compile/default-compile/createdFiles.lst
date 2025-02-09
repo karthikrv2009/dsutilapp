@@ -28,7 +28,6 @@ com\datapig\repository\ChangeDataTrackingCatalogRepository.class
 com\datapig\controller\HomeController.class
 com\datapig\service\dto\ModelTableAttributes.class
 com\datapig\service\CDCLoaderService.class
-com\datapig\component\DatabaseConfigScheduler.class
 com\datapig\repository\ChangeDataTrackingRepository.class
 com\datapig\repository\IntitalLoadRepository.class
 com\datapig\service\PolybaseThreadService.class
