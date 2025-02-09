@@ -48,10 +48,10 @@ public class MetaDataPointer {
         this.storageAccount = storageAccount;
     }
 
-    @Column(name = "Environment", length = 100)
+    @Column(name = "Environment", length = 400)
     private String environment;
 
-    @Column(name = "StorageAccount", length = 100)
+    @Column(name = "StorageAccount", length = 200)
     private String storageAccount;
 
     public String getFolderName() {

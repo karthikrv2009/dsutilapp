@@ -407,7 +407,7 @@ public class ParseModelJson {
                 if (attribute.getName().equals("IsDelete")) {
                     return "NVARCHAR(10)";
                 }
-                return "BIT";
+                return "NVARCHAR(10)";
             default:
                 return null; // Unrecognized data type
         }
