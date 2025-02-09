@@ -8,7 +8,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "ChangeDataTrackingCatalog")
+@Table(name = "ChangeDataTrackingPointer")
 public class ChangeDataTrackingPointer {
 
     @Id

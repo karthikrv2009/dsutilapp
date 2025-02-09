@@ -19,7 +19,7 @@ public class PipelineService {
     }
 
     public List<Pipeline> findByFolderName(String folderName,String dbIdentifier) {
-        java.util.List<Pipeline> entityOptional = pipelineRepository.findByFolderNameAndDbIdentifier(folderName);
+        java.util.List<Pipeline> entityOptional = pipelineRepository.findByFolderNameAndDbIdentifier(folderName,dbIdentifier);
         return entityOptional;
     }
 

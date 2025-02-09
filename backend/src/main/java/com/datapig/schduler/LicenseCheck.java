@@ -10,13 +10,11 @@ import com.datapig.component.LicenseCryptoUtil;
 import com.datapig.component.LicenseData;
 import com.datapig.entity.LicenseKey;
 import com.datapig.service.LicenseKeyService;
-import com.datapig.utility.JDBCTemplateUtiltiy;
 
 import javax.crypto.SecretKey;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
-import java.util.Date;
 import java.util.List;
 
 import org.slf4j.Logger;
