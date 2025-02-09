@@ -68,7 +68,9 @@ public class LicenseCryptoUtil {
 
     // Method to load the secret key from a file
     public SecretKey loadSecretKey() throws IOException {
+        System.out.println("Key file path: " + keyFilePath); // Add this line for debugging
         File keyFile = new File(keyFilePath);
+        System.out.println("Decrypted string: " + keyFile); // Add this line for debugging
         byte[] keyBytes = new byte[(int) keyFile.length()];
         try (FileInputStream fis = new FileInputStream(keyFile)) {
             fis.read(keyBytes);
