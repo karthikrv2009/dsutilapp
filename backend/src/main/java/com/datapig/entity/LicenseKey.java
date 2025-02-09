@@ -16,7 +16,7 @@ public class LicenseKey {
     private Long id;
     private String companyName;
     private String licenseType;
-    private String validity;
+    private int validity;
     private String licenseKey;
     private Date startDate;
 
@@ -45,14 +45,6 @@ public class LicenseKey {
         this.licenseType = licenseType;
     }
 
-    public String getValidity() {
-        return validity;
-    }
-
-    public void setValidity(String validity) {
-        this.validity = validity;
-    }
-
     public String getLicenseKey() {
         return licenseKey;
     }
@@ -67,5 +59,13 @@ public class LicenseKey {
 
     public void setStartDate(Date startDate) {
         this.startDate = startDate;
+    }
+
+    public int getValidity() {
+        return validity;
+    }
+
+    public void setValidity(int validity) {
+        this.validity = validity;
     }
 }

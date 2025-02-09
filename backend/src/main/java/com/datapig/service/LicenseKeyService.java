@@ -1,11 +1,18 @@
 package com.datapig.service;
 
 import com.datapig.service.dto.LicenseKeyDTO;
+import com.datapig.component.LicenseCryptoUtil;
+import com.datapig.component.LicenseData;
 import com.datapig.entity.LicenseKey;
 import com.datapig.repository.LicenseKeyRepository;
 
+import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 
+import javax.crypto.SecretKey;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -13,11 +20,29 @@ public class LicenseKeyService {
 
     private final LicenseKeyRepository licenseKeyRepository;
 
+    @Autowired
+    private LicenseCryptoUtil licenseCryptoUtil;
+
     public LicenseKeyService(LicenseKeyRepository licenseKeyRepository) {
         this.licenseKeyRepository = licenseKeyRepository;
     }
 
     public LicenseKey saveLicenseKey(LicenseKey licenseKey) {
+
+        try {
+
+            SecretKey secretKey = licenseCryptoUtil.generateSecretKey();
+            LicenseData licenseData = licenseCryptoUtil.decrypt(licenseKey.getLicenseKey(), secretKey);
+            licenseKey.setCompanyName(licenseData.getCompanyName());
+            licenseKey.setLicenseType(licenseData.getLicenseType());
+            licenseKey.setValidity(licenseData.getDays());
+            licenseKey.setStartDate(java.sql.Timestamp.valueOf(LocalDateTime.now()));
+            // licenseKey.setLicenseKey(licenseCryptoUtil.encrypt(licenseData, secretKey));
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         return licenseKeyRepository.save(licenseKey);
     }
 
@@ -27,44 +52,5 @@ public class LicenseKeyService {
 
     public List<LicenseKey> getAllLicenseKeys() {
         return licenseKeyRepository.findAll();
-    }
-
-    public LicenseKeyDTO validateLicenseKey(String licenseKey) {
-        // Dummy validation logic
-        if (licenseKey == null || licenseKey.isEmpty()) {
-            return null;
-        }
-
-        // Check if the license key exists in the database
-        LicenseKey existingLicenseKey = licenseKeyRepository.findByLicenseKey(licenseKey);
-        if (existingLicenseKey != null) {
-            // Convert entity to DTO
-            LicenseKeyDTO licenseKeyDTO = new LicenseKeyDTO();
-            licenseKeyDTO.setCompanyName(existingLicenseKey.getCompanyName());
-            licenseKeyDTO.setLicenseType(existingLicenseKey.getLicenseType());
-            licenseKeyDTO.setValidity(existingLicenseKey.getValidity());
-            licenseKeyDTO.setLicenseKey(existingLicenseKey.getLicenseKey());
-            return licenseKeyDTO;
-        }
-
-        // Create a dummy LicenseKeyDTO object
-        LicenseKeyDTO licenseKeyDTO = new LicenseKeyDTO();
-        licenseKeyDTO.setCompanyName("TechCorp");
-        licenseKeyDTO.setMachineName("MachineA");
-        licenseKeyDTO.setLicenseType("standard");
-        licenseKeyDTO.setValidity("2025-12-07");
-        licenseKeyDTO.setLicenseKey(licenseKey);
-
-        // Convert DTO to entity
-        LicenseKey newLicenseKey = new LicenseKey();
-        newLicenseKey.setCompanyName(licenseKeyDTO.getCompanyName());
-        newLicenseKey.setLicenseType(licenseKeyDTO.getLicenseType());
-        newLicenseKey.setValidity(licenseKeyDTO.getValidity());
-        newLicenseKey.setLicenseKey(licenseKeyDTO.getLicenseKey());
-
-        // Save the new license key to the database
-        licenseKeyRepository.save(newLicenseKey);
-
-        return licenseKeyDTO;
     }
 }

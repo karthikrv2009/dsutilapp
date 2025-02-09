@@ -6,12 +6,15 @@ import org.springframework.web.bind.annotation.*;
 
 import com.datapig.service.LicenseKeyService;
 import com.datapig.entity.LicenseKey;
+import com.datapig.component.LicenseCryptoUtil;
 import com.datapig.entity.EnvironmentConfig;
 import com.datapig.service.EnvironmentConfigService;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import javax.crypto.SecretKey;
 
 @RestController
 @RequestMapping("/api/license")
@@ -33,6 +36,7 @@ public class LicenseKeyController {
     // POST method for /api/license
     @PostMapping
     public ResponseEntity<LicenseKey> createLicenseKey(@RequestBody LicenseKey licenseKey) {
+
         LicenseKey savedLicenseKey = licenseKeyService.saveLicenseKey(licenseKey);
 
         return ResponseEntity.ok(savedLicenseKey);
