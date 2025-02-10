@@ -12,7 +12,6 @@ import com.azure.storage.blob.BlobServiceClientBuilder;
 import com.azure.storage.blob.models.AccessTier;
 import com.azure.storage.blob.models.BlobItem;
 import com.azure.storage.blob.models.BlobItemProperties;
-import com.azure.storage.blob.models.BlobProperties;
 import com.azure.storage.blob.models.BlobStorageException;
 import com.datapig.entity.ArchivedFolder;
 import com.datapig.entity.ChangeDataTracking;
@@ -151,13 +150,14 @@ public class DatabaseConfigScheduler {
         }
     }
 
-    private boolean moveBlobsToArchive(DatabaseConfig config, MetaDataPointer metaDataPointer) {
-        boolean flag = false;
+
+    private boolean  moveBlobsToArchive(DatabaseConfig config,MetaDataPointer metaDataPointer) {
+        boolean flag=false;
         String storageAccountUrl = config.getAdlsStorageAccountEndpoint();
         String sasToken = config.getAdlsStorageAccountSasKey();
         String containerName = config.getAdlsContainerName();
         String baseFolderPath = metaDataPointer.getFolderName();
-
+        //metaDataPointerService.get
         try {
             // Create a BlobServiceClient using the storage account URL and SAS token
             BlobServiceClient blobServiceClient = new BlobServiceClientBuilder()
@@ -168,8 +168,31 @@ public class DatabaseConfigScheduler {
             // Get the container client
             BlobContainerClient containerClient = blobServiceClient.getBlobContainerClient(containerName);
 
-            // Process blobs recursively
-            flag = processBlobsRecursively(containerClient, baseFolderPath);
+            // Iterate through all blobs under the specified folder (prefix)
+            PagedIterable<BlobItem> blobs = containerClient.listBlobsByHierarchy(baseFolderPath);
+
+            for (BlobItem blobItem : blobs) {
+                String blobName = blobItem.getName();
+
+                // Log current blob being processed
+                System.out.println("Processing blob: " + blobName);
+
+                // Get the blob client
+                BlobClient blobClient = containerClient.getBlobClient(blobName);
+   // Check if the blob is not a folder (assuming folders end with '/')
+   if (!blobName.endsWith("/")) {
+    BlobItemProperties properties = blobItem.getProperties();
+    if (properties != null && properties.getAccessTier() != null) {
+        if (properties.getAccessTier() == AccessTier.HOT) {
+            // Set the access tier to Archive
+            blobClient.setAccessTier(AccessTier.ARCHIVE);
+            System.out.println("Blob '" + blobName + "' moved to Archive tier successfully.");
+        }
+    }
+}
+
+                flag=true;
+            }
         } catch (BlobStorageException e) {
             System.out.println("Error moving blobs to Archive tier: " + e.getMessage());
             e.printStackTrace();
@@ -180,41 +203,6 @@ public class DatabaseConfigScheduler {
         return flag;
     }
 
-    private boolean processBlobsRecursively(BlobContainerClient containerClient, String prefix) {
-        boolean flag = false;
-
-        // Iterate through all blobs under the specified prefix
-        PagedIterable<BlobItem> blobs = containerClient.listBlobsByHierarchy(prefix);
-
-        for (BlobItem blobItem : blobs) {
-            String blobName = blobItem.getName();
-
-            // Log current blob being processed
-            System.out.println("Processing blob: " + blobName);
-
-            // Get the blob client
-            BlobClient blobClient = containerClient.getBlobClient(blobName);
-
-            // Check if the blob is a folder (assuming folders end with '/')
-            if (blobItem.isPrefix()) {
-                // Recursively process sub-folders
-                flag |= processBlobsRecursively(containerClient, blobName);
-            } else {
-                BlobItemProperties properties = blobItem.getProperties();
-                if (properties != null && properties.getAccessTier() != null) {
-                    if (properties.getAccessTier() == AccessTier.HOT) {
-                        // Set the access tier to Archive
-                        blobClient.setAccessTier(AccessTier.ARCHIVE);
-                        System.out.println("Blob '" + blobName + "' moved to Archive tier successfully.");
-                    }
-                }
-                flag = true;
-            }
-        }
-
-        return flag;
-    }
-    
     private boolean  moveCdcBlobsToArchive(DatabaseConfig config,ArchivedFolder archivedFolder) {
         boolean flag=false;
         String storageAccountUrl = config.getAdlsStorageAccountEndpoint();

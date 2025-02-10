@@ -28,8 +28,20 @@ public class FolderSyncStatus {
     @Column(name = "copystatus")
     private Short copyStatus;
 
+    @Column(name = "archived", nullable = false)
+    private int archived;
+
+    
     public Long getId() {
         return id;
+    }
+
+    public int getArchived() {
+        return archived;
+    }
+
+    public void setArchived(int archived) {
+        this.archived = archived;
     }
 
     public void setId(Long id) {
