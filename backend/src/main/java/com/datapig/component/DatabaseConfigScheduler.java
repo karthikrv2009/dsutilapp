@@ -75,13 +75,20 @@ public class DatabaseConfigScheduler {
                 List<ArchivedFolder> archivedFoldersNotArchived=archivedFolderService.findByStageStatusAndDbIdentifier(0, config.getDbIdentifier());
                 for(ArchivedFolder archivedFolder:archivedFoldersNotArchived){
                     MetaDataPointer metaDataPointer=metaDataPointerService.getMetaDataPointerBydbIdentifierAndFolder(config.getDbIdentifier(), archivedFolder.getFolderName());
-                    if(checkIfFolderArchivable(metaDataPointer,config.getDbIdentifier())){
+                    Short copyStatus=2;
+                    List<FolderSyncStatus> lstFolderSync=folderSyncStatusService.findByDbIdentifierAndFolderAndCopyStatusAndArcarchived(config.getDbIdentifier(), metaDataPointer.getFolderName(), copyStatus, 0);
+                    for(FolderSyncStatus folder:lstFolderSync){
+                        changeDataTrackingService.findByTableNameAndDbIdentifierAndStageStatus(folder.getTableName(), folder.getDbIdentifier(), 1);
+                        changeDataTrackingPointerService.findByDbIdentifierAndFolderName(config.getDbIdentifier(), folder.getFolder());
+                    }
+                    
+                   /*  if(checkIfFolderArchivable(metaDataPointer,config.getDbIdentifier())){
                         boolean flag=moveBlobsToArchive(config,metaDataPointer);
                         if(flag){
                             updateArchivedFolder(archivedFolder);           
                         }       
                     }
-                }
+                }*/
                 List<ChangeDataTrackingPointer> changeDataTrackingPointersNotArchived = changeDataTrackingPointerService.findByDbIdentifierAndStageStatus(config.getDbIdentifier(), 2);
                 for(ChangeDataTrackingPointer changeDataTrackingPointer:changeDataTrackingPointersNotArchived){
                     if(changeDataTrackingPointer.getFolderName().equalsIgnoreCase("/model.json")){
@@ -110,16 +117,6 @@ public class DatabaseConfigScheduler {
         }
     }
 
-    private boolean checkIfFolderArchivable(MetaDataPointer metaDataPointer,String dbIdentifier){
-        boolean flag=true;
-        List<FolderSyncStatus> lst=folderSyncStatusService.getFolderSyncStatusByfolderAndDbIdentifier(metaDataPointer.getFolderName(), dbIdentifier);
-        for(FolderSyncStatus folderSyncStatus:lst){
-            if((folderSyncStatus.getCopyStatus()==2)||(folderSyncStatus.getCopyStatus()==0)){
-                flag=false;
-            }
-        }
-        return flag;
-    } 
 
 
     private void createArchivedFolder(MetaDataPointer metaDataPointer){
@@ -151,12 +148,12 @@ public class DatabaseConfigScheduler {
     }
 
 
-    private boolean  moveBlobsToArchive(DatabaseConfig config,MetaDataPointer metaDataPointer) {
+    private boolean  moveBlobsToArchive(DatabaseConfig config,String folderPath) {
         boolean flag=false;
         String storageAccountUrl = config.getAdlsStorageAccountEndpoint();
         String sasToken = config.getAdlsStorageAccountSasKey();
         String containerName = config.getAdlsContainerName();
-        String baseFolderPath = metaDataPointer.getFolderName();
+        String baseFolderPath = folderPath;
         //metaDataPointerService.get
         try {
             // Create a BlobServiceClient using the storage account URL and SAS token

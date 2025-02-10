@@ -25,4 +25,9 @@ public class ChangeDataTrackingService {
     public List<ChangeDataTracking> findByStageStatusAndDbIdentifier(int stageStatus,String dbIdentifier){
       return  changeDataTrackingRepository.findByStageStatusAndDbIdentifier(stageStatus, dbIdentifier);
     }
+
+    public List<ChangeDataTracking> findByTableNameAndDbIdentifierAndStageStatus(String tableName,String dbIdentifier,int stageStatus){
+        return  changeDataTrackingRepository.findByTableNameAndDbIdentifierAndStageStatus(tableName,dbIdentifier,stageStatus);
+    }
+    
 }

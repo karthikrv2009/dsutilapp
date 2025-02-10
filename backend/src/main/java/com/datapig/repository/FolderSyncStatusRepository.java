@@ -30,7 +30,7 @@ public interface FolderSyncStatusRepository extends JpaRepository<FolderSyncStat
      @Param("endTimestamp") LocalDateTime endTimestamp);
  
  
-
+    List<FolderSyncStatus> findByDbIdentifierAndFolderAndCopyStatusAndArchived(String dbIdentifier,String folder,Short copyStatus,int archived);
         
         @Query("SELECT COUNT(f) FROM FolderSyncStatus f WHERE f.copyStatus = :copyStatus")
         long countByCopyStatus(@Param("copyStatus") Short copyStatus);

@@ -35,6 +35,10 @@ public class FolderSyncStatusService {
         return folderSyncStatusRepository.findAll();
     }
 
+    public List<FolderSyncStatus> findByDbIdentifierAndFolderAndCopyStatusAndArcarchived(String dbIdentifier,String folder,Short copyStatus,int archived){
+        return folderSyncStatusRepository.findByDbIdentifierAndFolderAndCopyStatusAndArchived(dbIdentifier,folder,copyStatus,archived);
+    }
+
     public FolderSyncStatus save(FolderSyncStatus folderSyncStatus) {
         return folderSyncStatusRepository.save(folderSyncStatus);
     }
