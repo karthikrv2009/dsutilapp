@@ -74,6 +74,7 @@ public class LicenseData {
         licenseData.setDays(Integer.parseInt(parts[2]));
         licenseData.setCompanyName(parts[3]);
         licenseData.setLicenseType(parts[4]);
+        licenseData.toString();
         return licenseData;
     }
 
