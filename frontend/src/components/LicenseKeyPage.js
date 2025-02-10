@@ -597,7 +597,8 @@ const LicenseKeyPage = () => {
                         {config.maxThreads}
                       </TableCell>
                       <TableCell className={classes.tableCellBody}>
-                        {config.initialLoadStatus == 0 ? (
+                        {config.initialLoadStatus == 0 ||
+                        config.initialLoadStatus === null ? (
                           <PlayCircleOutlineIcon
                             style={{ color: "blue", cursor: "pointer" }}
                             onClick={() =>
