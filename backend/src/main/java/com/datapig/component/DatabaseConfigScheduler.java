@@ -87,8 +87,8 @@ public class DatabaseConfigScheduler {
                         if(flag){
                             updateArchivedFolder(archivedFolder);           
                         }       
-                    }
-                }*/
+                    }*/
+                }
                 List<ChangeDataTrackingPointer> changeDataTrackingPointersNotArchived = changeDataTrackingPointerService.findByDbIdentifierAndStageStatus(config.getDbIdentifier(), 2);
                 for(ChangeDataTrackingPointer changeDataTrackingPointer:changeDataTrackingPointersNotArchived){
                     if(changeDataTrackingPointer.getFolderName().equalsIgnoreCase("/model.json")){

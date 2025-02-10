@@ -261,7 +261,7 @@ public class DatabaseConfigController {
         }
     }
 
-    public  DatabaseConfigDTO toDTO(DatabaseConfig databaseConfig,int initialLoadStatus,int queueListenerStatus){ {
+    public  DatabaseConfigDTO toDTO(DatabaseConfig databaseConfig,int initialLoadStatus,int queueListenerStatus){ 
         DatabaseConfigDTO dto = new DatabaseConfigDTO();
         dto.setId(databaseConfig.getId());
         dto.setUrl(databaseConfig.getUrl());
