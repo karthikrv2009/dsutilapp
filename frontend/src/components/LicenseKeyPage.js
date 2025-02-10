@@ -27,6 +27,7 @@ import { makeStyles } from "@mui/styles";
 import Header from "./Header"; // Import the Header component
 import PlayCircleOutlineIcon from "@mui/icons-material/PlayCircleOutline";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+
 axios.defaults.baseURL = "http://localhost:8080"; // Set the base URL for Axios
 
 const useStyles = makeStyles((theme) => ({
@@ -604,7 +605,7 @@ const LicenseKeyPage = () => {
                         {config.maxThreads}
                       </TableCell>
                       <TableCell className={classes.tableCellBody}>
-                        {config.initialLoadStatus !== 0 ||
+                        {config.initialLoadStatus === 0 ||
                         config.initialLoadStatus === null ? (
                           <PlayCircleOutlineIcon
                             style={{ color: "blue", cursor: "pointer" }}
@@ -612,12 +613,14 @@ const LicenseKeyPage = () => {
                               handleStartInitialLoad(config.dbIdentifier)
                             }
                           />
+                        ) : config.initialLoadStatus === 1 ? (
+                          <CircularProgress size={24} />
                         ) : (
                           <CheckCircleIcon style={{ color: "green" }} />
                         )}
                       </TableCell>
                       <TableCell className={classes.tableCellBody}>
-                        {config.queueListenerStatus !== 0 ||
+                        {config.queueListenerStatus === 0 ||
                         config.queueListenerStatus === null ? (
                           <PlayCircleOutlineIcon
                             style={{ color: "blue", cursor: "pointer" }}
@@ -625,6 +628,8 @@ const LicenseKeyPage = () => {
                               handleStartQueueListener(config.dbIdentifier)
                             }
                           />
+                        ) : config.queueListenerStatus === 1 ? (
+                          <CircularProgress size={24} />
                         ) : (
                           <CheckCircleIcon style={{ color: "green" }} />
                         )}
