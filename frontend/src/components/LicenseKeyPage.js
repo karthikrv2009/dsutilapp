@@ -83,10 +83,13 @@ const LicenseKeyPage = () => {
   const [openLicenseDialog, setOpenLicenseDialog] = useState(false);
   const [openEnvironmentDialog, setOpenEnvironmentDialog] = useState(false);
   const [newLicense, setNewLicense] = useState({
+    environment: "",
+    purchaseOrder: "",
+    days: 0,
     companyName: "",
     licenseType: "",
-    validity: "",
-    licenseKey: "",
+    validity: "", // Assuming this is a field you need
+    licenseKey: "", // Assuming this is a field you need
   });
   const [newEnvironment, setNewEnvironment] = useState({
     d365Environment: "",
@@ -456,6 +459,9 @@ const LicenseKeyPage = () => {
                   <TableCell className={classes.tableCellHead}>
                     License Key
                   </TableCell>
+                  <TableCell className={classes.tableCellHead}>
+                    Environment
+                  </TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -469,10 +475,13 @@ const LicenseKeyPage = () => {
                         {license.licenseType}
                       </TableCell>
                       <TableCell className={classes.tableCellBody}>
-                        {license.validity}
+                        {license.days}
                       </TableCell>
                       <TableCell className={classes.tableCellBody}>
                         {license.licenseKey}
+                      </TableCell>
+                      <TableCell className={classes.tableCellBody}>
+                        {license.environment}
                       </TableCell>
                     </TableRow>
                   ))
