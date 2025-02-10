@@ -16,9 +16,19 @@ public class LicenseKey {
     private Long id;
     private String companyName;
     private String licenseType;
+
     private int validity;
     private String licenseKey;
     private Date startDate;
+    private String environment;
+
+    public String getEnvironment() {
+        return environment;
+    }
+
+    public void setEnvironment(String environment) {
+        this.environment = environment;
+    }
 
     // Getters and Setters
     public Long getId() {

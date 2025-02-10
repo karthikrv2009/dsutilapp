@@ -37,7 +37,7 @@ public class LicenseKeyService {
             licenseKey.setLicenseType(licenseData.getLicenseType());
             licenseKey.setValidity(licenseData.getDays());
             licenseKey.setStartDate(java.sql.Timestamp.valueOf(LocalDateTime.now()));
-            // licenseKey.setLicenseKey(licenseCryptoUtil.encrypt(licenseData, secretKey));
+            licenseKey.setEnvironment(licenseData.getEnvironment());
 
         } catch (Exception e) {
             e.printStackTrace();
