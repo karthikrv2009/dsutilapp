@@ -98,11 +98,11 @@ const LicenseKeyPage = () => {
   const [openEdit, setOpenEdit] = useState(false);
   const [openAdd, setOpenAdd] = useState(false);
   const [newConfig, setNewConfig] = useState({
-    name: "",
+    id: null,
+    dbIdentifier: "",
     url: "",
     username: "",
     password: "",
-    dbIdentifier: "",
     driverClassName: "com.microsoft.sqlserver.jdbc.SQLServerDriver",
     queueName: "",
     queueSasToken: "",
@@ -117,6 +117,9 @@ const LicenseKeyPage = () => {
     localCdmFilePath: "",
     maxThreads: 1,
     enableArchive: false,
+    initialLoadStatus: 0,
+    queueListenerStatus: 0,
+    defaultProfile: false,
   });
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [validationResults, setValidationResults] = useState({});
@@ -336,11 +339,11 @@ const LicenseKeyPage = () => {
       await axios.post("/api/database-configs/save", newConfig);
       setOpenAdd(false);
       setNewConfig({
-        name: "",
+        id: null,
+        dbIdentifier: "",
         url: "",
         username: "",
         password: "",
-        dbIdentifier: "",
         driverClassName: "com.microsoft.sqlserver.jdbc.SQLServerDriver",
         queueName: "",
         queueSasToken: "",
@@ -355,6 +358,8 @@ const LicenseKeyPage = () => {
         localCdmFilePath: "",
         maxThreads: 1,
         enableArchive: false,
+        initialLoadStatus: 0,
+        queueListenerStatus: 0,
       });
       fetchData("/api/database-configs", setConfigs); // Refresh the data
     } catch (error) {
@@ -599,7 +604,7 @@ const LicenseKeyPage = () => {
                         {config.maxThreads}
                       </TableCell>
                       <TableCell className={classes.tableCellBody}>
-                        {config.initialLoadStatus == 0 ||
+                        {config.initialLoadStatus !== 0 ||
                         config.initialLoadStatus === null ? (
                           <PlayCircleOutlineIcon
                             style={{ color: "blue", cursor: "pointer" }}
@@ -612,7 +617,8 @@ const LicenseKeyPage = () => {
                         )}
                       </TableCell>
                       <TableCell className={classes.tableCellBody}>
-                        {config.queueListenerStatus !== 2 ? (
+                        {config.queueListenerStatus !== 0 ||
+                        config.queueListenerStatus === null ? (
                           <PlayCircleOutlineIcon
                             style={{ color: "blue", cursor: "pointer" }}
                             onClick={() =>
@@ -1162,6 +1168,18 @@ const LicenseKeyPage = () => {
               <FormControlLabel
                 control={
                   <Checkbox
+                    checked={newConfig.defaultProfile}
+                    onChange={handleChange}
+                    name="defaultProfile"
+                    color="primary"
+                  />
+                }
+                label="Enable defaultProfile"
+              />
+
+              <FormControlLabel
+                control={
+                  <Checkbox
                     checked={newConfig.enableArchive}
                     onChange={handleChange}
                     name="enableArchive"
@@ -1486,6 +1504,19 @@ const LicenseKeyPage = () => {
                     : ""
                 }
               />
+
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={newConfig.defaultProfile}
+                    onChange={handleChange}
+                    name="defaultProfile"
+                    color="primary"
+                  />
+                }
+                label="Enable defaultProfile"
+              />
+
               <FormControlLabel
                 control={
                   <Checkbox

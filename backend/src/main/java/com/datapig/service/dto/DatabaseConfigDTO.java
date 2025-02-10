@@ -50,7 +50,7 @@ public class DatabaseConfigDTO {
 
     @Column(name = "default_profile")
     private boolean defaultProfile;
-   
+
     public Long getId() {
         return id;
     }
@@ -210,8 +210,6 @@ public class DatabaseConfigDTO {
     public void setQueueListenerStatus(int queueListenerStatus) {
         this.queueListenerStatus = queueListenerStatus;
     }
-
-    
 
     // Method to convert DatabaseConfig to DatabaseConfigDTO
     public DatabaseConfigDTO fromEntity(DatabaseConfig databaseConfig, int initialLoadStatus,

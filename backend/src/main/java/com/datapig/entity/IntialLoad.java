@@ -37,6 +37,16 @@ public class IntialLoad {
     @Column(name = "db_identifier", nullable = false, length = 50)
     private String dbIdentifier;
 
+    private int queueListenerStatus;
+
+    public int getQueueListenerStatus() {
+        return queueListenerStatus;
+    }
+
+    public void setQueueListenerStatus(int queueListenerStatus) {
+        this.queueListenerStatus = queueListenerStatus;
+    }
+
     public void setDbIdentifier(String dbIdentifier) {
         this.dbIdentifier = dbIdentifier;
     }
