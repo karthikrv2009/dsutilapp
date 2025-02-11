@@ -59,7 +59,7 @@ const useStyles = makeStyles((theme) => ({
 const Header = ({
   selectedDbProfile,
   setSelectedDbProfile,
-  dbProfiles,
+  dbProfiles = [],
   setDbProfiles,
 }) => {
   const classes = useStyles();
@@ -147,7 +147,6 @@ const Header = ({
             {dbProfiles.map((profile) => (
               <MenuItem
                 key={profile.dbIdentifier}
-                value={profile.dbIdentifier}
                 onClick={() =>
                   handleDbProfileChange(null, profile.dbIdentifier)
                 }
