@@ -100,11 +100,12 @@ public class CDCLoaderService {
         changeDataTrackingPointerService.save(changeDataTrackingPointer);
     }
 
-    private void updateRehydrationToComplete(ChangeDataTrackingPointer changeDataTrackingPointer){
+    private ChangeDataTrackingPointer updateRehydrationToComplete(ChangeDataTrackingPointer changeDataTrackingPointer){
         //Rehydration Completed
         int rehydrationStatus = 2;
         changeDataTrackingPointer.setRehydrationStatus(rehydrationStatus);
-        changeDataTrackingPointerService.save(changeDataTrackingPointer);
+        changeDataTrackingPointer=changeDataTrackingPointerService.save(changeDataTrackingPointer);
+        return changeDataTrackingPointer;
     }
 
 
