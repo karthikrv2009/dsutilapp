@@ -72,8 +72,9 @@ public class CDCLoaderService {
                         updateRehydrationToStart(changeDataTrackingPointer);
                         boolean modelflag=archiveToHotRehydration.checkRehydrationStatus(databaseConfig.getAdlsContainerName(), path,databaseConfig);
                         if(modelflag){
-                            updateRehydrationToComplete(changeDataTrackingPointer);
+                            changeDataTrackingPointer=updateRehydrationToComplete(changeDataTrackingPointer);
                             parseModelJson.parseCdcModelJson(changeDataTracking.getDbIdentifier(),changeDataTracking.getCdcTableName(),changeDataTracking.getTableName());
+                            
                             updateStageStatusToComplete(changeDataTrackingPointer);
                         }
                     }
