@@ -7,12 +7,14 @@ import com.datapig.component.DynamicDataSourceManager;
 import com.datapig.entity.ChangeDataTracking;
 import com.datapig.entity.DatabaseConfig;
 import com.datapig.entity.IntialLoad;
+import com.datapig.entity.LicenseKey;
 import com.datapig.repository.IntitalLoadRepository;
 
 import com.datapig.service.AzureQueueListenerService;
 import com.datapig.service.CDCLoaderService;
 import com.datapig.service.DatabaseConfigService;
 import com.datapig.service.InitialLoadService;
+import com.datapig.service.LicenseKeyService;
 import com.datapig.service.MetaDataCatlogService;
 import com.datapig.service.dto.DatabaseConfigDTO;
 
@@ -58,6 +60,9 @@ public class DatabaseConfigController {
 
     @Autowired
     private CDCLoaderService cDCLoaderService;
+
+    @Autowired
+    private LicenseKeyService licenseKeyService;
 
     @GetMapping
     public ResponseEntity<List<DatabaseConfigDTO>> getAllDatabaseConfigs() {
@@ -171,6 +176,11 @@ public class DatabaseConfigController {
 
         DatabaseConfigDTO databaseConfigDTO = new DatabaseConfigDTO();
 
+        List<LicenseKey> licenseKeys = licenseKeyService.getAllLicenseKeys();
+
+        databaseConfig.setAdlsContainerName(licenseKeys.get(0).getEnvironment());
+        databaseConfig.setAdlsFolderName(licenseKeys.get(0).getEnvironment());
+
         if (intialLoad != null) {
             databaseConfigDTO = databaseConfigDTO.fromEntity(databaseConfig, intialLoad.getStagestatus(),
                     intialLoad.getStagestatus());
@@ -199,7 +209,7 @@ public class DatabaseConfigController {
         JsonObject jsonObject = JsonParser.parseString(request).getAsJsonObject();
         String dbIdentifier = jsonObject.get("dbIdentifier").getAsString();
         initialLoadService.runInitialLoad(dbIdentifier);
-        
+
         return ResponseEntity.ok("Initial Load started successfully");
     }
 
