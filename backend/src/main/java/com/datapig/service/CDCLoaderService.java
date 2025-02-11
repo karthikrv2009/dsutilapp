@@ -64,18 +64,17 @@ public class CDCLoaderService {
                 
             changeDataTracking = changeDataTrackingService.save(changeDataTracking);
             for(ChangeDataTrackingPointer changeDataTrackingPointer:lChangeDataTrackingPointers){
+                changeDataTrackingPointer=changeDataTrackingPointerService.save(changeDataTrackingPointer);
                 String path=changeDataTrackingPointer.getFolderName()+"/"+changeDataTracking.getTableName();
                 if(changeDataTrackingPointer.getFolderName().contains("/model.json")){
                     path=changeDataTrackingPointer.getFolderName();
                     boolean flag=archiveToHotRehydration.rehydrateBlobToHotTier(containerName, path,databaseConfig);
                     if(flag){
-                        
                         changeDataTrackingPointer=updateRehydrationToStart(changeDataTrackingPointer);
                         boolean modelflag=archiveToHotRehydration.checkRehydrationStatus(databaseConfig.getAdlsContainerName(), path,databaseConfig);
                         if(modelflag){
                             changeDataTrackingPointer=updateRehydrationToComplete(changeDataTrackingPointer);
                             parseModelJson.parseCdcModelJson(changeDataTracking.getDbIdentifier(),changeDataTracking.getCdcTableName(),changeDataTracking.getTableName());
-                            
                             updateStageStatusToComplete(changeDataTrackingPointer);
                         }
                     }
@@ -83,7 +82,7 @@ public class CDCLoaderService {
                 else{
                     boolean flag=archiveToHotRehydration.rehydrateToHotTier(containerName, path,databaseConfig);
                     if(flag){
-                       // changeDataTrackingPointer=updateRehydrationToStart(changeDataTrackingPointer);
+                       changeDataTrackingPointer=updateRehydrationToStart(changeDataTrackingPointer);
                     }
                 }
             }
