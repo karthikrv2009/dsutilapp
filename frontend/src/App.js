@@ -14,8 +14,10 @@ import {
   Typography,
   Card,
 } from "@mui/material";
+import axios from "axios";
+
 import { createTheme, ThemeProvider } from "@mui/material/styles";
-import Header from "./components/Header";
+import Layout from "./components/Layout"; // Adjust the import path as needed
 import Footer from "./components/Footer";
 import LicenseKeyPage from "./components/LicenseKeyPage";
 import LandingPage from "./components/LandingPage";
@@ -37,12 +39,53 @@ const theme = createTheme({
 });
 
 const App = () => {
+  const [selectedDbProfile, setSelectedDbProfile] = useState(null);
+  const [dbProfiles, setDbProfiles] = useState([]);
+
+  useEffect(() => {
+    const fetchProfiles = async () => {
+      try {
+        const response = await axios.get("/api/database-configs");
+        const profiles = response.data;
+        setDbProfiles(profiles);
+
+        // Find the default profile
+        const defaultProfile = profiles.find(
+          (profile) => profile.defaultProfile
+        );
+
+        if (defaultProfile) {
+          setSelectedDbProfile(defaultProfile.dbIdentifier);
+        } else if (profiles.length > 0) {
+          setSelectedDbProfile(profiles[0].dbIdentifier); // Set the first profile as default
+        }
+      } catch (error) {
+        console.error("Error fetching profiles:", error);
+      }
+    };
+
+    fetchProfiles();
+  }, []);
+
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline enableColorScheme />
       <Router>
         <Container style={{ minHeight: "80vh" }}>
           <Routes>
+            <Route
+              element={
+                <Layout
+                  selectedDbProfile={selectedDbProfile}
+                  setSelectedDbProfile={setSelectedDbProfile}
+                  dbProfiles={dbProfiles}
+                  setDbProfiles={setDbProfiles}
+                />
+              }
+            >
+              {" "}
+              {/* Layout Component */}
+            </Route>
             <Route path="/" element={<Navigate to="/login" />} />{" "}
             {/* Redirect to Login Page */}
             <Route path="/login" element={<Login />} /> {/* Login Page */}
