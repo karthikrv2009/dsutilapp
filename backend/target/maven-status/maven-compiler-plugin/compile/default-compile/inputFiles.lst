@@ -62,6 +62,7 @@ D:\DataPig\dsutilapp\backend\src\main\java\com\datapig\service\MetaDataPointerSe
 D:\DataPig\dsutilapp\backend\src\main\java\com\datapig\service\dto\ModelTrait.java
 D:\DataPig\dsutilapp\backend\src\main\java\com\datapig\service\ParseModelJson.java
 D:\DataPig\dsutilapp\backend\src\main\java\com\datapig\entity\IntialLoad.java
+D:\DataPig\dsutilapp\backend\src\main\java\com\datapig\controller\ServiceController.java
 D:\DataPig\dsutilapp\backend\src\main\java\com\datapig\entity\ChangeDataTrackingCatalog.java
 D:\DataPig\dsutilapp\backend\src\main\java\com\datapig\repository\LicenseKeyRepository.java
 D:\DataPig\dsutilapp\backend\src\main\java\com\datapig\service\dto\MetaDataCatalogDTO.java

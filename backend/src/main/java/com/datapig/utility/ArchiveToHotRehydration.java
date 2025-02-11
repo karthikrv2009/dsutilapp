@@ -74,6 +74,7 @@ public class ArchiveToHotRehydration {
 
     // Method to rehydrate a specific blob to the Hot tier
     public boolean rehydrateBlobToHotTier(String containerName, String blobName,DatabaseConfig config) {
+        boolean flag=false;
         try {
             BlobServiceClient blobServiceClient = new BlobServiceClientBuilder()
             .endpoint(config.getAdlsStorageAccountEndpoint())
@@ -89,15 +90,16 @@ public class ArchiveToHotRehydration {
             if (blobClient.getProperties().getAccessTier() == AccessTier.ARCHIVE) {
                 blobClient.setAccessTier(AccessTier.HOT);
                 System.out.println("Rehydrating blob: " + blobName + " to Hot tier.");
-                return true; // Successfully rehydrated
+                flag= true; // Successfully rehydrated
             } else {
                 System.out.println("Blob " + blobName + " is not in Archive tier. No rehydration needed.");
-                return false; // Blob is not in Archive tier
+                flag= true; // Blob is not in Archive tier
             }
         } catch (BlobStorageException e) {
             System.err.println("Error rehydrating blob: " + e.getMessage());
             return false; // Return false in case of error
         }
+        return flag;
     }
 
     // Method to check if any blob in the folder has been rehydrated to Hot tier

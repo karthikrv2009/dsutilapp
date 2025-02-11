@@ -34,6 +34,9 @@ public class CDCLoaderService {
     private ArchiveToHotRehydration archiveToHotRehydration;
 
     @Autowired
+    private ParseModelJson parseModelJson;
+
+    @Autowired
     DatabaseConfigService databaseConfigService;
 
     public ChangeDataTracking loadCDC(String dbIdentifier,String tableName,LocalDateTime startTime,LocalDateTime endTime){
@@ -61,11 +64,18 @@ public class CDCLoaderService {
                 
             changeDataTracking = changeDataTrackingService.save(changeDataTracking);
             for(ChangeDataTrackingPointer changeDataTrackingPointer:lChangeDataTrackingPointers){
-                String path="/"+changeDataTrackingPointer.getFolderName()+"/"+changeDataTracking.getTableName();
+                String path=changeDataTrackingPointer.getFolderName()+"/"+changeDataTracking.getTableName();
                 if(changeDataTrackingPointer.getFolderName().contains("/model.json")){
+                    path=changeDataTrackingPointer.getFolderName();
                     boolean flag=archiveToHotRehydration.rehydrateBlobToHotTier(containerName, path,databaseConfig);
                     if(flag){
                         updateRehydrationToStart(changeDataTrackingPointer);
+                        boolean modelflag=archiveToHotRehydration.checkRehydrationStatus(databaseConfig.getAdlsContainerName(), path,databaseConfig);
+                        if(modelflag){
+                            updateRehydrationToComplete(changeDataTrackingPointer);
+                            parseModelJson.parseCdcModelJson(changeDataTracking.getDbIdentifier(),changeDataTracking.getCdcTableName(),changeDataTracking.getTableName());
+                            updateStageStatusToComplete(changeDataTrackingPointer);
+                        }
                     }
                 }
                 else{
@@ -83,6 +93,21 @@ public class CDCLoaderService {
         return changeDataTracking;
     }
 
+    private void updateStageStatusToComplete(ChangeDataTrackingPointer changeDataTrackingPointer){
+        //Rehydration Completed
+        int stageStatus = 1;
+        changeDataTrackingPointer.setRehydrationStatus(stageStatus);
+        changeDataTrackingPointerService.save(changeDataTrackingPointer);
+    }
+
+    private void updateRehydrationToComplete(ChangeDataTrackingPointer changeDataTrackingPointer){
+        //Rehydration Completed
+        int rehydrationStatus = 2;
+        changeDataTrackingPointer.setRehydrationStatus(rehydrationStatus);
+        changeDataTrackingPointerService.save(changeDataTrackingPointer);
+    }
+
+
     private void updateRehydrationToStart(ChangeDataTrackingPointer changeDataTrackingPointer){
         //Rehydration Started
         int rehydrationStatus = 1;
@@ -92,10 +117,12 @@ public class CDCLoaderService {
 
     private List<ChangeDataTrackingPointer> loadCDCPointer(ChangeDataTracking changeDataTracking){
         List<ChangeDataTrackingPointer> lChangeDataTrackingPointers=new ArrayList<ChangeDataTrackingPointer>();
+        System.out.println("changeDataTracking===>"+changeDataTracking.getCdcTableName()+"===>"+changeDataTracking.getTableName());
         int i =0;
         if(changeDataTracking!=null){
-            List<FolderSyncStatus> lstfolderSyncStatus =folderSyncStatusService.findFolderSyncStatusByTimestampRange(changeDataTracking.getCdcTableName(), changeDataTracking.getDbIdentifier(), changeDataTracking.getAdlsStartTime(),changeDataTracking.getAdlsEndTime());
+            List<FolderSyncStatus> lstfolderSyncStatus =folderSyncStatusService.findFolderSyncStatusByTimestampRange(changeDataTracking.getTableName(), changeDataTracking.getDbIdentifier(), changeDataTracking.getAdlsStartTime(),changeDataTracking.getAdlsEndTime());
             for(FolderSyncStatus folderSyncStatus:lstfolderSyncStatus){
+                System.out.println("Inside loadCDCPointer====>"+folderSyncStatus.getTableName() +"==>"+folderSyncStatus.getFolder());
                 if(i==0){
                     ChangeDataTrackingPointer modelchangeDataTrackingPointer=new ChangeDataTrackingPointer();
                     modelchangeDataTrackingPointer.setCdcTableName(changeDataTracking.getCdcTableName());

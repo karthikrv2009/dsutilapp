@@ -165,8 +165,8 @@ public class ParseModelJson {
                 }
     
                 // Construct the new file path with 'cdc' as a subdirectory
-                java.nio.file.Path newFilePath = parentPath.resolve("cdc").resolve(path.getFileName());
-                return newFilePath.toString();
+                
+                return filePath;
             }
             
             return null;
