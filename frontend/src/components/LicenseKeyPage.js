@@ -441,57 +441,49 @@ const LicenseKeyPage = () => {
               color="primary"
               onClick={handleLicenseDialogOpen}
             >
-              Add License Info
+              Update License Info
             </Button>
 
             <Table>
-              <TableHead className={classes.tableHead}>
+              <TableBody>
                 <TableRow>
-                  <TableCell className={classes.tableCellHead}>
+                  <TableCell className={classes.TableRow}>
                     Company Name
                   </TableCell>
-                  <TableCell className={classes.tableCellHead}>
-                    License Type
-                  </TableCell>
-                  <TableCell className={classes.tableCellHead}>
-                    Validity
-                  </TableCell>
-                  <TableCell className={classes.tableCellHead}>
-                    License Key
-                  </TableCell>
-                  <TableCell className={classes.tableCellHead}>
-                    Environment
+                  <TableCell className={classes.tableCellBody}>
+                    {licenseData?.companyName ?? ""}{" "}
                   </TableCell>
                 </TableRow>
-              </TableHead>
-              <TableBody>
-                {licenseData.length > 0 ? (
-                  licenseData.map((license, index) => (
-                    <TableRow key={index}>
-                      <TableCell className={classes.tableCellBody}>
-                        {license.companyName}
-                      </TableCell>
-                      <TableCell className={classes.tableCellBody}>
-                        {license.licenseType}
-                      </TableCell>
-                      <TableCell className={classes.tableCellBody}>
-                        {license.days}
-                      </TableCell>
-                      <TableCell className={classes.tableCellBody}>
-                        {license.licenseKey}
-                      </TableCell>
-                      <TableCell className={classes.tableCellBody}>
-                        {license.environment}
-                      </TableCell>
-                    </TableRow>
-                  ))
-                ) : (
-                  <TableRow>
-                    <TableCell colSpan={4} className={classes.tableCellBody}>
-                      No data available
-                    </TableCell>
-                  </TableRow>
-                )}
+                <TableRow>
+                  <TableCell className={classes.TableRow}>
+                    License Type
+                  </TableCell>
+                  <TableCell className={classes.tableCellBody}>
+                    {licenseData?.licenseType ?? ""}{" "}
+                  </TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell className={classes.TableRow}>Validity</TableCell>
+                  <TableCell className={classes.tableCellBody}>
+                    {licenseData?.days ?? ""}{" "}
+                  </TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell className={classes.TableRow}>
+                    License Key
+                  </TableCell>
+                  <TableCell className={classes.tableCellBody}>
+                    {licenseData?.licenseKey ?? ""}{" "}
+                  </TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell className={classes.TableRow}>
+                    Environment
+                  </TableCell>
+                  <TableCell className={classes.tableCellBody}>
+                    {licenseData?.environment ?? ""}{" "}
+                  </TableCell>
+                </TableRow>
               </TableBody>
             </Table>
           </div>

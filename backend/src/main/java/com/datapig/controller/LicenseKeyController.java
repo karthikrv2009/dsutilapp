@@ -28,9 +28,12 @@ public class LicenseKeyController {
 
     // GET method for /api/license
     @GetMapping
-    public ResponseEntity<List<LicenseKey>> getAllLicenseKeys() {
+    public ResponseEntity<LicenseKey> getAllLicenseKeys() {
         List<LicenseKey> licenseKeys = licenseKeyService.getAllLicenseKeys();
-        return ResponseEntity.ok(licenseKeys);
+        if (licenseKeys.size() == 0) {
+            return ResponseEntity.ok(null);
+        }
+        return ResponseEntity.ok(licenseKeys.get(0));
     }
 
     // POST method for /api/license

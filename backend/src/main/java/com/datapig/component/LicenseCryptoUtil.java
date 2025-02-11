@@ -14,7 +14,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Base64;
 
-@Component
+//@Component
 public class LicenseCryptoUtil {
 
     private static final String ALGORITHM = "AES";
@@ -84,6 +84,8 @@ public class LicenseCryptoUtil {
      * LicenseCryptoUtil licenseCryptoUtil = new LicenseCryptoUtil();
      * try {
      * // licenseCryptoUtil.generateAndSaveSecretKey();
+     * licenseCryptoUtil.keyFilePath =
+     * "/Users/karthik/Documents/datapig/dsutilapp/backend/key/secret.key";
      * SecretKey secretKey = licenseCryptoUtil.loadSecretKey();
      * LicenseData originalData = new
      * LicenseData("dataverse-datapigdemoe-unq3971a4f47cb9ef11b8e46045bd003",
@@ -98,6 +100,7 @@ public class LicenseCryptoUtil {
      * } catch (Exception e) {
      * e.printStackTrace();
      * }
+     * 
+     * }
      */
-
 }
