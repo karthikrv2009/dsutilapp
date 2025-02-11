@@ -59,15 +59,13 @@ const useStyles = makeStyles((theme) => ({
 const Header = ({
   selectedDbProfile,
   setSelectedDbProfile,
-  dbProfiles = [],
+  dbProfiles,
   setDbProfiles,
 }) => {
   const classes = useStyles();
   const navigate = useNavigate();
-  const [dbProfilesLocal, setDbProfilesLocal] = useState([]);
   const [anchorElProfiles, setAnchorElProfiles] = useState(null); // State for the profiles dropdown menu
   const [anchorElAccount, setAnchorElAccount] = useState(null); // State for the account dropdown menu
-  const [isServiceRunning, setIsServiceRunning] = useState(false);
 
   useEffect(() => {
     const fetchDataAsync = async () => {
@@ -93,8 +91,8 @@ const Header = ({
     fetchDataAsync();
   }, [setDbProfiles, selectedDbProfile, setSelectedDbProfile]);
 
-  const handleDbProfileChange = (event, value) => {
-    setSelectedDbProfile(value);
+  const handleDbProfileChange = (profile) => {
+    setSelectedDbProfile(profile.dbIdentifier);
     handleCloseProfiles();
   };
 
@@ -144,16 +142,18 @@ const Header = ({
             open={Boolean(anchorElProfiles)}
             onClose={handleCloseProfiles}
           >
-            {dbProfiles.map((profile) => (
-              <MenuItem
-                key={profile.dbIdentifier}
-                onClick={() =>
-                  handleDbProfileChange(null, profile.dbIdentifier)
-                }
-              >
-                {profile.dbIdentifier}
-              </MenuItem>
-            ))}
+            {dbProfiles && dbProfiles.length > 0 ? (
+              dbProfiles.map((profile) => (
+                <MenuItem
+                  key={profile.dbIdentifier}
+                  onClick={() => handleDbProfileChange(profile)}
+                >
+                  {profile.dbIdentifier}
+                </MenuItem>
+              ))
+            ) : (
+              <MenuItem disabled>No profiles available</MenuItem>
+            )}
           </Menu>
           <Button
             color="inherit"
