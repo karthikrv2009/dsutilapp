@@ -47,9 +47,12 @@ public class LicenseKeyController {
 
     // GET method for /api/license/environment
     @GetMapping("/environment")
-    public ResponseEntity<List<EnvironmentConfig>> getAllEnvironmentConfigs() {
+    public ResponseEntity<EnvironmentConfig> getAllEnvironmentConfigs() {
         List<EnvironmentConfig> environmentConfigs = environmentConfigService.getAllEnvironmentConfigs();
-        return ResponseEntity.ok(environmentConfigs);
+        if (environmentConfigs.size() == 0) {
+            return ResponseEntity.ok(null);
+        }
+        return ResponseEntity.ok(environmentConfigs.get(0));
     }
 
     @PostMapping("/environment/save")

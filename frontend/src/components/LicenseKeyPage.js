@@ -144,6 +144,12 @@ const LicenseKeyPage = () => {
     fetchDataAsync();
   }, []);
 
+  useEffect(() => {
+    if (environmentInfo) {
+      setNewEnvironment(environmentInfo);
+    }
+  }, [environmentInfo]);
+
   const handleTabChange = (event, newValue) => {
     setActiveTab(newValue);
   };
@@ -465,7 +471,7 @@ const LicenseKeyPage = () => {
                 <TableRow>
                   <TableCell className={classes.TableRow}>Validity</TableCell>
                   <TableCell className={classes.tableCellBody}>
-                    {licenseData?.days ?? ""}{" "}
+                    {licenseData?.validity ?? ""}{" "}
                   </TableCell>
                 </TableRow>
                 <TableRow>
@@ -496,51 +502,27 @@ const LicenseKeyPage = () => {
               color="primary"
               onClick={handleEnvironmentDialogOpen}
             >
-              Add Environment Info
+              Update Environment Info
             </Button>
 
             <Table>
-              <TableHead className={classes.tableHead}>
+              <TableBody>
                 <TableRow>
-                  <TableCell className={classes.tableCellHead}>
+                  <TableCell className={classes.TableRow}>
                     D365 Environment
                   </TableCell>
-                  <TableCell className={classes.tableCellHead}>
-                    D365 Environment URL
-                  </TableCell>
-                  <TableCell className={classes.tableCellHead}>
-                    Actions
+                  <TableCell className={classes.tableCellBody}>
+                    {environmentInfo?.d365Environment ?? ""}{" "}
                   </TableCell>
                 </TableRow>
-              </TableHead>
-              <TableBody>
-                {environmentInfo.length > 0 ? (
-                  environmentInfo.map((info, index) => (
-                    <TableRow key={index}>
-                      <TableCell className={classes.tableCellBody}>
-                        {info.d365Environment}
-                      </TableCell>
-                      <TableCell className={classes.tableCellBody}>
-                        {info.d365EnvironmentUrl}
-                      </TableCell>
-                      <TableCell className={classes.tableCellBody}>
-                        <Button
-                          variant="contained"
-                          color="secondary"
-                          onClick={() => handleEditEnvironmentClick(info)}
-                        >
-                          Edit
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))
-                ) : (
-                  <TableRow>
-                    <TableCell colSpan={5} className={classes.tableCellBody}>
-                      No data available
-                    </TableCell>
-                  </TableRow>
-                )}
+                <TableRow>
+                  <TableCell className={classes.TableRow}>
+                    D365 Environment URL
+                  </TableCell>
+                  <TableCell className={classes.tableCellBody}>
+                    {environmentInfo?.d365EnvironmentUrl ?? ""}{" "}
+                  </TableCell>
+                </TableRow>
               </TableBody>
             </Table>
           </div>
@@ -690,7 +672,7 @@ const LicenseKeyPage = () => {
           open={openEnvironmentDialog}
           onClose={handleEnvironmentDialogClose}
         >
-          <DialogTitle>Add New Environment Information</DialogTitle>
+          <DialogTitle>Update Environment Information</DialogTitle>
           <DialogContent>
             <DialogContentText>
               Please fill out the form to add new environment information.
