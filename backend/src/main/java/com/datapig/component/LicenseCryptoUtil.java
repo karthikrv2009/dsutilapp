@@ -14,7 +14,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Base64;
 
-//@Component
+@Component
 public class LicenseCryptoUtil {
 
     private static final String ALGORITHM = "AES";
