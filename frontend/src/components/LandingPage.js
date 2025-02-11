@@ -79,18 +79,23 @@ const LandingPage = () => {
   const [folderStatus, setFolderStatus] = useState([]);
   const [pipelineData, setPipelineData] = useState([]);
   const [metaDataCatalog, setMetaDataCatalog] = useState([]);
-  const [selectedDays, setSelectedDays] = useState(1);
+  const [selectedDays, setSelectedDays] = useState(10);
   const [pipelineFilters, setPipelineFilters] = useState({
-    error: false,
-    success: false,
-    inprogress: false,
+    error: true,
+    success: true,
+    inprogress: true,
   });
+
   const [healthMetrics, setHealthMetrics] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState(0); // Set default tab to 0
   const [selectedDbProfile, setSelectedDbProfile] = useState("");
   const [dbProfiles, setDbProfiles] = useState([]);
   const [refreshInterval, setRefreshInterval] = useState(300000);
+  const [selectedStatus, setSelectedStatus] = useState("all");
+  const [showErrors, setShowErrors] = useState(true);
+  const [showSuccess, setShowSuccess] = useState(true);
+  const [showInProgress, setShowInProgress] = useState(true);
 
   const getLastCopyStatusIcon = (status) => {
     switch (status) {
@@ -113,6 +118,9 @@ const LandingPage = () => {
   useEffect(() => {
     const fetchDataAsync = async () => {
       fetchData("/api/database-configs", setDbProfiles);
+
+      // Fetch pipeline data for the past 10 days
+      fetchPipelineData();
     };
     fetchDataAsync();
   }, []);
@@ -206,6 +214,31 @@ const LandingPage = () => {
     setSelectedDbProfile(event.target.value);
     setPipelineData([]);
   };
+
+  const handleShowErrorsChange = (event) => {
+    setShowErrors(event.target.checked);
+  };
+
+  const handleShowSuccessChange = (event) => {
+    setShowSuccess(event.target.checked);
+  };
+
+  const handleShowInProgressChange = (event) => {
+    setShowInProgress(event.target.checked);
+  };
+
+  const handleStatusChange = (event) => {
+    setSelectedStatus(event.target.value);
+  };
+
+  const filteredPipelineData = pipelineData.filter((data) => {
+    if (!showErrors && data.status === "error") return false;
+    if (!showSuccess && data.status === "success") return false;
+    if (!showInProgress && data.status === "inprogress") return false;
+    if (selectedStatus !== "all" && data.status !== selectedStatus)
+      return false;
+    return true;
+  });
 
   return (
     <div>

@@ -188,12 +188,6 @@ const Header = ({ selectedDbProfile, setSelectedDbProfile, setDbProfiles }) => {
           </Menu>
           <Button
             color="inherit"
-            onClick={isServiceRunning ? handleStopService : handleStartService}
-          >
-            {isServiceRunning ? <StopCircleIcon /> : <PlayCircleOutlineIcon />}
-          </Button>
-          <Button
-            color="inherit"
             onClick={() => navigate("/landing")}
             className={classes.button}
           >
