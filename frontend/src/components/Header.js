@@ -67,27 +67,6 @@ const Header = ({ selectedDbProfile, setSelectedDbProfile, setDbProfiles }) => {
   const [isServiceRunning, setIsServiceRunning] = useState(false);
 
   useEffect(() => {
-    const fetchDataAsync = async () => {
-      try {
-        const response = await axios.get("/api/database-configs");
-
-        const profiles = response.data;
-
-        const defaultProfile = profiles.find(
-          (profile) => profile.defaultProfile
-        );
-
-        setDbProfilesLocal(response.data);
-        setDbProfiles(response.data);
-        if (defaultProfile) {
-          setSelectedDbProfile(defaultProfile.dbIdentifier);
-        } else if (!selectedDbProfile && profiles.length > 0) {
-          setSelectedDbProfile(profiles[0].dbIdentifier); // Set the first profile as default
-        }
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
-    };
     const fetchServiceStatus = async () => {
       try {
         const response = await axios.get("/api/service/status");
@@ -97,7 +76,6 @@ const Header = ({ selectedDbProfile, setSelectedDbProfile, setDbProfiles }) => {
       }
     };
 
-    fetchDataAsync();
     fetchServiceStatus();
   }, [setDbProfiles, selectedDbProfile, setSelectedDbProfile]);
 

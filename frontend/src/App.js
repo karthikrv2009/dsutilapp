@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   BrowserRouter as Router,
   Routes,
@@ -16,6 +16,7 @@ import {
 } from "@mui/material";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import Header from "./components/Header";
+import axios from "axios";
 import Footer from "./components/Footer";
 import LicenseKeyPage from "./components/LicenseKeyPage";
 import LandingPage from "./components/LandingPage";
@@ -37,6 +38,35 @@ const theme = createTheme({
 });
 
 const App = () => {
+  const [selectedDbProfile, setSelectedDbProfile] = useState(null);
+  const [dbProfiles, setDbProfiles] = useState([]);
+
+  useEffect(() => {
+    // Fetch profiles and set the default profile
+    const fetchProfiles = async () => {
+      try {
+        const response = await axios.get("/api/database-configs");
+        const profiles = response.data;
+        setDbProfiles(profiles);
+
+        // Find the default profile
+        const defaultProfile = profiles.find(
+          (profile) => profile.defaultProfile
+        );
+
+        if (defaultProfile) {
+          setSelectedDbProfile(defaultProfile.dbIdentifier);
+        } else if (profiles.length > 0) {
+          setSelectedDbProfile(profiles[0].dbIdentifier); // Set the first profile as default
+        }
+      } catch (error) {
+        console.error("Error fetching profiles:", error);
+      }
+    };
+
+    fetchProfiles();
+  }, []);
+
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline enableColorScheme />
