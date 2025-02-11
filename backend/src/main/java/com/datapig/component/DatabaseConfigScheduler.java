@@ -74,45 +74,27 @@ public class DatabaseConfigScheduler {
                 }
                 List<ArchivedFolder> archivedFoldersNotArchived=archivedFolderService.findByStageStatusAndDbIdentifier(0, config.getDbIdentifier());
                 for(ArchivedFolder archivedFolder:archivedFoldersNotArchived){
-                    MetaDataPointer metaDataPointer=metaDataPointerService.getMetaDataPointerBydbIdentifierAndFolder(config.getDbIdentifier(), archivedFolder.getFolderName());
-                    Short copyStatus=2;
+                    MetaDataPointer metaDataPointer=metaDataPointerService.getMetaDataPointerBydbIdentifierAndFolder( archivedFolder.getFolderName(),config.getDbIdentifier());
+                    Short copyStatus=1;
                     List<FolderSyncStatus> lstFolderSync=folderSyncStatusService.findByDbIdentifierAndFolderAndCopyStatusAndArcarchived(config.getDbIdentifier(), metaDataPointer.getFolderName(), copyStatus, 0);
                     for(FolderSyncStatus folder:lstFolderSync){
-                        changeDataTrackingService.findByTableNameAndDbIdentifierAndStageStatus(folder.getTableName(), folder.getDbIdentifier(), 1);
-                        changeDataTrackingPointerService.findByDbIdentifierAndFolderName(config.getDbIdentifier(), folder.getFolder());
+                        System.out.println("Folder to process::"+folder.getTableName() +"==>"+folder.getCopyStatus());
+                            String path=folder.getFolder()+"/"+folder.getTableName()+"/";
+                            boolean flag1=moveBlobsToArchive(config,path);
+                            if(flag1){
+                                folder.setArchived(1);
+                                folderSyncStatusService.save(folder);
+                            }                                
                     }
-                    
-                   /*  if(checkIfFolderArchivable(metaDataPointer,config.getDbIdentifier())){
-                        boolean flag=moveBlobsToArchive(config,metaDataPointer);
-                        if(flag){
-                            updateArchivedFolder(archivedFolder);           
-                        }       
-                    }*/
-                }
-                List<ChangeDataTrackingPointer> changeDataTrackingPointersNotArchived = changeDataTrackingPointerService.findByDbIdentifierAndStageStatus(config.getDbIdentifier(), 2);
-                for(ChangeDataTrackingPointer changeDataTrackingPointer:changeDataTrackingPointersNotArchived){
-                    if(changeDataTrackingPointer.getFolderName().equalsIgnoreCase("/model.json")){
-                        createCDCArchivedFolder(changeDataTrackingPointer);
+                    List<FolderSyncStatus> lstfolderSyncStatus=folderSyncStatusService.findByDbIdentifierAndFolderAndArchived(metaDataPointer.getDbIdentifier(), metaDataPointer.getFolderName(), 0);
+                    if (lstfolderSyncStatus != null && lstfolderSyncStatus.size() == 0) {
+                        updateArchivedFolder(archivedFolder);
+                    } else if (lstfolderSyncStatus == null) {
+                        updateArchivedFolder(archivedFolder);
+                    } else {
+                        System.out.println("The list is not empty."+lstfolderSyncStatus.size());
                     }
                 }
-                List<ArchivedFolder> archivedCDCFoldersNotArchived=archivedFolderService.findByStageStatusAndDbIdentifier(0, config.getDbIdentifier());
-                for(ArchivedFolder archivedFolder:archivedCDCFoldersNotArchived){
-                        boolean flag=false;
-                        boolean cdcFlag=true;
-                        List<ChangeDataTrackingPointer>  changeDataTrackingPointers=changeDataTrackingPointerService.findByDbIdentifierAndFolderName(config.getDbIdentifier(), archivedFolder.getFolderName());
-                        for(ChangeDataTrackingPointer changeDataTrackingPointer:changeDataTrackingPointers){
-                            if(changeDataTrackingPointer.getStageStatus()!=2){
-                                cdcFlag=false;        
-                            }   
-                        }
-                        if(cdcFlag){
-                            flag=moveCdcBlobsToArchive(config, archivedFolder);
-                            if(flag){
-                                updateArchivedFolder(archivedFolder);           
-                            }
-                        }
-                }
-
             }
         }
     }
@@ -130,25 +112,18 @@ public class DatabaseConfigScheduler {
         archivedFolderService.save(archivedFolder);
     }
 
-    private void createCDCArchivedFolder(ChangeDataTrackingPointer changeDataTrackingPointer){
-        ArchivedFolder archivedFolder=new ArchivedFolder();
-        if(changeDataTrackingPointer!=null){
-            archivedFolder.setDbIdentifier(changeDataTrackingPointer.getDbIdentifier());
-            archivedFolder.setFolderName(changeDataTrackingPointer.getFolderName());
-            archivedFolder.setAdlsarchivetimestamp(LocalDateTime.now());
-            archivedFolder.setStageStatus(0);
-        }
-    }
 
     private void updateArchivedFolder(ArchivedFolder archivedFolder){
         if(archivedFolder!=null){
             archivedFolder.setAdlsarchivetimestamp(LocalDateTime.now());
-            archivedFolder.setStageStatus(0);
+            archivedFolder.setStageStatus(1);
+            archivedFolderService.save(archivedFolder);
         }
     }
 
 
     private boolean  moveBlobsToArchive(DatabaseConfig config,String folderPath) {
+        System.out.println("Trying folder path:"+folderPath);
         boolean flag=false;
         String storageAccountUrl = config.getAdlsStorageAccountEndpoint();
         String sasToken = config.getAdlsStorageAccountSasKey();
@@ -190,57 +165,6 @@ public class DatabaseConfigScheduler {
 
                 flag=true;
             }
-        } catch (BlobStorageException e) {
-            System.out.println("Error moving blobs to Archive tier: " + e.getMessage());
-            e.printStackTrace();
-        } catch (Exception e) {
-            System.out.println("An error occurred while processing blobs: " + e.getMessage());
-            e.printStackTrace();
-        }
-        return flag;
-    }
-
-    private boolean  moveCdcBlobsToArchive(DatabaseConfig config,ArchivedFolder archivedFolder) {
-        boolean flag=false;
-        String storageAccountUrl = config.getAdlsStorageAccountEndpoint();
-        String sasToken = config.getAdlsStorageAccountSasKey();
-        String containerName = config.getAdlsContainerName();
-        String baseFolderPath = archivedFolder.getFolderName();
-        try {
-            // Create a BlobServiceClient using the storage account URL and SAS token
-            BlobServiceClient blobServiceClient = new BlobServiceClientBuilder()
-                    .endpoint(storageAccountUrl)
-                    .sasToken(sasToken)
-                    .buildClient();
-
-            // Get the container client
-            BlobContainerClient containerClient = blobServiceClient.getBlobContainerClient(containerName);
-
-            // Iterate through all blobs under the specified folder (prefix)
-            PagedIterable<BlobItem> blobs = containerClient.listBlobsByHierarchy(baseFolderPath);
-
-            for (BlobItem blobItem : blobs) {
-                String blobName = blobItem.getName();
-
-                // Log current blob being processed
-                System.out.println("Processing blob: " + blobName);
-
-                // Get the blob client
-                BlobClient blobClient = containerClient.getBlobClient(blobName);
-    // Check if the blob is not a folder (assuming folders end with '/')
-    if (!blobName.endsWith("/")) {
-        BlobItemProperties properties = blobItem.getProperties();
-        if (properties != null && properties.getAccessTier() != null) {
-            if (properties.getAccessTier() == AccessTier.HOT) {
-                // Set the access tier to Archive
-                blobClient.setAccessTier(AccessTier.ARCHIVE);
-                System.out.println("Blob '" + blobName + "' moved to Archive tier successfully.");
-            }
-        }
-    }
-    
-            flag=true;
-        }
         } catch (BlobStorageException e) {
             System.out.println("Error moving blobs to Archive tier: " + e.getMessage());
             e.printStackTrace();

@@ -23,8 +23,8 @@ public class MetaDataPointerService {
     @Autowired
     private FolderSyncStatusRepository folderSyncStatusRepository;
 
-    public Long count() {
-        return metaDataPointerRepository.count();
+    public long countByDbIdentifier(String dbIdentifier){
+        return metaDataPointerRepository.countByDbIdentifier(dbIdentifier);
     }
 
     public List<MetaDataPointer> findAll() {
@@ -99,7 +99,7 @@ public class MetaDataPointerService {
         return metaDataPointerRepository.findByfolderName(folder);
     }
 
-    public MetaDataPointer getMetaDataPointerBydbIdentifierAndFolder(String dbIdentifier, String folder) {
+    public MetaDataPointer getMetaDataPointerBydbIdentifierAndFolder( String folder,String dbIdentifier) {
         return metaDataPointerRepository.findByFolderNameAndDbIdentifier(folder, dbIdentifier);
     }
 

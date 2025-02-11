@@ -152,7 +152,8 @@ public class ALDSMetaDataPointerLoadService {
                     }
                 }
             }
-            intialLoad.setTotalpackages(metaDataPointerService.count());
+            
+            intialLoad.setTotalpackages(metaDataPointerService.countByDbIdentifier(dbIdentifier));
             intialLoad.setStageendtime(LocalDateTime.now());
             intialLoad.setStagestatus(2);
             intialLoad = initialLoadService.save(intialLoad);
@@ -203,6 +204,7 @@ public class ALDSMetaDataPointerLoadService {
             if (pendingTablesInFolder.isEmpty()) {
                 intialLoad.setEndtimestamp(LocalDateTime.now());
                 intialLoad.setStatus(2);
+                //intialLoad.setQueueListenerStatus(1);
                 initialLoadService.save(intialLoad);
             }
             flag=false;

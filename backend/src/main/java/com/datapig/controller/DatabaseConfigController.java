@@ -198,6 +198,7 @@ public class DatabaseConfigController {
         JsonObject jsonObject = JsonParser.parseString(request).getAsJsonObject();
         String dbIdentifier = jsonObject.get("dbIdentifier").getAsString();
         initialLoadService.runInitialLoad(dbIdentifier);
+        
         return ResponseEntity.ok("Initial Load started successfully");
     }
 

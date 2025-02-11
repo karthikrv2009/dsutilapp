@@ -36,6 +36,8 @@ public interface MetaDataPointerRepository extends JpaRepository<MetaDataPointer
 
     long countByStageStatusAndDbIdentifier(Short stageStatus, String dbIdentifier);
 
+    long countByDbIdentifier(String dbIdentifier);
+
     MetaDataPointer findByFolderNameAndDbIdentifier(String folderName,String dbIdentifier);
 
     int countByStageStatus(Short stageStatus);

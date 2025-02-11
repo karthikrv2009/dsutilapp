@@ -32,7 +32,9 @@ public interface FolderSyncStatusRepository extends JpaRepository<FolderSyncStat
  
     List<FolderSyncStatus> findByDbIdentifierAndFolderAndCopyStatusAndArchived(String dbIdentifier,String folder,Short copyStatus,int archived);
         
-        @Query("SELECT COUNT(f) FROM FolderSyncStatus f WHERE f.copyStatus = :copyStatus")
+    List<FolderSyncStatus> findByDbIdentifierAndFolderAndArchived(String dbIdentifier,String folder,int archived);
+       
+    @Query("SELECT COUNT(f) FROM FolderSyncStatus f WHERE f.copyStatus = :copyStatus")
         long countByCopyStatus(@Param("copyStatus") Short copyStatus);
 
         @Query("SELECT f FROM FolderSyncStatus f WHERE f.folder = :folder AND f.tableName = :tableName")

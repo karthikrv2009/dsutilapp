@@ -27,6 +27,11 @@ public class FolderSyncStatusService {
     @Autowired
     private MetaDataPointerService metaDataPointerService;
 
+    public List<FolderSyncStatus> findByDbIdentifierAndFolderAndArchived(String dbIdentifier,String folder,int archived){
+        return folderSyncStatusRepository.findByDbIdentifierAndFolderAndArchived(dbIdentifier,folder,archived);
+    }
+
+    
     public Long count() {
         return folderSyncStatusRepository.count();
     }

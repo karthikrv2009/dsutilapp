@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.datapig.entity.ChangeDataTracking;
+import com.datapig.entity.ChangeDataTrackingPointer;
 import com.datapig.repository.ChangeDataTrackingRepository;
 
 @Service
@@ -28,6 +29,10 @@ public class ChangeDataTrackingService {
 
     public List<ChangeDataTracking> findByTableNameAndDbIdentifierAndStageStatus(String tableName,String dbIdentifier,int stageStatus){
         return  changeDataTrackingRepository.findByTableNameAndDbIdentifierAndStageStatus(tableName,dbIdentifier,stageStatus);
+    }
+
+    public List<ChangeDataTrackingPointer> findByCdcTableNameAndDbIdentifier(String cdcTableName,String dbIdentifier){
+        return  changeDataTrackingRepository.findByCdcTableNameAndDbIdentifier(cdcTableName,dbIdentifier);
     }
     
 }

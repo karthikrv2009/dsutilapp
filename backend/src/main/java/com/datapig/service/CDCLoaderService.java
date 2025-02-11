@@ -38,9 +38,12 @@ public class CDCLoaderService {
 
     public void loadCDC(String dbIdentifier,String tableName,LocalDateTime startTime,LocalDateTime endTime){
         DatabaseConfig databaseConfig=databaseConfigService.getDatabaseConfigByIdentifier(dbIdentifier);
+        
         String containerName=databaseConfig.getAdlsContainerName();
         ChangeDataTracking changeDataTracking=new ChangeDataTracking();
-        String cdcTableName="cdc_"+tableName+LocalDateTime.now();
+        // Get the current time in milliseconds since the epoch
+        long epochTime = System.currentTimeMillis();
+        String cdcTableName="cdc_"+tableName+"_"+epochTime;
         changeDataTracking.setAdlsEndTime(endTime);
         changeDataTracking.setAdlsStartTime(startTime);
         changeDataTracking.setCdcTableName(cdcTableName);
@@ -88,7 +91,7 @@ public class CDCLoaderService {
                     modelchangeDataTrackingPointer.setStageStatus(0);
                     modelchangeDataTrackingPointer=changeDataTrackingPointerService.save(modelchangeDataTrackingPointer);
                     lChangeDataTrackingPointers.add(modelchangeDataTrackingPointer);
-
+                    folderSyncStatusService.save(folderSyncStatus);
                     ChangeDataTrackingPointer changeDataTrackingPointer=new ChangeDataTrackingPointer();
                     changeDataTrackingPointer.setCdcTableName(changeDataTracking.getCdcTableName());
                     changeDataTrackingPointer.setDbIdentifier(folderSyncStatus.getDbIdentifier());
@@ -96,8 +99,8 @@ public class CDCLoaderService {
                     changeDataTrackingPointer.setRehydrationStatus(0);
                     changeDataTrackingPointer.setStageStatus(0);
                     changeDataTrackingPointer=changeDataTrackingPointerService.save(changeDataTrackingPointer);
+                    folderSyncStatusService.save(folderSyncStatus);
                     lChangeDataTrackingPointers.add(changeDataTrackingPointer);
-    
                 }
                 else{
                     ChangeDataTrackingPointer changeDataTrackingPointer=new ChangeDataTrackingPointer();

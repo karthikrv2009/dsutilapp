@@ -63,6 +63,8 @@ public class InitialLoadService {
         
          initialLoad = intitalLoadRepository.findByName(dbIdentifier);
          if (initialLoad.getStatus() == 2) {
+            initialLoad.setQueueListenerStatus(1);
+            intitalLoadRepository.save(initialLoad);
           azureQueueListenerService.startQueueListener(databaseConfig.getDbIdentifier());
           }
          
