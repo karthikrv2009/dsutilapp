@@ -118,9 +118,6 @@ const LandingPage = () => {
   useEffect(() => {
     const fetchDataAsync = async () => {
       fetchData("/api/database-configs", setDbProfiles);
-
-      // Fetch pipeline data for the past 10 days
-      fetchPipelineData();
     };
     fetchDataAsync();
   }, []);
@@ -141,6 +138,8 @@ const LandingPage = () => {
           setMetaDataCatalog
         );
       };
+      // Fetch pipeline data for the past 10 days
+      fetchPipelineData();
       fetchDataAsync();
       const intervalId = setInterval(fetchDataAsync, refreshInterval);
       return () => clearInterval(intervalId); // Clear interval on component unmount
@@ -229,6 +228,10 @@ const LandingPage = () => {
 
   const handleStatusChange = (event) => {
     setSelectedStatus(event.target.value);
+  };
+
+  const handleDaysChange = (event) => {
+    setSelectedDays(event.target.value);
   };
 
   const filteredPipelineData = pipelineData.filter((data) => {
