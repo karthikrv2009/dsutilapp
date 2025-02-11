@@ -85,6 +85,7 @@ public class ArchiveToHotRehydration {
     // Method to rehydrate a specific blob to the Hot tier
     public boolean rehydrateBlobToHotTier(String containerName, String blobName,DatabaseConfig config) {
         boolean flag=false;
+        System.out.println("Rehydrate blob==>"+blobName);
         try {
             BlobServiceClient blobServiceClient = new BlobServiceClientBuilder()
             .endpoint(config.getAdlsStorageAccountEndpoint())

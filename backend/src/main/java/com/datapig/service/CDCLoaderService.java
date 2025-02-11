@@ -69,7 +69,8 @@ public class CDCLoaderService {
                     path=changeDataTrackingPointer.getFolderName();
                     boolean flag=archiveToHotRehydration.rehydrateBlobToHotTier(containerName, path,databaseConfig);
                     if(flag){
-                        updateRehydrationToStart(changeDataTrackingPointer);
+                        
+                        changeDataTrackingPointer=updateRehydrationToStart(changeDataTrackingPointer);
                         boolean modelflag=archiveToHotRehydration.checkRehydrationStatus(databaseConfig.getAdlsContainerName(), path,databaseConfig);
                         if(modelflag){
                             changeDataTrackingPointer=updateRehydrationToComplete(changeDataTrackingPointer);
@@ -82,7 +83,7 @@ public class CDCLoaderService {
                 else{
                     boolean flag=archiveToHotRehydration.rehydrateToHotTier(containerName, path,databaseConfig);
                     if(flag){
-                        updateRehydrationToStart(changeDataTrackingPointer);
+                       // changeDataTrackingPointer=updateRehydrationToStart(changeDataTrackingPointer);
                     }
                 }
             }
@@ -94,11 +95,12 @@ public class CDCLoaderService {
         return changeDataTracking;
     }
 
-    private void updateStageStatusToComplete(ChangeDataTrackingPointer changeDataTrackingPointer){
+    private ChangeDataTrackingPointer updateStageStatusToComplete(ChangeDataTrackingPointer changeDataTrackingPointer){
         //Rehydration Completed
         int stageStatus = 1;
         changeDataTrackingPointer.setRehydrationStatus(stageStatus);
         changeDataTrackingPointerService.save(changeDataTrackingPointer);
+        return changeDataTrackingPointer;
     }
 
     private ChangeDataTrackingPointer updateRehydrationToComplete(ChangeDataTrackingPointer changeDataTrackingPointer){
@@ -110,11 +112,12 @@ public class CDCLoaderService {
     }
 
 
-    private void updateRehydrationToStart(ChangeDataTrackingPointer changeDataTrackingPointer){
+    private ChangeDataTrackingPointer updateRehydrationToStart(ChangeDataTrackingPointer changeDataTrackingPointer){
         //Rehydration Started
         int rehydrationStatus = 1;
         changeDataTrackingPointer.setRehydrationStatus(rehydrationStatus);
         changeDataTrackingPointerService.save(changeDataTrackingPointer);
+        return changeDataTrackingPointer;
     }
 
     private List<ChangeDataTrackingPointer> loadCDCPointer(ChangeDataTracking changeDataTracking){
