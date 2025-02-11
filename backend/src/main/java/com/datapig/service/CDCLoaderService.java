@@ -36,9 +36,9 @@ public class CDCLoaderService {
     @Autowired
     DatabaseConfigService databaseConfigService;
 
-    public void loadCDC(String dbIdentifier,String tableName,LocalDateTime startTime,LocalDateTime endTime){
+    public ChangeDataTracking loadCDC(String dbIdentifier,String tableName,LocalDateTime startTime,LocalDateTime endTime){
         DatabaseConfig databaseConfig=databaseConfigService.getDatabaseConfigByIdentifier(dbIdentifier);
-        
+        System.out.println(dbIdentifier+"===>"+tableName+"===>"+startTime+"===>"+endTime);
         String containerName=databaseConfig.getAdlsContainerName();
         ChangeDataTracking changeDataTracking=new ChangeDataTracking();
         // Get the current time in milliseconds since the epoch
@@ -50,23 +50,37 @@ public class CDCLoaderService {
         changeDataTracking.setDbIdentifier(dbIdentifier);
         changeDataTracking.setTableName(tableName);
         changeDataTracking.setStageStatus(0);
-        changeDataTracking = changeDataTrackingService.save(changeDataTracking);
+        
         List<ChangeDataTrackingPointer> lChangeDataTrackingPointers=loadCDCPointer(changeDataTracking);
+        
         for(ChangeDataTrackingPointer changeDataTrackingPointer:lChangeDataTrackingPointers){
-            String path="/"+changeDataTrackingPointer.getFolderName()+"/"+changeDataTracking.getTableName();
-            if(changeDataTrackingPointer.getFolderName().contains("/model.json")){
-                boolean flag=archiveToHotRehydration.rehydrateBlobToHotTier(containerName, path,databaseConfig);
-                if(flag){
-                    updateRehydrationToStart(changeDataTrackingPointer);
+            changeDataTrackingPointer=changeDataTrackingPointerService.save(changeDataTrackingPointer);
+        }
+        if(lChangeDataTrackingPointers!=null){
+            if(lChangeDataTrackingPointers.size()!=0){
+                
+            changeDataTracking = changeDataTrackingService.save(changeDataTracking);
+            for(ChangeDataTrackingPointer changeDataTrackingPointer:lChangeDataTrackingPointers){
+                String path="/"+changeDataTrackingPointer.getFolderName()+"/"+changeDataTracking.getTableName();
+                if(changeDataTrackingPointer.getFolderName().contains("/model.json")){
+                    boolean flag=archiveToHotRehydration.rehydrateBlobToHotTier(containerName, path,databaseConfig);
+                    if(flag){
+                        updateRehydrationToStart(changeDataTrackingPointer);
+                    }
+                }
+                else{
+                    boolean flag=archiveToHotRehydration.rehydrateToHotTier(containerName, path,databaseConfig);
+                    if(flag){
+                        updateRehydrationToStart(changeDataTrackingPointer);
+                    }
                 }
             }
-            else{
-                boolean flag=archiveToHotRehydration.rehydrateToHotTier(containerName, path,databaseConfig);
-                if(flag){
-                    updateRehydrationToStart(changeDataTrackingPointer);
-                }
             }
         }
+        else{
+            changeDataTracking=null;
+        }
+        return changeDataTracking;
     }
 
     private void updateRehydrationToStart(ChangeDataTrackingPointer changeDataTrackingPointer){
@@ -89,17 +103,14 @@ public class CDCLoaderService {
                     modelchangeDataTrackingPointer.setFolderName(folderSyncStatus.getFolder()+"/model.json");
                     modelchangeDataTrackingPointer.setRehydrationStatus(0);
                     modelchangeDataTrackingPointer.setStageStatus(0);
-                    modelchangeDataTrackingPointer=changeDataTrackingPointerService.save(modelchangeDataTrackingPointer);
                     lChangeDataTrackingPointers.add(modelchangeDataTrackingPointer);
-                    folderSyncStatusService.save(folderSyncStatus);
+                    
                     ChangeDataTrackingPointer changeDataTrackingPointer=new ChangeDataTrackingPointer();
                     changeDataTrackingPointer.setCdcTableName(changeDataTracking.getCdcTableName());
                     changeDataTrackingPointer.setDbIdentifier(folderSyncStatus.getDbIdentifier());
                     changeDataTrackingPointer.setFolderName(folderSyncStatus.getFolder());
                     changeDataTrackingPointer.setRehydrationStatus(0);
                     changeDataTrackingPointer.setStageStatus(0);
-                    changeDataTrackingPointer=changeDataTrackingPointerService.save(changeDataTrackingPointer);
-                    folderSyncStatusService.save(folderSyncStatus);
                     lChangeDataTrackingPointers.add(changeDataTrackingPointer);
                 }
                 else{
@@ -109,7 +120,6 @@ public class CDCLoaderService {
                     changeDataTrackingPointer.setFolderName(folderSyncStatus.getFolder());
                     changeDataTrackingPointer.setRehydrationStatus(0);
                     changeDataTrackingPointer.setStageStatus(0);
-                    changeDataTrackingPointer=changeDataTrackingPointerService.save(changeDataTrackingPointer);
                     lChangeDataTrackingPointers.add(changeDataTrackingPointer);
                 }
                 i=i+1;

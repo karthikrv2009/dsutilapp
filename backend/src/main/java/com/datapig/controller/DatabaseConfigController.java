@@ -4,6 +4,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.datapig.component.DataPigValidator;
 import com.datapig.component.DynamicDataSourceManager;
+import com.datapig.entity.ChangeDataTracking;
 import com.datapig.entity.DatabaseConfig;
 import com.datapig.entity.IntialLoad;
 import com.datapig.repository.IntitalLoadRepository;
@@ -226,8 +227,13 @@ public class DatabaseConfigController {
 
             // Process the payload and create the table
             String createdTableName = null;
-            cDCLoaderService.loadCDC(dbProfile, table, startTime, endTime);
-            ;
+            ChangeDataTracking changeDataTracking=cDCLoaderService.loadCDC(dbProfile, table, startTime, endTime);
+            if(changeDataTracking!=null){
+                createdTableName="CDC Table for "+ changeDataTracking.getTableName() + " : " + changeDataTracking.getCdcTableName() +" Processing started."; 
+            }
+            else{
+                createdTableName="No records for table "+table+" found in ADLS on range specified. Update and retry.";
+            }
 
             Map<String, String> response = new HashMap<>();
             response.put("tableName", createdTableName);
