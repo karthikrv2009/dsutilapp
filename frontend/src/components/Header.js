@@ -17,8 +17,6 @@ import SettingsRoundedIcon from "@mui/icons-material/SettingsRounded";
 import AccountCircle from "@mui/icons-material/AccountCircle"; // Import the AccountCircle icon
 import HomeRoundedIcon from "@mui/icons-material/HomeRounded";
 import QueryBuilderRoundedIcon from "@mui/icons-material/QueryBuilderRounded";
-import StopCircleIcon from "@mui/icons-material/StopCircle";
-import PlayCircleOutlineIcon from "@mui/icons-material/PlayCircleOutline";
 const useStyles = makeStyles((theme) => ({
   root: {
     flexGrow: 1,
@@ -58,25 +56,41 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const Header = ({ selectedDbProfile, setSelectedDbProfile, setDbProfiles }) => {
+const Header = ({
+  selectedDbProfile,
+  setSelectedDbProfile,
+  dbProfiles,
+  setDbProfiles,
+}) => {
   const classes = useStyles();
   const navigate = useNavigate();
-  const [dbProfiles, setDbProfilesLocal] = useState([]);
+  const [dbProfilesLocal, setDbProfilesLocal] = useState([]);
   const [anchorElProfiles, setAnchorElProfiles] = useState(null); // State for the profiles dropdown menu
   const [anchorElAccount, setAnchorElAccount] = useState(null); // State for the account dropdown menu
   const [isServiceRunning, setIsServiceRunning] = useState(false);
 
   useEffect(() => {
-    const fetchServiceStatus = async () => {
+    const fetchDataAsync = async () => {
       try {
-        const response = await axios.get("/api/service/status");
-        setIsServiceRunning(response.data);
+        const response = await axios.get("/api/database-configs");
+        const profiles = response.data;
+        setDbProfiles(profiles);
+
+        // Find the default profile
+        const defaultProfile = profiles.find(
+          (profile) => profile.defaultProfile
+        );
+
+        if (defaultProfile) {
+          setSelectedDbProfile(defaultProfile.dbIdentifier);
+        } else if (!selectedDbProfile && profiles.length > 0) {
+          setSelectedDbProfile(profiles[0].dbIdentifier); // Set the first profile as default
+        }
       } catch (error) {
-        console.error("Error fetching service status:", error);
+        console.error("Error fetching data:", error);
       }
     };
-
-    fetchServiceStatus();
+    fetchDataAsync();
   }, [setDbProfiles, selectedDbProfile, setSelectedDbProfile]);
 
   const handleDbProfileChange = (event, value) => {
@@ -103,28 +117,6 @@ const Header = ({ selectedDbProfile, setSelectedDbProfile, setDbProfiles }) => {
   const handleLogout = () => {
     handleCloseAccount();
     navigate("/"); // Redirect to home page after logout
-  };
-
-  const handleStartService = async () => {
-    try {
-      await axios.post("/api/service/start");
-      setIsServiceRunning(true);
-      alert("Service started successfully");
-    } catch (error) {
-      console.error("Error starting service:", error);
-      alert("Failed to start service");
-    }
-  };
-
-  const handleStopService = async () => {
-    try {
-      await axios.post("/api/service/stop");
-      setIsServiceRunning(false);
-      alert("Service stopped successfully");
-    } catch (error) {
-      console.error("Error stopping service:", error);
-      alert("Failed to stop service");
-    }
   };
 
   return (
