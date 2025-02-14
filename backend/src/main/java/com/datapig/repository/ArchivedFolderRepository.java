@@ -14,4 +14,5 @@ public interface ArchivedFolderRepository extends JpaRepository<ArchivedFolder, 
   @Query("SELECT a FROM ArchivedFolder a WHERE a.stageStatus = :stageStatus AND a.dbIdentifier = :dbIdentifier ORDER BY a.adlsarchivetimestamp")
   List<ArchivedFolder> findByStageStatusAndDbIdentifier(int stageStatus, String dbIdentifier);
   
+  ArchivedFolder findByFolderNameAndDbIdentifier(String folderName,String dbIdentifier);
 }

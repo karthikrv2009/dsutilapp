@@ -19,6 +19,10 @@ public class ArchivedFolderService {
     @Autowired
     MetaDataPointerRepository metaDataPointerRepository;
 
+    public void delete(ArchivedFolder archivedFolder){
+        archivedFolderRepository.delete(archivedFolder);
+    }
+
     public ArchivedFolder save(ArchivedFolder archivedFolder) {
         return archivedFolderRepository.save(archivedFolder);
     }
@@ -27,6 +31,10 @@ public class ArchivedFolderService {
         java.util.List<ArchivedFolder> entityOptional = archivedFolderRepository
                 .findByStageStatusAndDbIdentifier(stageStatus, dbIdentifier);
         return entityOptional;
+    }
+
+    public ArchivedFolder findByFolderNameAndDbIdentifier(String folderName,String dbIdentifier){
+        return archivedFolderRepository.findByFolderNameAndDbIdentifier(folderName, dbIdentifier);
     }
 
     public List<MetaDataPointer> listMetaDataPoicnterArchived(String dbIdentifier) {

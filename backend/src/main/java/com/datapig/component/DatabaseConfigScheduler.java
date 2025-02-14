@@ -277,15 +277,21 @@ public class DatabaseConfigScheduler {
                     System.out.println("folder Sync table name:"+tableName);
                     System.out.println("folder Sync folder name:"+folderName);
                     if(tableName!=null){
+                        boolean archive=false;
                         FolderSyncStatus folderSyncStatus=folderSyncStatusService.getFolderSyncStatusOnFolderAndTableNameAndDBIdentifier(folderName,
                         tableName, changeDataTrackingPointer.getDbIdentifier());
                         if(folderSyncStatus!=null){
-                         
                         folderSyncStatus.setArchived(0);
                         folderSyncStatusService.save(folderSyncStatus);
+                        archive=true;
                         }
-                        changeDataTrackingPointer.setStageStatus(2);
-                        changeDataTrackingPointerService.save(changeDataTrackingPointer);
+                        if(archive){
+                            ArchivedFolder archivedFolder= archivedFolderService.findByFolderNameAndDbIdentifier(folderName, changeDataTrackingPointer.getDbIdentifier());
+                            archivedFolderService.delete(archivedFolder);
+                            changeDataTrackingPointer.setStageStatus(2);
+                            changeDataTrackingPointerService.save(changeDataTrackingPointer);
+                        }
+                        
                     }
                 }
             }
