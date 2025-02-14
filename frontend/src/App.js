@@ -47,8 +47,12 @@ const App = () => {
       try {
         const response = await axios.get("/api/database-configs");
         const profiles = response.data;
-        setDbProfiles(profiles);
 
+        // Filter profiles to include only those with defaultProfile set to true
+        const profileident = profiles.filter(
+          (profile) => profile.defaultProfile
+        );
+        setDbProfiles(profileident);
         // Find the default profile
         const defaultProfile = profiles.find(
           (profile) => profile.defaultProfile
