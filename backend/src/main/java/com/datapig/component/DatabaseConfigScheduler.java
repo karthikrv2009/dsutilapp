@@ -21,7 +21,7 @@ import com.datapig.entity.DatabaseConfig;
 import com.datapig.entity.FolderSyncStatus;
 import com.datapig.entity.MetaDataPointer;
 import com.datapig.service.ArchivedFolderService;
-import com.datapig.service.CDCLoaderService;
+
 import com.datapig.service.ChangeDataTrackingCatalogService;
 import com.datapig.service.ChangeDataTrackingPointerService;
 import com.datapig.service.ChangeDataTrackingService;
@@ -29,6 +29,7 @@ import com.datapig.service.DatabaseConfigService;
 import com.datapig.service.FolderSyncStatusService;
 import com.datapig.service.MetaDataPointerService;
 import com.datapig.utility.ArchiveToHotRehydration;
+import com.datapig.utility.JDBCTemplateUtiltiy;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -61,7 +62,7 @@ public class DatabaseConfigScheduler {
     private ArchiveToHotRehydration archiveToHotRehydration;
 
     @Autowired
-    private CDCLoaderService cdcLoaderService; 
+    JDBCTemplateUtiltiy jdbcTemplateUtiltiy;
 
     @Scheduled(fixedRate = 60000) // 300000 milliseconds = 5 minutes
     public void processDatabaseConfigs() {
@@ -180,13 +181,13 @@ public class DatabaseConfigScheduler {
         List<DatabaseConfig> databaseConfigs=databaseConfigService.getAllDatabaseConfigs();
 
         for(DatabaseConfig databaseConfig:databaseConfigs){
-            int rehydrationInProgress=1;
+            int rehydrationInProgress=0;
             List<ChangeDataTracking> changeDataTrackings= changeDataTrackingService.findByStageStatusAndDbIdentifier(rehydrationInProgress, databaseConfig.getDbIdentifier());
             for(ChangeDataTracking changeDataTracking:changeDataTrackings){
                 int  rehydrationStatus=0;
                 List<ChangeDataTrackingPointer> pointers=changeDataTrackingPointerService.findByCdcTableNameAndDbIdentifierAndRehydrationStatus(changeDataTracking.getCdcTableName(), databaseConfig.getDbIdentifier(), rehydrationStatus);
                 for(ChangeDataTrackingPointer changeDataTrackingPointer:pointers){
-                    String path="/"+changeDataTrackingPointer.getFolderName()+"/"+changeDataTracking.getTableName();
+                    String path=changeDataTrackingPointer.getFolderName();
                     if(changeDataTrackingPointer.getFolderName().contains("/model.json")){
                         boolean flag=archiveToHotRehydration.rehydrateBlobToHotTier(databaseConfig.getAdlsContainerName(), path,databaseConfig);
                         if(flag){
@@ -198,26 +199,29 @@ public class DatabaseConfigScheduler {
                         if(flag){
                             updateRehydrationToStart(changeDataTrackingPointer);
                         }
-                    }
+                    
+                }
                 }
                 rehydrationStatus=1;
                 List<ChangeDataTrackingPointer> pointersStarted=changeDataTrackingPointerService.findByCdcTableNameAndDbIdentifierAndRehydrationStatus(changeDataTracking.getCdcTableName(), databaseConfig.getDbIdentifier(), rehydrationStatus);
                 for(ChangeDataTrackingPointer changeDataTrackingPointer:pointersStarted){
-                    String path="/"+changeDataTrackingPointer.getFolderName()+"/"+changeDataTracking.getTableName();
+                    String path=changeDataTrackingPointer.getFolderName();
                     if(changeDataTrackingPointer.getFolderName().contains("/model.json")){
                         boolean flag=archiveToHotRehydration.checkRehydrationStatusForBlob(databaseConfig.getAdlsContainerName(), path,databaseConfig);
                         if(flag){
-                            updateRehydrationToComplete(changeDataTrackingPointer);
+                            changeDataTrackingPointer= updateRehydrationToComplete(changeDataTrackingPointer);
+                            changeDataTrackingPointer=updateStageStatusToComplete(changeDataTrackingPointer);
                         }
                     }
                     else{
                         boolean flag=archiveToHotRehydration.checkRehydrationStatus(databaseConfig.getAdlsContainerName(), path,databaseConfig);
                         if(flag){
-                            updateRehydrationToComplete(changeDataTrackingPointer);
-                            updateStageStatusToComplete(changeDataTrackingPointer);
+                            changeDataTrackingPointer= updateRehydrationToComplete(changeDataTrackingPointer);
+                            //changeDataTrackingPointer=updateStageStatusToComplete(changeDataTrackingPointer);
                         }
                     }
                 }
+                
                 List<ChangeDataTrackingPointer> pointersPerCDCTable = changeDataTrackingPointerService.findByCdcTableNameAndDbIdentifier(changeDataTracking.getCdcTableName(), databaseConfig.getDbIdentifier());
                 boolean rehydrateState=true;
                 for(ChangeDataTrackingPointer changeDataTrackingPointer:pointersPerCDCTable){
@@ -226,10 +230,11 @@ public class DatabaseConfigScheduler {
                     }
                 }
                 if(rehydrateState){
-                    updateRehydrationCDCToComplete(changeDataTracking);
+                    //setting to ready
+                    updateStageStatusCDC(changeDataTracking,1);
                 }
             }
-            int readyToProcess=2;
+            int readyToProcess=1;
             List<ChangeDataTracking> changeDataTrackings2=changeDataTrackingService.findByStageStatusAndDbIdentifier(readyToProcess, databaseConfig.getDbIdentifier());
             for(ChangeDataTracking changeDataTracking:changeDataTrackings2){
                 boolean masterFlag=true;
@@ -237,15 +242,16 @@ public class DatabaseConfigScheduler {
                 if(changeDataTrackingCatalog!=null){
                     List<ChangeDataTrackingPointer> pointers=changeDataTrackingPointerService.findByCdcTableNameAndDbIdentifier(changeDataTracking.getCdcTableName(), databaseConfig.getDbIdentifier());
                     for(ChangeDataTrackingPointer changeDataTrackingPointer:pointers){
-                        if(!changeDataTrackingPointer.getFolderName().equalsIgnoreCase("/model.json")){
+                        if(!changeDataTrackingPointer.getFolderName().contains("/model.json")){
                             boolean flag=false;
-                            flag=cdcLoaderService.stageDataFromADLS(databaseConfig.getAdlsStorageAccountName(), changeDataTrackingPointer.getFolderName(), changeDataTrackingPointer.getCdcTableName(), changeDataTrackingCatalog.getDataFrame(), changeDataTrackingCatalog.getSelectColumn());
+                            flag=jdbcTemplateUtiltiy.stageCDCDataFromADLS(databaseConfig.getDbIdentifier(),databaseConfig.getAdlsContainerName(), changeDataTrackingPointer.getFolderName(), changeDataTrackingPointer.getCdcTableName(), changeDataTrackingCatalog.getDataFrame(), changeDataTrackingCatalog.getSelectColumn(),changeDataTracking.getTableName());
                             if(flag){
-                                updateStageStatusToComplete(changeDataTrackingPointer);
+                                changeDataTrackingPointer=updateStageStatusToComplete(changeDataTrackingPointer);
+                            
                             } 
                             else{
                                 masterFlag=false;
-                                updateStageStatusToFail(changeDataTrackingPointer);
+                                changeDataTrackingPointer=updateStageStatusToFail(changeDataTrackingPointer);
                             }                           
                         
                         }
@@ -255,56 +261,97 @@ public class DatabaseConfigScheduler {
                 }
             if(masterFlag){
                 //success
-                updateStageStatusCDCToComplete(changeDataTracking,3);
+                changeDataTracking=updateStageStatusCDC(changeDataTracking,2);
             }
             else{
-                updateStageStatusCDCToComplete(changeDataTracking,4);
+                updateStageStatusCDC(changeDataTracking,3);
             }
+            }
+            
+            List<ChangeDataTrackingPointer> changeDataTrackingPointers=changeDataTrackingPointerService.findByDbIdentifierAndStageStatus(databaseConfig.getDbIdentifier(), 1);
+            for(ChangeDataTrackingPointer changeDataTrackingPointer:changeDataTrackingPointers){
+                int count=changeDataTrackingPointerService.readyToArchive(changeDataTrackingPointer.getDbIdentifier(), changeDataTrackingPointer.getFolderName());
+                if(count==0){
+                    String tableName=extractTableName(changeDataTrackingPointer.getCdcTableName());
+                    String folderName=getBaseFolderName(changeDataTrackingPointer.getFolderName());
+                    System.out.println("folder Sync table name:"+tableName);
+                    System.out.println("folder Sync folder name:"+folderName);
+                    if(tableName!=null){
+                        FolderSyncStatus folderSyncStatus=folderSyncStatusService.getFolderSyncStatusOnFolderAndTableNameAndDBIdentifier(folderName,
+                        tableName, changeDataTrackingPointer.getDbIdentifier());
+                        if(folderSyncStatus!=null){
+                         
+                        folderSyncStatus.setArchived(0);
+                        folderSyncStatusService.save(folderSyncStatus);
+                        }
+                        changeDataTrackingPointer.setStageStatus(2);
+                        changeDataTrackingPointerService.save(changeDataTrackingPointer);
+                    }
+                }
             }
         }
     }
 
-    private ChangeDataTracking updateStageStatusCDCToComplete(ChangeDataTracking changeDataTracking,int status){
+    private static String getBaseFolderName(String input) {
+        String[] parts = input.split("/");
+        return parts[0];
+    }
+
+    private static String extractTableName(String input) {
+        // "cdc_" is the constant prefix and "_" is the separator
+        int prefixLength = "cdc_".length();
+        int separatorIndex = input.lastIndexOf('_');
+        
+        if (separatorIndex > prefixLength) {
+            return input.substring(prefixLength, separatorIndex);
+        }
+        return null; // Or throw an exception if input format is invalid
+    }
+
+    private ChangeDataTrackingPointer updateRehydrationToComplete(ChangeDataTrackingPointer changeDataTrackingPointer){
+        //Rehydration Completed
+        System.out.println("Path to complete====>"+changeDataTrackingPointer.getFolderName());
+        int rehydrationStatus = 2;
+        changeDataTrackingPointer.setRehydrationStatus(rehydrationStatus);
+        changeDataTrackingPointer=changeDataTrackingPointerService.save(changeDataTrackingPointer);
+        return changeDataTrackingPointer;
+    }
+
+    private ChangeDataTracking updateStageStatusCDC(ChangeDataTracking changeDataTracking,int status){
         //All records in hot tier
+        System.out.println("Update CDC table:"+changeDataTracking.getCdcTableName()+" to "+status);
         changeDataTracking.setStageStatus(status);
         changeDataTracking= changeDataTrackingService.save(changeDataTracking);
         return changeDataTracking;
     }
     
-    private ChangeDataTracking updateRehydrationCDCToComplete(ChangeDataTracking changeDataTracking){
-        //All records in hot tier
-        int rehydrationStatus = 2;
-        changeDataTracking.setStageStatus(rehydrationStatus);
-        changeDataTracking= changeDataTrackingService.save(changeDataTracking);
-        return changeDataTracking;
-    }
-
-    private void updateStageStatusToComplete(ChangeDataTrackingPointer changeDataTrackingPointer){
+    
+    private ChangeDataTrackingPointer updateStageStatusToFail(ChangeDataTrackingPointer changeDataTrackingPointer){
         //Rehydration Completed
-        int stageStatus = 1;
-        changeDataTrackingPointer.setRehydrationStatus(stageStatus);
-        changeDataTrackingPointerService.save(changeDataTrackingPointer);
-    }
-
-    private void updateStageStatusToFail(ChangeDataTrackingPointer changeDataTrackingPointer){
-        //Rehydration Completed
+        System.out.println("Path to fail====>"+changeDataTrackingPointer.getFolderName());
+        
         int stageStatus = 2;
-        changeDataTrackingPointer.setRehydrationStatus(stageStatus);
-        changeDataTrackingPointerService.save(changeDataTrackingPointer);
+        changeDataTrackingPointer.setStageStatus(stageStatus);
+        changeDataTrackingPointer=changeDataTrackingPointerService.save(changeDataTrackingPointer);
+        return changeDataTrackingPointer;
     }
 
-    private void updateRehydrationToComplete(ChangeDataTrackingPointer changeDataTrackingPointer){
+    private ChangeDataTrackingPointer updateStageStatusToComplete(ChangeDataTrackingPointer changeDataTrackingPointer){
         //Rehydration Completed
-        int rehydrationStatus = 2;
-        changeDataTrackingPointer.setRehydrationStatus(rehydrationStatus);
-        changeDataTrackingPointerService.save(changeDataTrackingPointer);
+        System.out.println("Path to stage complete====>"+changeDataTrackingPointer.getFolderName());
+        
+        int stageStatus = 1;
+        changeDataTrackingPointer.setStageStatus(stageStatus);
+        changeDataTrackingPointer=changeDataTrackingPointerService.save(changeDataTrackingPointer);
+        return changeDataTrackingPointer;
     }
 
-    private void updateRehydrationToStart(ChangeDataTrackingPointer changeDataTrackingPointer){
+    private ChangeDataTrackingPointer updateRehydrationToStart(ChangeDataTrackingPointer changeDataTrackingPointer){
         //Rehydration Started
         int rehydrationStatus = 1;
         changeDataTrackingPointer.setRehydrationStatus(rehydrationStatus);
-        changeDataTrackingPointerService.save(changeDataTrackingPointer);
+        changeDataTrackingPointer=changeDataTrackingPointerService.save(changeDataTrackingPointer);
+        return changeDataTrackingPointer;
     }
 
 }

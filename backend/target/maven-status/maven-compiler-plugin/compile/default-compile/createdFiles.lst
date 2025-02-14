@@ -28,6 +28,7 @@ com\datapig\repository\ChangeDataTrackingCatalogRepository.class
 com\datapig\controller\HomeController.class
 com\datapig\service\dto\ModelTableAttributes.class
 com\datapig\service\CDCLoaderService.class
+com\datapig\component\DatabaseConfigScheduler.class
 com\datapig\repository\ChangeDataTrackingRepository.class
 com\datapig\repository\IntitalLoadRepository.class
 com\datapig\service\PolybaseThreadService.class
@@ -50,6 +51,7 @@ com\datapig\controller\DashboardController.class
 com\datapig\entity\MetaDataPointer.class
 com\datapig\repository\MetaDataPointerRepository.class
 com\datapig\service\dto\LicenseKeyDTO.class
+com\datapig\controller\ServiceController.class
 com\datapig\entity\ChangeDataTrackingPointer.class
 com\datapig\service\dto\ModelTable.class
 com\datapig\component\LicenseCryptoUtil.class

@@ -19,9 +19,6 @@ import com.datapig.utility.ArchiveToHotRehydration;
 public class CDCLoaderService {
 
     @Autowired
-    JdbcTemplate jdbcTemplate;
-
-    @Autowired
     private ChangeDataTrackingService changeDataTrackingService;
 
     @Autowired
@@ -63,49 +60,44 @@ public class CDCLoaderService {
         if(lChangeDataTrackingPointersInDB!=null){
             if(lChangeDataTrackingPointersInDB.size()!=0){
                 
-            
+            changeDataTrackingService.save(changeDataTracking);
             for(ChangeDataTrackingPointer changeDataTrackingPointer:lChangeDataTrackingPointersInDB){
                 
-                System.out.println(changeDataTrackingPointer.getFolderName());
+                //System.out.println(changeDataTrackingPointer.getFolderName());
                 String path=null;
-
                 if(changeDataTrackingPointer.getFolderName().contains("/model.json")){
                     path=changeDataTrackingPointer.getFolderName();
-                    System.out.println(path);
-                    boolean flag=archiveToHotRehydration.rehydrateBlobToHotTier(containerName, path,databaseConfig);
+                  //  System.out.println(path);
+                    boolean flag=archiveToHotRehydration.checkRehydrationStatusForBlob(containerName, path, databaseConfig);
                     if(flag){
                         changeDataTrackingPointer=updateRehydrationToStart(changeDataTrackingPointer);
-                        boolean modelflag=archiveToHotRehydration.checkRehydrationStatus(databaseConfig.getAdlsContainerName(), path,databaseConfig);
-                        if(modelflag){
-                            changeDataTrackingPointer=updateRehydrationToComplete(changeDataTrackingPointer);
-                            parseModelJson.parseCdcModelJson(changeDataTracking.getDbIdentifier(),changeDataTracking.getCdcTableName(),changeDataTracking.getTableName());
-                            updateStageStatusToComplete(changeDataTrackingPointer);
-                        }
+                        changeDataTrackingPointer=updateRehydrationToComplete(changeDataTrackingPointer);
+                        parseModelJson.parseCdcModelJson(changeDataTracking.getDbIdentifier(),changeDataTracking.getCdcTableName(),changeDataTracking.getTableName());
+                        updateStageStatusToComplete(changeDataTrackingPointer);
+                        System.out.println(path);
                     }
                 }
                 else{
                     
-                    path=changeDataTrackingPointer.getFolderName()+"/"+changeDataTracking.getTableName();
+                     path=changeDataTrackingPointer.getFolderName();
                     System.out.println(path);
                     boolean flag=archiveToHotRehydration.rehydrateToHotTier(containerName, path,databaseConfig);
                     if(flag){
+                    System.out.println("Starting rehydration===>"+path);
                        changeDataTrackingPointer=updateRehydrationToStart(changeDataTrackingPointer);
                     }
                 }
             }
             }
         }
-        else{
-            changeDataTracking=null;
-        }
         return changeDataTracking;
     }
 
     private ChangeDataTrackingPointer updateStageStatusToComplete(ChangeDataTrackingPointer changeDataTrackingPointer){
-        //Rehydration Completed
+        //Stage completed
         int stageStatus = 1;
-        changeDataTrackingPointer.setRehydrationStatus(stageStatus);
-        changeDataTrackingPointerService.save(changeDataTrackingPointer);
+        changeDataTrackingPointer.setStageStatus(stageStatus);
+        changeDataTrackingPointer=changeDataTrackingPointerService.save(changeDataTrackingPointer);
         return changeDataTrackingPointer;
     }
 
@@ -122,7 +114,7 @@ public class CDCLoaderService {
         //Rehydration Started
         int rehydrationStatus = 1;
         changeDataTrackingPointer.setRehydrationStatus(rehydrationStatus);
-        changeDataTrackingPointerService.save(changeDataTrackingPointer);
+        changeDataTrackingPointer= changeDataTrackingPointerService.save(changeDataTrackingPointer);
         return changeDataTrackingPointer;
     }
 
@@ -133,6 +125,8 @@ public class CDCLoaderService {
         if(changeDataTracking!=null){
             List<FolderSyncStatus> lstfolderSyncStatus =folderSyncStatusService.findFolderSyncStatusByTimestampRange(changeDataTracking.getTableName(), changeDataTracking.getDbIdentifier(), changeDataTracking.getAdlsStartTime(),changeDataTracking.getAdlsEndTime());
             for(FolderSyncStatus folderSyncStatus:lstfolderSyncStatus){
+                folderSyncStatus.setArchived(1);
+                folderSyncStatus=folderSyncStatusService.save(folderSyncStatus);
                 System.out.println("Inside loadCDCPointer====>"+folderSyncStatus.getTableName() +"==>"+folderSyncStatus.getFolder());
                 if(i==0){
                     ChangeDataTrackingPointer modelchangeDataTrackingPointer=new ChangeDataTrackingPointer();
@@ -146,7 +140,7 @@ public class CDCLoaderService {
                     ChangeDataTrackingPointer changeDataTrackingPointer=new ChangeDataTrackingPointer();
                     changeDataTrackingPointer.setCdcTableName(changeDataTracking.getCdcTableName());
                     changeDataTrackingPointer.setDbIdentifier(folderSyncStatus.getDbIdentifier());
-                    changeDataTrackingPointer.setFolderName(folderSyncStatus.getFolder());
+                    changeDataTrackingPointer.setFolderName(folderSyncStatus.getFolder()+"/"+folderSyncStatus.getTableName());
                     changeDataTrackingPointer.setRehydrationStatus(0);
                     changeDataTrackingPointer.setStageStatus(0);
                     lChangeDataTrackingPointers.add(changeDataTrackingPointer);
@@ -155,7 +149,7 @@ public class CDCLoaderService {
                     ChangeDataTrackingPointer changeDataTrackingPointer=new ChangeDataTrackingPointer();
                     changeDataTrackingPointer.setCdcTableName(changeDataTracking.getCdcTableName());
                     changeDataTrackingPointer.setDbIdentifier(folderSyncStatus.getDbIdentifier());
-                    changeDataTrackingPointer.setFolderName(folderSyncStatus.getFolder());
+                    changeDataTrackingPointer.setFolderName(folderSyncStatus.getFolder()+"/"+folderSyncStatus.getTableName());
                     changeDataTrackingPointer.setRehydrationStatus(0);
                     changeDataTrackingPointer.setStageStatus(0);
                     lChangeDataTrackingPointers.add(changeDataTrackingPointer);
@@ -166,22 +160,5 @@ public class CDCLoaderService {
         return lChangeDataTrackingPointers;
     }
 
-    public boolean stageDataFromADLS(String dataSource, String folder, String tableName, String dataFrame,
-            String selectColumn) {
-        boolean flag=false;
-        String query = "INSERT INTO dbo._staging_" + tableName +
-                " SELECT " + selectColumn +
-                " FROM OPENROWSET(BULK '/" + folder + "/" + tableName + "/*.csv', FORMAT = 'CSV', DATA_SOURCE = '"
-                + dataSource + "',CODEPAGE='65001') " +
-                "WITH (" + dataFrame + ") AS " + tableName;
-        
-        try {
-            jdbcTemplate.update(query);
-            flag=true;
-        } catch (Exception e) {
-            flag=false;
-        }
-        return flag;
-    }
 
 }

@@ -34,44 +34,65 @@ public class JDBCTemplateUtiltiy {
 	private DatabaseConfigService databaseConfigService;
 
 	@Autowired
-    private FaultEntityService faultEntityService;
+	private FaultEntityService faultEntityService;
 
 	public JdbcTemplate getJdbcTemplate(String dbIdentifier) {
 		// Get the DataSource from DynamicDataSourceManager
 		DataSource dataSource = dynamicDataSourceManager.getDataSource(dbIdentifier);
-		if(dataSource==null){
-			DatabaseConfig databaseConfig=databaseConfigService.getDatabaseConfigByIdentifier(dbIdentifier);
-			dynamicDataSourceManager.addDataSource(dbIdentifier, databaseConfig.getUrl(), databaseConfig.getUsername(), databaseConfig.getPassword());
+		if (dataSource == null) {
+			DatabaseConfig databaseConfig = databaseConfigService.getDatabaseConfigByIdentifier(dbIdentifier);
+			dynamicDataSourceManager.addDataSource(dbIdentifier, databaseConfig.getUrl(), databaseConfig.getUsername(),
+					databaseConfig.getPassword());
 			dataSource = dynamicDataSourceManager.getDataSource(dbIdentifier);
 		}
 
-		
 		// Create and return a new JdbcTemplate based on the DataSource
 		return new JdbcTemplate(dataSource);
 	}
 
-	public boolean alterTable(String dbIdentifier,String tableName,String columnDef){
+	public boolean stageCDCDataFromADLS(String dbIdentifier, String dataSource, String folder, String tableName,
+			String dataFrame,
+			String selectColumn,String actualTableName) {
 		jdbcTemplate = getJdbcTemplate(dbIdentifier);
-		boolean flag=false;
-		String alterTable="ALTER TABLE ["+tableName+"]\r\n" + //
-						"ALTER COLUMN"+columnDef+";";
-						try{
-							jdbcTemplate.execute(alterTable);
-							logger.info("Table created: {}", tableName);
-							flag=true;
-						}catch(Exception e){
-							flag=false;
-							FaultEntity faultEntity=new FaultEntity();
-							faultEntity.setDbIdentifier(dbIdentifier);
-							faultEntity.setTableName(tableName);
-							String errorMsg= getMainCauseMessage(e,alterTable);
-							faultEntity.setErrorMsg(errorMsg);
-							faultEntityService.save(faultEntity);
-						}
+		boolean flag = false;
+		String query = "INSERT INTO dbo." + tableName +
+				" SELECT " + selectColumn +
+				" FROM OPENROWSET(BULK '/" + folder + "/*.csv', FORMAT = 'CSV', DATA_SOURCE = '"
+				+ dataSource + "',CODEPAGE='65001') " +
+				"WITH (" + dataFrame + ") AS " + actualTableName;
+		System.out.println(query);
+		try {
+			jdbcTemplate.update(query);
+			flag = true;
+		} catch (Exception e) {
+			e.printStackTrace();
+			flag = false;
+		}
 		return flag;
-	}	
+	}
 
-	public Set<String> getTableInFolder(String folderName, String DATA_SOURCE,String dbIdentifier) {
+	public boolean alterTable(String dbIdentifier, String tableName, String columnDef) {
+		jdbcTemplate = getJdbcTemplate(dbIdentifier);
+		boolean flag = false;
+		String alterTable = "ALTER TABLE [" + tableName + "]\r\n" + //
+				"ALTER COLUMN" + columnDef + ";";
+		try {
+			jdbcTemplate.execute(alterTable);
+			logger.info("Table created: {}", tableName);
+			flag = true;
+		} catch (Exception e) {
+			flag = false;
+			FaultEntity faultEntity = new FaultEntity();
+			faultEntity.setDbIdentifier(dbIdentifier);
+			faultEntity.setTableName(tableName);
+			String errorMsg = getMainCauseMessage(e, alterTable);
+			faultEntity.setErrorMsg(errorMsg);
+			faultEntityService.save(faultEntity);
+		}
+		return flag;
+	}
+
+	public Set<String> getTableInFolder(String folderName, String DATA_SOURCE, String dbIdentifier) {
 		jdbcTemplate = getJdbcTemplate(dbIdentifier);
 		Set<String> tables = new LinkedHashSet<>();
 		List<String> tableNames = null;
@@ -108,7 +129,6 @@ public class JDBCTemplateUtiltiy {
 		return new LinkedHashSet<>(tableNames);
 	}
 
-	
 	public void dropStagingTable(String tableName, String dbIdentifier) {
 		jdbcTemplate = getJdbcTemplate(dbIdentifier);
 		String dropTableSQL = "IF EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = '_staging_"
@@ -121,102 +141,105 @@ public class JDBCTemplateUtiltiy {
 
 	}
 
-	public Integer getRowCountByTableName(String tableName,String dbIdentifier){
+	public Integer getRowCountByTableName(String tableName, String dbIdentifier) {
 		jdbcTemplate = getJdbcTemplate(dbIdentifier);
-		String rowCountQuery="SELECT SUM(p.rows) FROM sys.partitions p " +
-                        "JOIN sys.tables t ON p.object_id = t.object_id " +
-                        "WHERE t.name = ? AND t.is_ms_shipped = 0 AND p.index_id IN (0, 1)";
-		
-		Integer count=jdbcTemplate.queryForObject(rowCountQuery, new Object[] { tableName }, Integer.class);
-				
+		String rowCountQuery = "SELECT SUM(p.rows) FROM sys.partitions p " +
+				"JOIN sys.tables t ON p.object_id = t.object_id " +
+				"WHERE t.name = ? AND t.is_ms_shipped = 0 AND p.index_id IN (0, 1)";
+
+		Integer count = jdbcTemplate.queryForObject(rowCountQuery, new Object[] { tableName }, Integer.class);
+
 		return count;
 	}
-	
+
 	public boolean createTableIfNotExists(String tableName, String dataFrame, String dbIdentifier) {
-	    boolean flag=false;
+		boolean flag = false;
 		jdbcTemplate = getJdbcTemplate(dbIdentifier);
 		String checkTableSQL = "SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = ?";
 		String createTableSQL = "CREATE TABLE dbo." + tableName + " (" + dataFrame + ")";
-	try{
-		// Check if the table exists
-		Integer tableCount = jdbcTemplate.queryForObject(checkTableSQL, new Object[] { tableName }, Integer.class);
+		try {
+			// Check if the table exists
+			Integer tableCount = jdbcTemplate.queryForObject(checkTableSQL, new Object[] { tableName }, Integer.class);
 
-		if (tableCount != null && tableCount == 0) {
-			// Create the table if it does not exist
-			jdbcTemplate.execute(createTableSQL);
-			logger.info("Table created: {}", tableName);
+			if (tableCount != null && tableCount == 0) {
+				// Create the table if it does not exist
+				jdbcTemplate.execute(createTableSQL);
+				logger.info("Table created: {}", tableName);
 
-			// Create indexes
-			createIndexes(tableName, dbIdentifier);
-		} else {
-			logger.info("Table already exists: {}", tableName);
+				// Create indexes
+				createIndexes(tableName, dbIdentifier);
+			} else {
+				logger.info("Table already exists: {}", tableName);
+			}
+			flag = true;
+		} catch (Exception e) {
+			flag = false;
+			FaultEntity faultEntity = new FaultEntity();
+			faultEntity.setDbIdentifier(dbIdentifier);
+			faultEntity.setTableName(tableName);
+			String errorMsg = getMainCauseMessage(e, createTableSQL);
+			faultEntity.setErrorMsg(errorMsg);
+			faultEntityService.save(faultEntity);
 		}
-		flag=true;
-	}catch(Exception e){
-		flag=false;
-		FaultEntity faultEntity=new FaultEntity();
-		faultEntity.setDbIdentifier(dbIdentifier);
-		faultEntity.setTableName(tableName);
-		String errorMsg= getMainCauseMessage(e,createTableSQL);
-		faultEntity.setErrorMsg(errorMsg);
-		faultEntityService.save(faultEntity);
-	}
-	return flag;
+		return flag;
 	}
 
-public boolean createCdcTableIfNotExists(String tableCdcName, String dataFrame, String dbIdentifier) {
-	    String tableName=tableCdcName;
-		boolean flag=false;
+	public boolean createCdcTableIfNotExists(String tableCdcName, String dataFrame, String dbIdentifier) {
+		String tableName = tableCdcName;
+		boolean flag = false;
 		jdbcTemplate = getJdbcTemplate(dbIdentifier);
 		String checkTableSQL = "SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = ?";
 		String createTableSQL = "CREATE TABLE dbo." + tableName + " (" + dataFrame + ")";
-	try{
-		// Check if the table exists
-		Integer tableCount = jdbcTemplate.queryForObject(checkTableSQL, new Object[] { tableName }, Integer.class);
+		try {
+			// Check if the table exists
+			Integer tableCount = jdbcTemplate.queryForObject(checkTableSQL, new Object[] { tableName }, Integer.class);
 
-		if (tableCount != null && tableCount == 0) {
-			// Create the table if it does not exist
-			jdbcTemplate.execute(createTableSQL);
-			logger.info("Table created: {}", tableName);
+			if (tableCount != null && tableCount == 0) {
+				// Create the table if it does not exist
+				jdbcTemplate.execute(createTableSQL);
+				logger.info("Table created: {}", tableName);
 
-		} else {
-			logger.info("Table already exists: {}", tableName);
+			} else {
+				logger.info("Table already exists: {}", tableName);
+			}
+			flag = true;
+		} catch (Exception e) {
+			flag = false;
+			FaultEntity faultEntity = new FaultEntity();
+			faultEntity.setDbIdentifier(dbIdentifier);
+			faultEntity.setTableName(tableName);
+			String errorMsg = getMainCauseMessage(e, createTableSQL);
+			faultEntity.setErrorMsg(errorMsg);
+			faultEntityService.save(faultEntity);
 		}
-		flag=true;
-	}catch(Exception e){
-		flag=false;
-		FaultEntity faultEntity=new FaultEntity();
-		faultEntity.setDbIdentifier(dbIdentifier);
-		faultEntity.setTableName(tableName);
-		String errorMsg= getMainCauseMessage(e,createTableSQL);
-		faultEntity.setErrorMsg(errorMsg);
-		faultEntityService.save(faultEntity);
-	}
-	return flag;
+		return flag;
 	}
 
-    public static String getMainCauseMessage(Throwable e, String query) {
-        // Navigate to the root cause
-        Throwable cause = e;
-        while (cause.getCause() != null) {
-            cause = cause.getCause();
-        }
-    
-        // Combine the cause and the query
-        return cause.getMessage() + "\n\nQuery: " + query;
-    }
+	public static String getMainCauseMessage(Throwable e, String query) {
+		// Navigate to the root cause
+		Throwable cause = e;
+		while (cause.getCause() != null) {
+			cause = cause.getCause();
+		}
+
+		// Combine the cause and the query
+		return cause.getMessage() + "\n\nQuery: " + query;
+	}
 
 	private void createIndexes(String tableName, String dbIdentifier) {
 		jdbcTemplate = getJdbcTemplate(dbIdentifier);
 		String createIdIndexSQL = "CREATE UNIQUE INDEX dbo_" + tableName + "_Id_idx ON dbo." + tableName
 				+ "(Id) WITH (ONLINE=ON)";
-		/*String createRecIdIndexSQL = "CREATE UNIQUE INDEX dbo_" + tableName + "_RecId_idx ON dbo." + tableName
-				+ "(recid) WITH (ONLINE=ON)";*/
+		/*
+		 * String createRecIdIndexSQL = "CREATE UNIQUE INDEX dbo_" + tableName +
+		 * "_RecId_idx ON dbo." + tableName
+		 * + "(recid) WITH (ONLINE=ON)";
+		 */
 		String createVersionNumberIndexSQL = "CREATE INDEX dbo_" + tableName + "_versionnumber_idx ON dbo." + tableName
 				+ "(versionnumber) WITH (ONLINE=ON)";
 
 		jdbcTemplate.execute(createIdIndexSQL);
-		//jdbcTemplate.execute(createRecIdIndexSQL);
+		// jdbcTemplate.execute(createRecIdIndexSQL);
 		jdbcTemplate.execute(createVersionNumberIndexSQL);
 
 		logger.info("Indexes created for table: {}", tableName);

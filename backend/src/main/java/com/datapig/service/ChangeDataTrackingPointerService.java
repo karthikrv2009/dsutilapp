@@ -14,6 +14,9 @@ public class ChangeDataTrackingPointerService {
     @Autowired
     ChangeDataTrackingPointerRepository changeDataTrackingPointerRepository;
 
+    public int readyToArchive(String dbIdentifier,String folderName){
+        return changeDataTrackingPointerRepository.readyToArchive(dbIdentifier,folderName);
+    }
     public List<ChangeDataTrackingPointer>  findByDbIdentifierAndStageStatus(String dbIdentifier,int stageStatus){
         return changeDataTrackingPointerRepository.findByDbIdentifierAndStageStatus(dbIdentifier, stageStatus);
     }
