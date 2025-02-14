@@ -21,6 +21,10 @@ public class MetaDataCatlogService {
     @Autowired
     private MetaDataCatlogRepository metaDataCatlogRepository;
 
+    public List<MetaDataCatlog> findByQuarintineAndDbIdentifier(int quarintine,String dbIdentifier){
+        return metaDataCatlogRepository.findByQuarintineAndDbIdentifier(quarintine,dbIdentifier);
+    }
+    
     public List<MetaDataCatlog> findAll() {
         return metaDataCatlogRepository.findAll();
     }

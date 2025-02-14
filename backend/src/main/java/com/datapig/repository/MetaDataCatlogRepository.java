@@ -14,7 +14,7 @@ public interface MetaDataCatlogRepository extends JpaRepository<MetaDataCatlog, 
 
         List<MetaDataCatlog> findBylastCopyStatus(short lastCopyStatus);
 
-
+        List<MetaDataCatlog> findByQuarintineAndDbIdentifier(int quarintine,String dbIdentifier);
 
         List<MetaDataCatlog> findBylastCopyStatusAndDbIdentifier(@Param("lastCopyStatus") short lastCopyStatus,
                         @Param("dbIdentifier") String dbIdentifier);
