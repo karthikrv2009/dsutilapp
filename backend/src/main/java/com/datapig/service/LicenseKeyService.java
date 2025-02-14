@@ -1,13 +1,12 @@
 package com.datapig.service;
 
-import com.datapig.service.dto.LicenseKeyDTO;
 import com.datapig.component.LicenseCryptoUtil;
 import com.datapig.component.LicenseData;
 import com.datapig.entity.LicenseKey;
 import com.datapig.repository.LicenseKeyRepository;
 
 import java.time.LocalDateTime;
-import java.util.Date;
+
 import java.util.List;
 
 import javax.crypto.SecretKey;

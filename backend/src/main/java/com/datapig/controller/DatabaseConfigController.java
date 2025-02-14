@@ -187,6 +187,7 @@ public class DatabaseConfigController {
         } else {
             databaseConfigDTO = databaseConfigDTO.fromEntity(databaseConfig, 0,
                     0);
+            intialLoad = new IntialLoad(); 
             intialLoad.setDbIdentifier(databaseConfigDTO.getDbIdentifier());
             intialLoad.setStatus(0);
             intialLoad.setStagestatus(0);
