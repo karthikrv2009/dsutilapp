@@ -55,19 +55,23 @@ public class CDCLoaderService {
         changeDataTracking.setStageStatus(0);
         
         List<ChangeDataTrackingPointer> lChangeDataTrackingPointers=loadCDCPointer(changeDataTracking);
-        
+        List<ChangeDataTrackingPointer> lChangeDataTrackingPointersInDB=new ArrayList<ChangeDataTrackingPointer>();
         for(ChangeDataTrackingPointer changeDataTrackingPointer:lChangeDataTrackingPointers){
             changeDataTrackingPointer=changeDataTrackingPointerService.save(changeDataTrackingPointer);
+            lChangeDataTrackingPointersInDB.add(changeDataTrackingPointer);
         }
-        if(lChangeDataTrackingPointers!=null){
-            if(lChangeDataTrackingPointers.size()!=0){
+        if(lChangeDataTrackingPointersInDB!=null){
+            if(lChangeDataTrackingPointersInDB.size()!=0){
                 
-            changeDataTracking = changeDataTrackingService.save(changeDataTracking);
-            for(ChangeDataTrackingPointer changeDataTrackingPointer:lChangeDataTrackingPointers){
-                changeDataTrackingPointer=changeDataTrackingPointerService.save(changeDataTrackingPointer);
-                String path=changeDataTrackingPointer.getFolderName()+"/"+changeDataTracking.getTableName();
+            
+            for(ChangeDataTrackingPointer changeDataTrackingPointer:lChangeDataTrackingPointersInDB){
+                
+                System.out.println(changeDataTrackingPointer.getFolderName());
+                String path=null;
+
                 if(changeDataTrackingPointer.getFolderName().contains("/model.json")){
                     path=changeDataTrackingPointer.getFolderName();
+                    System.out.println(path);
                     boolean flag=archiveToHotRehydration.rehydrateBlobToHotTier(containerName, path,databaseConfig);
                     if(flag){
                         changeDataTrackingPointer=updateRehydrationToStart(changeDataTrackingPointer);
@@ -80,6 +84,9 @@ public class CDCLoaderService {
                     }
                 }
                 else{
+                    
+                    path=changeDataTrackingPointer.getFolderName()+"/"+changeDataTracking.getTableName();
+                    System.out.println(path);
                     boolean flag=archiveToHotRehydration.rehydrateToHotTier(containerName, path,databaseConfig);
                     if(flag){
                        changeDataTrackingPointer=updateRehydrationToStart(changeDataTrackingPointer);
