@@ -48,9 +48,9 @@ public class DatabaseConfigDTO {
 
     private int queueListenerStatus;
 
-    @Column(name = "default_profile")
     private boolean defaultProfile;
 
+    
     public Long getId() {
         return id;
     }

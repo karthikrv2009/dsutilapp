@@ -6,6 +6,9 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 
 import jakarta.persistence.Table;
+
+import org.hibernate.annotations.ColumnDefault;
+
 import jakarta.persistence.Column;
 
 @Entity
@@ -64,6 +67,7 @@ public class DatabaseConfig {
     @Column(name = "local_cdm_file_path", length = 300)
     private String localCdmFilePath;
 
+
     @Column(name = "max_threads")
     private int maxThreads;
 
@@ -71,9 +75,26 @@ public class DatabaseConfig {
     private boolean enableArchive;
 
     @Column(name = "default_profile")
+    @ColumnDefault("false")
     private boolean defaultProfile;
 
+    @Column(name = "purge_enabled")
+    @ColumnDefault("false")
+    private boolean purgeEnabled;
     
+    @Column(name = "purge_duration")
+    @ColumnDefault("31622400000")
+    private long purgeDuration;
+
+    public boolean isPurgeEnabled() {
+        return purgeEnabled;
+    }
+
+    public void setPurgeEnabled(boolean purgeEnabled) {
+        this.purgeEnabled = purgeEnabled;
+    }
+
+        
     public boolean isEnableArchive() {
         return enableArchive;
     }
