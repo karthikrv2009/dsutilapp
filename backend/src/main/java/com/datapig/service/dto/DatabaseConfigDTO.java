@@ -52,7 +52,7 @@ public class DatabaseConfigDTO {
 
     private long purgeDuration;
 
-    private String purgeUnit; // Add this field
+    private String purgeUnit = "days"; // Initialize with a default value
 
     public Long getId() {
         return id;
