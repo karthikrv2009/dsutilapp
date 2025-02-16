@@ -2,7 +2,6 @@ package com.datapig.service.dto;
 
 import com.datapig.entity.DatabaseConfig;
 
-
 public class DatabaseConfigDTO {
 
     private Long id;
@@ -52,7 +51,9 @@ public class DatabaseConfigDTO {
     private boolean purgeEnabled;
 
     private long purgeDuration;
-    
+
+    private String purgeUnit; // Add this field
+
     public Long getId() {
         return id;
     }
@@ -213,6 +214,28 @@ public class DatabaseConfigDTO {
         this.queueListenerStatus = queueListenerStatus;
     }
 
+    // Method to convert purgeDuration and purgeUnit to milliseconds
+    public long getPurgeDurationInMilliseconds() {
+        long durationInMilliseconds = 0;
+        switch (purgeUnit.toLowerCase()) {
+            case "weeks":
+                durationInMilliseconds = purgeDuration * 7L * 24L * 60L * 60L * 1000L;
+                break;
+            case "days":
+                durationInMilliseconds = purgeDuration * 24L * 60L * 60L * 1000L;
+                break;
+            case "months":
+                durationInMilliseconds = purgeDuration * 30L * 24L * 60L * 60L * 1000L;
+                break;
+            case "years":
+                durationInMilliseconds = purgeDuration * 365L * 24L * 60L * 60L * 1000L;
+                break;
+            default:
+                throw new IllegalArgumentException("Invalid purge unit: " + purgeUnit);
+        }
+        return durationInMilliseconds;
+    }
+
     // Method to convert DatabaseConfig to DatabaseConfigDTO
     public DatabaseConfigDTO fromEntity(DatabaseConfig databaseConfig, int initialLoadStatus,
             int queueListenerStatus) {
@@ -242,6 +265,33 @@ public class DatabaseConfigDTO {
         dto.setPurgeDuration(databaseConfig.getPurgeDuration());
         dto.setDefaultProfile(databaseConfig.isDefaultProfile());
         return dto;
+    }
+
+    public DatabaseConfig toEntity() {
+        DatabaseConfig entity = new DatabaseConfig();
+        entity.setId(this.getId());
+        entity.setDbIdentifier(this.getDbIdentifier());
+        entity.setUrl(this.getUrl());
+        entity.setUsername(this.getUsername());
+        entity.setPassword(this.getPassword());
+        entity.setDriverClassName(this.getDriverClassName());
+        entity.setQueueName(this.getQueueName());
+        entity.setQueueSasToken(this.getQueueSasToken());
+        entity.setQueueEndpoint(this.getQueueEndpoint());
+        entity.setAdlsStorageAccountName(this.getAdlsStorageAccountName());
+        entity.setAdlsStorageAccountEndpoint(this.getAdlsStorageAccountEndpoint());
+        entity.setAdlsStorageAccountSasKey(this.getAdlsStorageAccountSasKey());
+        entity.setAdlsContainerName(this.getAdlsContainerName());
+        entity.setAdlsFolderName(this.getAdlsFolderName());
+        entity.setAdlsCdmFileName(this.getAdlsCdmFileName());
+        entity.setAdlsCdmFilePath(this.getAdlsCdmFilePath());
+        entity.setLocalCdmFilePath(this.getLocalCdmFilePath());
+        entity.setMaxThreads(this.getMaxThreads());
+        entity.setEnableArchive(this.isEnableArchive());
+        entity.setDefaultProfile(this.isDefaultProfile());
+        entity.setPurgeEnabled(this.isPurgeEnabled());
+        entity.setPurgeDuration(this.getPurgeDurationInMilliseconds());
+        return entity;
     }
 
     public boolean isEnableArchive() {
@@ -276,5 +326,12 @@ public class DatabaseConfigDTO {
         this.purgeDuration = purgeDuration;
     }
 
-    
+    public String getPurgeUnit() {
+        return purgeUnit;
+    }
+
+    public void setPurgeUnit(String purgeUnit) {
+        this.purgeUnit = purgeUnit;
+    }
+
 }

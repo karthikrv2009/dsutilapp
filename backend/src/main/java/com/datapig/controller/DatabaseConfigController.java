@@ -172,7 +172,8 @@ public class DatabaseConfigController {
     }
 
     @PostMapping("/save")
-    public ResponseEntity<DatabaseConfigDTO> saveDatabaseConfig(@RequestBody DatabaseConfig databaseConfig) {
+    public ResponseEntity<DatabaseConfigDTO> saveDatabaseConfig(@RequestBody DatabaseConfigDTO request) {
+        DatabaseConfig databaseConfig = request.toEntity();
         dynamicDataSourceManager.addDataSource(databaseConfig.getDbIdentifier(), databaseConfig.getUrl(),
                 databaseConfig.getUsername(), databaseConfig.getPassword());
 

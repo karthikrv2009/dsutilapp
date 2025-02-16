@@ -22,6 +22,10 @@ import {
   Checkbox,
   FormControlLabel,
   CircularProgress,
+  FormControl,
+  MenuItem,
+  InputLabel,
+  Select,
 } from "@mui/material";
 import { makeStyles } from "@mui/styles";
 import Header from "./Header"; // Import the Header component
@@ -124,6 +128,9 @@ const LicenseKeyPage = () => {
     initialLoadStatus: 0,
     queueListenerStatus: 0,
     defaultProfile: false,
+    purgeEnabled: false,
+    purgeDuration: 0,
+    purgeUnit: "Weeks",
   });
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [validationResults, setValidationResults] = useState({});
@@ -370,6 +377,10 @@ const LicenseKeyPage = () => {
         enableArchive: false,
         initialLoadStatus: 0,
         queueListenerStatus: 0,
+        defaultProfile: false,
+        purgeEnabled: false,
+        purgeDuration: 0,
+        purgeUnit: "Weeks",
       });
       fetchData("/api/database-configs", setConfigs); // Refresh the data
     } catch (error) {
@@ -1174,6 +1185,17 @@ const LicenseKeyPage = () => {
               <FormControlLabel
                 control={
                   <Checkbox
+                    checked={newConfig.purgeEnabled}
+                    onChange={handleChange}
+                    name="purgeEnabled"
+                    color="primary"
+                  />
+                }
+                label="Enable Purge"
+              />
+              <FormControlLabel
+                control={
+                  <Checkbox
                     checked={newConfig.enableArchive}
                     onChange={handleChange}
                     name="enableArchive"
@@ -1182,6 +1204,34 @@ const LicenseKeyPage = () => {
                 }
                 label="Enable Archive"
               />
+              <TextField
+                label="purgeDuration"
+                variant="outlined"
+                name="maxThreads"
+                type="number"
+                value={newConfig.purgeDuration}
+                onChange={handleChange}
+                fullWidth
+                error={isSubmitted && validationResults.purgeDuration === false}
+                helperText={
+                  isSubmitted && validationResults.purgeDuration === false
+                    ? "purgeDuration"
+                    : ""
+                }
+              />
+              <FormControl className={classes.formControl} fullWidth>
+                <InputLabel id="purge-unit-label">Purge Unit</InputLabel>
+                <Select
+                  labelId="purge-unit-label"
+                  value={newConfig.purgeUnit}
+                  onChange={handleChange}
+                >
+                  <MenuItem value="Weeks">Weeks</MenuItem>
+                  <MenuItem value="Days">Days</MenuItem>
+                  <MenuItem value="Months">Months</MenuItem>
+                  <MenuItem value="Years">Years</MenuItem>
+                </Select>
+              </FormControl>
             </form>
           </DialogContent>
           <DialogActions>
@@ -1502,13 +1552,25 @@ const LicenseKeyPage = () => {
               <FormControlLabel
                 control={
                   <Checkbox
-                    checked={newConfig.defaultProfile}
+                    checked={editConfig ? editConfig.defaultProfile : false}
                     onChange={handleChange}
                     name="defaultProfile"
                     color="primary"
                   />
                 }
                 label="Enable defaultProfile"
+              />
+
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={editConfig ? editConfig.purgeEnabled : false}
+                    onChange={handleChange}
+                    name="purgeEnabled"
+                    color="primary"
+                  />
+                }
+                label="Enable purgeEnabled"
               />
 
               <FormControlLabel
@@ -1522,6 +1584,37 @@ const LicenseKeyPage = () => {
                 }
                 label="Enable Archive"
               />
+
+              <TextField
+                label="purgeDuration"
+                variant="outlined"
+                name="maxThreads"
+                type="number"
+                value={editConfig.purgeDuration}
+                onChange={handleChange}
+                fullWidth
+                error={
+                  isSubmitted && editValidationResults.purgeDuration === false
+                }
+                helperText={
+                  isSubmitted && editValidationResults.purgeDuration === false
+                    ? "purgeDuration"
+                    : ""
+                }
+              />
+              <FormControl className={classes.formControl} fullWidth>
+                <InputLabel id="purge-unit-label">Purge Unit</InputLabel>
+                <Select
+                  labelId="purge-unit-label"
+                  value={editConfig.purgeUnit}
+                  onChange={handleChange}
+                >
+                  <MenuItem value="Weeks">Weeks</MenuItem>
+                  <MenuItem value="Days">Days</MenuItem>
+                  <MenuItem value="Months">Months</MenuItem>
+                  <MenuItem value="Years">Years</MenuItem>
+                </Select>
+              </FormControl>
             </form>
           </DialogContent>
           <DialogActions>
