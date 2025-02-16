@@ -85,10 +85,7 @@ const App = () => {
                   setDbProfiles={setDbProfiles}
                 />
               }
-            >
-              {" "}
-              {/* Layout Component */}
-            </Route>
+            ></Route>
             <Route path="/" element={<Navigate to="/login" />} />{" "}
             {/* Redirect to Login Page */}
             <Route path="/login" element={<Login />} /> {/* Login Page */}
