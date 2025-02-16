@@ -63,11 +63,16 @@ public class DatabaseConfigService {
         existingConfig.setMaxThreads(config.getMaxThreads());
         existingConfig.setEnableArchive(config.isEnableArchive());
         existingConfig.setDefaultProfile(config.isDefaultProfile());
-        DatabaseConfig databaseConfig=databaseConfigRepository.save(existingConfig);
-        if(databaseConfig.isDefaultProfile()){
+        existingConfig.setPurgeUnit(config.getPurgeUnit());
+        existingConfig.setPurgeUnitValue(config.getPurgeUnitValue());
+        existingConfig.setPurgeDuration(config.getPurgeDuration());
+        existingConfig.setPurgeEnabled(config.isPurgeEnabled());
+        DatabaseConfig databaseConfig = databaseConfigRepository.save(existingConfig);
+        if (databaseConfig.isDefaultProfile()) {
             updateDatabaseConfigs(databaseConfig.getDbIdentifier());
         }
     }
+
     public void deleteDatabaseConfig(DatabaseConfig databaseConfig) {
         databaseConfigRepository.deleteById(databaseConfig.getId());
         dynamicDataSourceManager.removeDataSource(databaseConfig.getDbIdentifier());
@@ -80,5 +85,5 @@ public class DatabaseConfigService {
         // Second update: set the specific dbIdentifier to 'isDefault = 1'
         databaseConfigRepository.updateSpecificDatabase(dbIdentifier);
     }
-    
+
 }
