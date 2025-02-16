@@ -1591,7 +1591,7 @@ const LicenseKeyPage = () => {
                 variant="outlined"
                 name="purgeDuration"
                 type="number"
-                value={editConfig.purgeDuration}
+                value={editConfig ? editConfig.purgeDuration : ""}
                 onChange={handleChange}
                 fullWidth
                 error={
