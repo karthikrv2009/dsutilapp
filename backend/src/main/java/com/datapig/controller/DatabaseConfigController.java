@@ -302,7 +302,8 @@ public class DatabaseConfigController {
         dto.setEnableArchive(databaseConfig.isEnableArchive());
         dto.setInitialLoadStatus(initialLoadStatus);
         dto.setDefaultProfile(databaseConfig.isDefaultProfile());
-        
+        dto.setEnableArchive(databaseConfig.isPurgeEnabled());
+        dto.setPurgeDuration(databaseConfig.getPurgeDuration());
         dto.setQueueListenerStatus(queueListenerStatus);
         return dto;
     }

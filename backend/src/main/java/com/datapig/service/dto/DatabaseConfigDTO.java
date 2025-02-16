@@ -2,7 +2,6 @@ package com.datapig.service.dto;
 
 import com.datapig.entity.DatabaseConfig;
 
-import jakarta.persistence.Column;
 
 public class DatabaseConfigDTO {
 
@@ -50,6 +49,9 @@ public class DatabaseConfigDTO {
 
     private boolean defaultProfile;
 
+    private boolean purgeEnabled;
+
+    private long purgeDuration;
     
     public Long getId() {
         return id;
@@ -236,6 +238,8 @@ public class DatabaseConfigDTO {
         dto.setInitialLoadStatus(initialLoadStatus);
         dto.setQueueListenerStatus(queueListenerStatus);
         dto.setEnableArchive(databaseConfig.isEnableArchive());
+        dto.setPurgeEnabled(databaseConfig.isPurgeEnabled());
+        dto.setPurgeDuration(databaseConfig.getPurgeDuration());
         dto.setDefaultProfile(databaseConfig.isDefaultProfile());
         return dto;
     }
@@ -256,4 +260,21 @@ public class DatabaseConfigDTO {
         this.defaultProfile = defaultProfile;
     }
 
+    public boolean isPurgeEnabled() {
+        return purgeEnabled;
+    }
+
+    public void setPurgeEnabled(boolean purgeEnabled) {
+        this.purgeEnabled = purgeEnabled;
+    }
+
+    public long getPurgeDuration() {
+        return purgeDuration;
+    }
+
+    public void setPurgeDuration(long purgeDuration) {
+        this.purgeDuration = purgeDuration;
+    }
+
+    
 }

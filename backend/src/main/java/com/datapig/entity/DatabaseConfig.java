@@ -86,6 +86,18 @@ public class DatabaseConfig {
     @ColumnDefault("31622400000")
     private long purgeDuration;
 
+    public void setEnableArchive(boolean enableArchive) {
+        this.enableArchive = enableArchive;
+    }
+
+    public long getPurgeDuration() {
+        return purgeDuration;
+    }
+
+    public void setPurgeDuration(long purgeDuration) {
+        this.purgeDuration = purgeDuration;
+    }
+
     public boolean isPurgeEnabled() {
         return purgeEnabled;
     }
