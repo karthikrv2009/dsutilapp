@@ -17,11 +17,16 @@ import {
   Grid,
   Tab,
   Tabs,
+  Tooltip,
+  Icon,
 } from "@mui/material";
 import { makeStyles } from "@mui/styles";
 import { DateTimePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns"; // Import AdapterDateFns
 import Header from "./Header"; // Import the Header component
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import ErrorIcon from "@mui/icons-material/Error";
+import HourglassEmptyIcon from "@mui/icons-material/HourglassEmpty";
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -123,6 +128,9 @@ const ChangeLog = () => {
       // Handle successful response
       const createdTableName = response.data.tableName; // Assuming the response contains the table name in `tableName` field
       alert(`Form submitted successfully! Table created: ${createdTableName}`);
+
+      // Reload the table data
+      fetchChangeLogData();
     } catch (error) {
       console.error("Error submitting form:", error);
       // Handle error response
@@ -130,20 +138,46 @@ const ChangeLog = () => {
     }
   };
 
-  useEffect(() => {
-    const fetchChangeLogData = async () => {
-      try {
-        const response = await axios.get(
-          "/api/database-configs/change-data-tracking"
-        );
-        setChangeLogData(response.data);
-      } catch (error) {
-        console.error("Error fetching change log data:", error);
-      }
-    };
+  const fetchChangeLogData = async () => {
+    try {
+      const response = await axios.get(
+        "/api/database-configs/change-data-tracking"
+      );
+      setChangeLogData(response.data);
+    } catch (error) {
+      console.error("Error fetching change log data:", error);
+    }
+  };
 
+  useEffect(() => {
     fetchChangeLogData();
   }, []);
+
+  const renderStageStatusIcon = (stageStatus) => {
+    switch (stageStatus) {
+      case 0:
+        return (
+          <Tooltip title="Rehydration in-progress">
+            <HourglassEmptyIcon style={{ color: "orange" }} />
+          </Tooltip>
+        );
+      case 1:
+      case 2:
+        return (
+          <Tooltip title="Rehydrate pending to hot">
+            <CheckCircleIcon style={{ color: "green" }} />
+          </Tooltip>
+        );
+      case 3:
+        return (
+          <Tooltip title="Failed">
+            <ErrorIcon style={{ color: "red" }} />
+          </Tooltip>
+        );
+      default:
+        return null;
+    }
+  };
 
   return (
     <div>
@@ -226,7 +260,7 @@ const ChangeLog = () => {
               className={classes.button}
               fullWidth
             >
-              Create Change Data table
+              Create CDT
             </Button>
           </Grid>
         </Grid>
@@ -237,9 +271,7 @@ const ChangeLog = () => {
               <TableCell className={classes.tableCellHead}>
                 DB Identifier
               </TableCell>
-              <TableCell className={classes.tableCellHead}>
-                Stage Status
-              </TableCell>
+
               <TableCell className={classes.tableCellHead}>
                 Table Name
               </TableCell>
@@ -251,6 +283,9 @@ const ChangeLog = () => {
               </TableCell>
               <TableCell className={classes.tableCellHead}>
                 ADLS End Time
+              </TableCell>
+              <TableCell className={classes.tableCellHead}>
+                Stage Status
               </TableCell>
             </TableRow>
           </TableHead>
@@ -264,9 +299,7 @@ const ChangeLog = () => {
                   <TableCell className={classes.tableCellBody}>
                     {log.dbIdentifier}
                   </TableCell>
-                  <TableCell className={classes.tableCellBody}>
-                    {log.stageStatus}
-                  </TableCell>
+
                   <TableCell className={classes.tableCellBody}>
                     {log.tableName}
                   </TableCell>
@@ -278,6 +311,9 @@ const ChangeLog = () => {
                   </TableCell>
                   <TableCell className={classes.tableCellBody}>
                     {log.adlsEndTime}
+                  </TableCell>
+                  <TableCell className={classes.tableCellBody}>
+                    {renderStageStatusIcon(log.stageStatus)}
                   </TableCell>
                 </TableRow>
               ))
