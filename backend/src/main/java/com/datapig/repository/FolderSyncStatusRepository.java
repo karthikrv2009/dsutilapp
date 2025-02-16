@@ -58,7 +58,7 @@ public interface FolderSyncStatusRepository extends JpaRepository<FolderSyncStat
                         "INNER JOIN MetaDataPointer m ON f.folder = m.folderName AND f.dbIdentifier = m.dbIdentifier " +
                         "WHERE f.dbIdentifier = :dbIdentifier " +
                         "AND m.adlscreationtimestamp < :thresholdDate " +
-                        "AND f.deleted = 0")
+                        "AND f.deleted = 0 AND f.copyStatus = 1")
         List<FolderSyncStatus> findFoldersAfterThreshold(@Param("dbIdentifier") String dbIdentifier,
                         @Param("thresholdDate") LocalDateTime thresholdDate);
 

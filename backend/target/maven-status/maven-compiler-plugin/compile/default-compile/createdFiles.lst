@@ -1,11 +1,9 @@
-com\datapig\service\dto\DatabaseConfigDTO.class
 com\datapig\repository\FaultEntityRepository.class
 com\datapig\repository\HealthMetricsRepository.class
 com\datapig\service\FolderSyncStatusService.class
 com\datapig\config\WebConfig$1.class
 com\datapig\entity\EnvironmentConfig.class
 com\datapig\service\dto\ModelAnnotation.class
-com\datapig\controller\DatabaseConfigController.class
 com\datapig\service\dto\DashboardData.class
 com\datapig\service\dto\ModelTraitArgument.class
 com\datapig\repository\LicenseKeyRepository.class
