@@ -12,6 +12,7 @@ import com.datapig.repository.IntitalLoadRepository;
 
 import com.datapig.service.AzureQueueListenerService;
 import com.datapig.service.CDCLoaderService;
+import com.datapig.service.ChangeDataTrackingService;
 import com.datapig.service.DatabaseConfigService;
 import com.datapig.service.InitialLoadService;
 import com.datapig.service.LicenseKeyService;
@@ -63,6 +64,9 @@ public class DatabaseConfigController {
 
     @Autowired
     private LicenseKeyService licenseKeyService;
+
+    @Autowired
+    private ChangeDataTrackingService changeDataTrackingService;
 
     @GetMapping
     public ResponseEntity<List<DatabaseConfigDTO>> getAllDatabaseConfigs() {
@@ -187,7 +191,7 @@ public class DatabaseConfigController {
         } else {
             databaseConfigDTO = databaseConfigDTO.fromEntity(databaseConfig, 0,
                     0);
-            intialLoad = new IntialLoad(); 
+            intialLoad = new IntialLoad();
             intialLoad.setDbIdentifier(databaseConfigDTO.getDbIdentifier());
             intialLoad.setStatus(0);
             intialLoad.setStagestatus(0);
@@ -238,12 +242,13 @@ public class DatabaseConfigController {
 
             // Process the payload and create the table
             String createdTableName = null;
-            ChangeDataTracking changeDataTracking=cDCLoaderService.loadCDC(dbProfile, table, startTime, endTime);
-            if(changeDataTracking!=null){
-                createdTableName="CDC Table for "+ changeDataTracking.getTableName() + " : " + changeDataTracking.getCdcTableName() +" Processing started."; 
-            }
-            else{
-                createdTableName="No records for table "+table+" found in ADLS on range specified. Update and retry.";
+            ChangeDataTracking changeDataTracking = cDCLoaderService.loadCDC(dbProfile, table, startTime, endTime);
+            if (changeDataTracking != null) {
+                createdTableName = "CDC Table for " + changeDataTracking.getTableName() + " : "
+                        + changeDataTracking.getCdcTableName() + " Processing started.";
+            } else {
+                createdTableName = "No records for table " + table
+                        + " found in ADLS on range specified. Update and retry.";
             }
 
             Map<String, String> response = new HashMap<>();
@@ -277,6 +282,11 @@ public class DatabaseConfigController {
             e.printStackTrace();
             return ResponseEntity.status(500).body(null);
         }
+    }
+
+    @GetMapping("/change-data-tracking")
+    public ResponseEntity<List<ChangeDataTracking>> getChangeDataTrackingService() {
+        return ResponseEntity.ok(changeDataTrackingService.findAll());
     }
 
     public DatabaseConfigDTO toDTO(DatabaseConfig databaseConfig, int initialLoadStatus, int queueListenerStatus) {

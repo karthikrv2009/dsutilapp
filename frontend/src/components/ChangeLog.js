@@ -75,7 +75,7 @@ const ChangeLog = () => {
       if (selectedDbProfile) {
         try {
           const response = await axios.get(
-            `/api/tables?profile=${selectedDbProfile}`
+            `/api/database-configs/tables?dbProfile=${selectedDbProfile}`
           );
           setTables(response.data);
         } catch (error) {
@@ -113,7 +113,6 @@ const ChangeLog = () => {
       };
 
       console.log("Payload:", payload);
-
       const response = await axios.post(
         "/api/database-configs/submit",
         payload
@@ -130,6 +129,21 @@ const ChangeLog = () => {
       alert("Error submitting form. Please try again.");
     }
   };
+
+  useEffect(() => {
+    const fetchChangeLogData = async () => {
+      try {
+        const response = await axios.get(
+          "/api/database-configs/change-data-tracking"
+        );
+        setChangeLogData(response.data);
+      } catch (error) {
+        console.error("Error fetching change log data:", error);
+      }
+    };
+
+    fetchChangeLogData();
+  }, []);
 
   return (
     <div>
@@ -212,40 +226,64 @@ const ChangeLog = () => {
               className={classes.button}
               fullWidth
             >
-              Submit
+              Create Change Data table
             </Button>
           </Grid>
         </Grid>
         <Table>
           <TableHead className={classes.tableHead}>
             <TableRow>
-              <TableCell className={classes.tableCellHead}>Timestamp</TableCell>
-              <TableCell className={classes.tableCellHead}>User</TableCell>
-              <TableCell className={classes.tableCellHead}>Action</TableCell>
-              <TableCell className={classes.tableCellHead}>Details</TableCell>
+              <TableCell className={classes.tableCellHead}>ID</TableCell>
+              <TableCell className={classes.tableCellHead}>
+                DB Identifier
+              </TableCell>
+              <TableCell className={classes.tableCellHead}>
+                Stage Status
+              </TableCell>
+              <TableCell className={classes.tableCellHead}>
+                Table Name
+              </TableCell>
+              <TableCell className={classes.tableCellHead}>
+                CDC Table Name
+              </TableCell>
+              <TableCell className={classes.tableCellHead}>
+                ADLS Start Time
+              </TableCell>
+              <TableCell className={classes.tableCellHead}>
+                ADLS End Time
+              </TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {changeLogData.length > 0 ? (
               changeLogData.map((log) => (
-                <TableRow key={log.timestamp}>
+                <TableRow key={log.id}>
                   <TableCell className={classes.tableCellBody}>
-                    {log.timestamp}
+                    {log.id}
                   </TableCell>
                   <TableCell className={classes.tableCellBody}>
-                    {log.user}
+                    {log.dbIdentifier}
                   </TableCell>
                   <TableCell className={classes.tableCellBody}>
-                    {log.action}
+                    {log.stageStatus}
                   </TableCell>
                   <TableCell className={classes.tableCellBody}>
-                    {log.details}
+                    {log.tableName}
+                  </TableCell>
+                  <TableCell className={classes.tableCellBody}>
+                    {log.cdcTableName}
+                  </TableCell>
+                  <TableCell className={classes.tableCellBody}>
+                    {log.adlsStartTime}
+                  </TableCell>
+                  <TableCell className={classes.tableCellBody}>
+                    {log.adlsEndTime}
                   </TableCell>
                 </TableRow>
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={4} className={classes.tableCellBody}>
+                <TableCell colSpan={7} className={classes.tableCellBody}>
                   No data available
                 </TableCell>
               </TableRow>
