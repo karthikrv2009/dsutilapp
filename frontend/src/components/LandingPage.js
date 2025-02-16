@@ -642,7 +642,7 @@ const LandingPage = () => {
                       className={classes.tableCellHead}
                       style={{ color: "white" }}
                     >
-                      Time Spent
+                      Time Spent(ms)
                     </TableCell>
                     <TableCell
                       className={classes.tableCellHead}
