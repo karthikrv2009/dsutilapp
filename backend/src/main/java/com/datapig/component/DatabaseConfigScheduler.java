@@ -447,4 +447,15 @@ public class DatabaseConfigScheduler {
         }
         return metaDataCatlog2;
     }
+
+    @Scheduled(fixedRate = 60000) // 300000 milliseconds = 5 minutes
+    public void purgeFiles() {
+        List<DatabaseConfig> databaseConfigs = databaseConfigService.getAllDatabaseConfigs();
+        for (DatabaseConfig databaseConfig : databaseConfigs) {
+            
+        }
+    }
+
+    
+
 }
