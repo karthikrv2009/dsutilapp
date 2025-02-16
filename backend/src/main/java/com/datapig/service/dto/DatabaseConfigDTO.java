@@ -281,7 +281,7 @@ public class DatabaseConfigDTO {
         dto.setQueueListenerStatus(queueListenerStatus);
         dto.setEnableArchive(databaseConfig.isEnableArchive());
         dto.setPurgeEnabled(databaseConfig.isPurgeEnabled());
-        this.setPurgeDurationFromMilliseconds(databaseConfig.getPurgeDuration());
+        dto.setPurgeDurationFromMilliseconds(databaseConfig.getPurgeDuration());
         // dto.setPurgeDuration(databaseConfig.getPurgeDuration());
         dto.setDefaultProfile(databaseConfig.isDefaultProfile());
         return dto;
