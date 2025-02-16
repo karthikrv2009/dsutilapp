@@ -85,8 +85,10 @@ public class DatabaseConfig {
     @ColumnDefault("31622400000")
     private long purgeDuration;
 
+    @Column(name = "purge_unit_value")
     private long purgeUnitValue;
 
+    @Column(name = "purge_unit")
     private String purgeUnit;
 
     public long getPurgeUnitValue() {

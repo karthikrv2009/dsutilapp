@@ -222,6 +222,7 @@ public class DatabaseConfigScheduler {
                             updateRehydrationToStart(changeDataTrackingPointer);
                         }
                     } else {
+                        System.out.println("scheduler call==>"+path);
                         boolean flag = archiveToHotRehydration.rehydrateToHotTier(databaseConfig.getAdlsContainerName(),
                                 path, databaseConfig);
                         if (flag) {
