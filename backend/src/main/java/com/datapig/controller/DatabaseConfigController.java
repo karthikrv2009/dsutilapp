@@ -173,10 +173,11 @@ public class DatabaseConfigController {
 
     @PostMapping("/save")
     public ResponseEntity<DatabaseConfigDTO> saveDatabaseConfig(@RequestBody DatabaseConfigDTO request) {
+        System.out.println(request.toString());
         DatabaseConfig databaseConfig = request.toEntity();
         dynamicDataSourceManager.addDataSource(databaseConfig.getDbIdentifier(), databaseConfig.getUrl(),
                 databaseConfig.getUsername(), databaseConfig.getPassword());
-
+        
         IntialLoad intialLoad = intitalLoadRepository.findByDbIdentifier(databaseConfig.getDbIdentifier());
 
         DatabaseConfigDTO databaseConfigDTO = new DatabaseConfigDTO();
@@ -202,7 +203,7 @@ public class DatabaseConfigController {
             intialLoad.setQueueListenerStatus(0);
             intitalLoadRepository.save(intialLoad);
         }
-
+        System.out.println(databaseConfig.toString());
         databaseConfigService.saveDatabaseConfig(databaseConfig);
 
         return ResponseEntity.ok(databaseConfigDTO);

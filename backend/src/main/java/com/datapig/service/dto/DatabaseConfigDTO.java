@@ -314,6 +314,37 @@ public class DatabaseConfigDTO {
         return entity;
     }
 
+    
+
+    @Override
+    public String toString() {
+        return "DatabaseConfigDTO [id=" + id + ", dbIdentifier=" + dbIdentifier + ", url=" + url + ", username="
+                + username + ", password=" + password + ", driverClassName=" + driverClassName + ", queueName="
+                + queueName + ", queueSasToken=" + queueSasToken + ", queueEndpoint=" + queueEndpoint
+                + ", adlsStorageAccountName=" + adlsStorageAccountName + ", adlsStorageAccountEndpoint="
+                + adlsStorageAccountEndpoint + ", adlsStorageAccountSasKey=" + adlsStorageAccountSasKey
+                + ", adlsContainerName=" + adlsContainerName + ", adlsFolderName=" + adlsFolderName
+                + ", adlsCdmFileName=" + adlsCdmFileName + ", adlsCdmFilePath=" + adlsCdmFilePath
+                + ", localCdmFilePath=" + localCdmFilePath + ", maxThreads=" + maxThreads + ", enableArchive="
+                + enableArchive + ", initialLoadStatus=" + initialLoadStatus + ", queueListenerStatus="
+                + queueListenerStatus + ", defaultProfile=" + defaultProfile + ", purgeEnabled=" + purgeEnabled
+                + ", purgeDuration=" + purgeDuration + ", purgeUnit=" + purgeUnit + ", getId()=" + getId()
+                + ", getDbIdentifier()=" + getDbIdentifier() + ", getUrl()=" + getUrl() + ", getUsername()="
+                + getUsername() + ", getPassword()=" + getPassword() + ", getDriverClassName()=" + getDriverClassName()
+                + ", getQueueName()=" + getQueueName() + ", getQueueSasToken()=" + getQueueSasToken() + ", getClass()="
+                + getClass() + ", getQueueEndpoint()=" + getQueueEndpoint() + ", getAdlsStorageAccountName()="
+                + getAdlsStorageAccountName() + ", getAdlsStorageAccountEndpoint()=" + getAdlsStorageAccountEndpoint()
+                + ", getAdlsStorageAccountSasKey()=" + getAdlsStorageAccountSasKey() + ", getAdlsContainerName()="
+                + getAdlsContainerName() + ", getAdlsFolderName()=" + getAdlsFolderName() + ", getAdlsCdmFileName()="
+                + getAdlsCdmFileName() + ", getAdlsCdmFilePath()=" + getAdlsCdmFilePath() + ", hashCode()=" + hashCode()
+                + ", getLocalCdmFilePath()=" + getLocalCdmFilePath() + ", getMaxThreads()=" + getMaxThreads()
+                + ", getInitialLoadStatus()=" + getInitialLoadStatus() + ", getQueueListenerStatus()="
+                + getQueueListenerStatus() + ", getPurgeDurationInMilliseconds()=" + getPurgeDurationInMilliseconds()
+                + ", toEntity()=" + toEntity() + ", isEnableArchive()=" + isEnableArchive() + ", isDefaultProfile()="
+                + isDefaultProfile() + ", isPurgeEnabled()=" + isPurgeEnabled() + ", getPurgeDuration()="
+                + getPurgeDuration() + ", getPurgeUnit()=" + getPurgeUnit() + ", toString()=" + super.toString() + "]";
+    }
+
     public boolean isEnableArchive() {
         return enableArchive;
     }

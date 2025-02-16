@@ -272,4 +272,29 @@ public class DatabaseConfig {
         this.defaultProfile = defaultProfile;
     }
 
+    @Override
+    public String toString() {
+        return "DatabaseConfig [id=" + id + ", dbIdentifier=" + dbIdentifier + ", url=" + url + ", username=" + username
+                + ", password=" + password + ", driverClassName=" + driverClassName + ", queueName=" + queueName
+                + ", queueSasToken=" + queueSasToken + ", queueEndpoint=" + queueEndpoint + ", adlsStorageAccountName="
+                + adlsStorageAccountName + ", adlsStorageAccountEndpoint=" + adlsStorageAccountEndpoint
+                + ", adlsStorageAccountSasKey=" + adlsStorageAccountSasKey + ", adlsContainerName=" + adlsContainerName
+                + ", adlsFolderName=" + adlsFolderName + ", adlsCdmFileName=" + adlsCdmFileName + ", adlsCdmFilePath="
+                + adlsCdmFilePath + ", localCdmFilePath=" + localCdmFilePath + ", maxThreads=" + maxThreads
+                + ", enableArchive=" + enableArchive + ", defaultProfile=" + defaultProfile + ", purgeEnabled="
+                + purgeEnabled + ", purgeDuration=" + purgeDuration + ", getClass()=" + getClass()
+                + ", getPurgeDuration()=" + getPurgeDuration() + ", isPurgeEnabled()=" + isPurgeEnabled()
+                + ", isEnableArchive()=" + isEnableArchive() + ", getQueueName()=" + getQueueName()
+                + ", getQueueSasToken()=" + getQueueSasToken() + ", getQueueEndpoint()=" + getQueueEndpoint()
+                + ", getAdlsStorageAccountName()=" + getAdlsStorageAccountName() + ", getAdlsStorageAccountEndpoint()="
+                + getAdlsStorageAccountEndpoint() + ", hashCode()=" + hashCode() + ", getAdlsStorageAccountSasKey()="
+                + getAdlsStorageAccountSasKey() + ", getAdlsContainerName()=" + getAdlsContainerName()
+                + ", getAdlsFolderName()=" + getAdlsFolderName() + ", getAdlsCdmFileName()=" + getAdlsCdmFileName()
+                + ", getAdlsCdmFilePath()=" + getAdlsCdmFilePath() + ", getLocalCdmFilePath()=" + getLocalCdmFilePath()
+                + ", getId()=" + getId() + ", getDbIdentifier()=" + getDbIdentifier() + ", getUrl()=" + getUrl()
+                + ", getUsername()=" + getUsername() + ", getPassword()=" + getPassword() + ", getDriverClassName()="
+                + getDriverClassName() + ", getMaxThreads()=" + getMaxThreads() + ", isDefaultProfile()="
+                + isDefaultProfile() + ", toString()=" + super.toString() + "]";
+    }
+    
 }
