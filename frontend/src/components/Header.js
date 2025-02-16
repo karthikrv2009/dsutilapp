@@ -57,11 +57,39 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const Header = ({ selectedDbProfile, setSelectedDbProfile, dbProfiles }) => {
+const Header = () => {
   const classes = useStyles();
   const navigate = useNavigate();
   const [anchorElProfiles, setAnchorElProfiles] = useState(null); // State for the profiles dropdown menu
   const [anchorElAccount, setAnchorElAccount] = useState(null); // State for the account dropdown menu
+  const [dbProfiles, setDbProfiles] = useState([]);
+  const [selectedDbProfile, setSelectedDbProfile] = useState(null);
+
+  useEffect(() => {
+    const fetchProfiles = async () => {
+      try {
+        const response = await axios.get("/api/database-configs");
+        const profiles = response.data;
+        console.log("Fetched profiles in Header:", profiles); // Debugging statement
+        setDbProfiles(profiles);
+
+        // Find the default profile
+        const defaultProfile = profiles.find(
+          (profile) => profile.defaultProfile
+        );
+
+        if (defaultProfile) {
+          setSelectedDbProfile(defaultProfile.dbIdentifier);
+        } else if (profiles.length > 0) {
+          setSelectedDbProfile(profiles[0].dbIdentifier); // Set the first profile as default
+        }
+      } catch (error) {
+        console.error("Error fetching profiles:", error);
+      }
+    };
+
+    fetchProfiles();
+  }, []);
 
   const handleDbProfileChange = (event, value) => {
     setSelectedDbProfile(value);
