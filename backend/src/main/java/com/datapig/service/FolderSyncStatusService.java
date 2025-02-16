@@ -27,6 +27,10 @@ public class FolderSyncStatusService {
     @Autowired
     private MetaDataPointerService metaDataPointerService;
 
+    public List<FolderSyncStatus> findFoldersAfterThreshold(String dbIdentifier,LocalDateTime thresholdDate){
+        return folderSyncStatusRepository.findFoldersAfterThreshold(dbIdentifier, thresholdDate);
+    }
+
     public List<FolderSyncStatus> findByDbIdentifierAndFolderAndArchived(String dbIdentifier,String folder,int archived){
         return folderSyncStatusRepository.findByDbIdentifierAndFolderAndArchived(dbIdentifier,folder,archived);
     }
