@@ -65,7 +65,6 @@ com\datapig\service\FaultEntityService.class
 com\datapig\service\MetaDataCatlogService.class
 com\datapig\service\PipelineService.class
 com\datapig\entity\ChangeDataTracking.class
-com\datapig\schduler\LicenseCheck.class
 com\datapig\service\AzureQueueListenerService.class
 com\datapig\entity\FolderSyncStatus.class
 com\datapig\controller\LicenseKeyController.class

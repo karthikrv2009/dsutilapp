@@ -281,6 +281,7 @@ public class ALDSMetaDataPointerLoadService {
             folderSyncStatus.setCopyStatus(copyStatus);
             folderSyncStatus.setDbIdentifier(dbIdentifier);
             folderSyncStatus.setArchived(0);
+            folderSyncStatus.setDeleted(0);
             folderSyncStatus = folderSyncStatusService.save(folderSyncStatus);
         }
         return folderSyncStatus;

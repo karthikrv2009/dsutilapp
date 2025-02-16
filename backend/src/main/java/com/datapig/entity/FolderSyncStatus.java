@@ -31,7 +31,9 @@ public class FolderSyncStatus {
     @Column(name = "archived", nullable = false)
     private int archived;
 
-    
+    @Column(name="deleted")
+    private int deleted;
+
     public Long getId() {
         return id;
     }
@@ -80,5 +82,12 @@ public class FolderSyncStatus {
         this.dbIdentifier = dbIdentifier;
     }
 
-    // Getters and Setters
+    public int getDeleted() {
+        return deleted;
+    }
+
+    public void setDeleted(int deleted) {
+        this.deleted = deleted;
+    }
+   
 }

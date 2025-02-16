@@ -34,8 +34,11 @@ import com.datapig.service.MetaDataCatlogService;
 import com.datapig.service.MetaDataPointerService;
 import com.datapig.utility.ArchiveToHotRehydration;
 import com.datapig.utility.JDBCTemplateUtiltiy;
+import com.datapig.utility.PurgeADLSFiles;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 
 
@@ -77,6 +80,9 @@ public class DatabaseConfigScheduler {
 
     @Autowired
     private HealthMetricsService healthMetricsService;
+
+    @Autowired
+    private PurgeADLSFiles purgeADLSFiles;
 
     @Scheduled(fixedRate = 60000) // 300000 milliseconds = 5 minutes
     public void processDatabaseConfigs() {
@@ -452,10 +458,26 @@ public class DatabaseConfigScheduler {
     public void purgeFiles() {
         List<DatabaseConfig> databaseConfigs = databaseConfigService.getAllDatabaseConfigs();
         for (DatabaseConfig databaseConfig : databaseConfigs) {
-            
+            long duration= databaseConfig.getPurgeDuration();
+            LocalDateTime purgDateTime=calculateThresholdDate(duration);
+            List<FolderSyncStatus> lstFolderSyncStatus=folderSyncStatusService.findFoldersAfterThreshold(databaseConfig.getDbIdentifier(),purgDateTime);
+            for(FolderSyncStatus folderSyncStatus: lstFolderSyncStatus){
+                String path = folderSyncStatus.getFolder() + "/" + folderSyncStatus.getTableName() + "/";
+                System.out.println(path);
+                System.out.println("Delete files before duration : "+ purgDateTime);
+                boolean flag=purgeADLSFiles.deleteAllFilesInFolder(databaseConfig, databaseConfig.getAdlsContainerName(),path);
+                if(flag){
+                    folderSyncStatus.setDeleted(1);
+                    folderSyncStatusService.save(folderSyncStatus);
+                }
+            }
         }
     }
 
-    
+    private LocalDateTime calculateThresholdDate(long durationInMilliseconds) {
+        Instant now = Instant.now();
+        Instant thresholdInstant = now.minusMillis(durationInMilliseconds);
+        return LocalDateTime.ofInstant(thresholdInstant, ZoneId.systemDefault());
+    }
 
 }
