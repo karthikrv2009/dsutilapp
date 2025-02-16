@@ -19,15 +19,13 @@ import Header from "./Header"; // Import the Header component
 const useStyles = makeStyles((theme) => ({
   container: {
     marginTop: theme.spacing(4),
-    marginBottom: theme.spacing(4),
   },
   formControl: {
     margin: theme.spacing(2),
-    minWidth: 200,
+    minWidth: 120,
   },
   dateTimePicker: {
     margin: theme.spacing(2),
-    width: "100%",
   },
   button: {
     marginTop: theme.spacing(2),
@@ -98,7 +96,10 @@ const ChangeLog = () => {
 
       console.log("Payload:", payload);
 
-      const response = await axios.post("/api/database-configs/submit", payload);
+      const response = await axios.post(
+        "/api/database-configs/submit",
+        payload
+      );
 
       console.log("Response:", response.data);
 

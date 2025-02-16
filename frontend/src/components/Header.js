@@ -56,16 +56,12 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const Header = ({
-  selectedDbProfile,
-  setSelectedDbProfile,
-  dbProfiles,
-  setDbProfiles,
-}) => {
+const Header = ({ selectedDbProfile, setSelectedDbProfile, setDbProfiles }) => {
   const classes = useStyles();
   const navigate = useNavigate();
   const [anchorElProfiles, setAnchorElProfiles] = useState(null); // State for the profiles dropdown menu
   const [anchorElAccount, setAnchorElAccount] = useState(null); // State for the account dropdown menu
+  const [dbProfiles, setDbProfilesLocal] = useState([]);
 
   useEffect(() => {
     const fetchDataAsync = async () => {
@@ -73,6 +69,7 @@ const Header = ({
         const response = await axios.get("/api/database-configs");
         const profiles = response.data;
         setDbProfiles(profiles);
+        setDbProfilesLocal(profiles);
 
         // Find the default profile
         const defaultProfile = profiles.find(
