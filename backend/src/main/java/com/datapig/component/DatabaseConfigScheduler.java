@@ -348,16 +348,27 @@ public class DatabaseConfigScheduler {
     }
 
     private static String extractTableName(String input) {
-        // "cdc_" is the constant prefix and "_" is the separator
-        int prefixLength = "cdc_".length();
-        int separatorIndex = input.lastIndexOf('_');
-
+        // Define the prefix and suffix separator
+        String prefix = "cdc_";
+        char separator = '_';
+    
+        // Calculate the length of the prefix
+        int prefixLength = prefix.length();
+    
+        // Find the index of the last occurrence of the separator
+        int separatorIndex = input.lastIndexOf(separator);
+    
+        // Check if the separator is placed correctly after the prefix
         if (separatorIndex > prefixLength) {
+            // Extract and return the table name
             return input.substring(prefixLength, separatorIndex);
+        } else {
+            // Throw an exception or return null if the input format is invalid
+            throw new IllegalArgumentException("Invalid input format: " + input);
+            // return null; // Alternatively, you can return null if you prefer
         }
-        return null; // Or throw an exception if input format is invalid
     }
-
+    
     private ChangeDataTrackingPointer updateRehydrationToComplete(ChangeDataTrackingPointer changeDataTrackingPointer) {
         // Rehydration Completed
         System.out.println("Path to complete====>" + changeDataTrackingPointer.getFolderName());

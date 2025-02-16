@@ -22,7 +22,7 @@ public interface FolderSyncStatusRepository extends JpaRepository<FolderSyncStat
         @Query("SELECT f FROM FolderSyncStatus f " +
                         "JOIN MetaDataPointer m ON m.folderName = f.folder AND m.dbIdentifier = f.dbIdentifier " +
                         "WHERE f.tableName = :tableName AND f.dbIdentifier = :dbIdentifier " +
-                        "AND m.adlscreationtimestamp BETWEEN :startTimestamp AND :endTimestamp")
+                        "AND m.adlscreationtimestamp BETWEEN :startTimestamp AND :endTimestamp AND f.deleted=0")
         List<FolderSyncStatus> findFolderSyncStatusByTimestampRange(
                         @Param("tableName") String tableName,
                         @Param("dbIdentifier") String dbIdentifier,
