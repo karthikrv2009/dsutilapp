@@ -172,9 +172,9 @@ public class DatabaseConfigController {
     }
 
     @PostMapping("/save")
-    public ResponseEntity<DatabaseConfigDTO> saveDatabaseConfig(@RequestBody DatabaseConfigDTO request) {
-        System.out.println(request.toString());
-        DatabaseConfig databaseConfig = request.toEntity();
+    public ResponseEntity<DatabaseConfigDTO> saveDatabaseConfig(@RequestBody DatabaseConfig databaseConfig) {
+
+        databaseConfig.setPurgeDuration(getPurgeDurationInMilliseconds(databaseConfig));
         dynamicDataSourceManager.addDataSource(databaseConfig.getDbIdentifier(), databaseConfig.getUrl(),
                 databaseConfig.getUsername(), databaseConfig.getPassword());
 
@@ -264,12 +264,11 @@ public class DatabaseConfigController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<String> updateDatabaseConfig(@PathVariable Long id, @RequestBody DatabaseConfigDTO request) {
+    public ResponseEntity<String> updateDatabaseConfig(@PathVariable Long id, @RequestBody DatabaseConfig request) {
         try {
             System.out.println(request.toString());
-            DatabaseConfig config = request.toEntity();
-            System.out.println(config.toString());
-            databaseConfigService.updateDatabaseConfig(id, config);
+            request.setPurgeDuration(getPurgeDurationInMilliseconds(request));
+            databaseConfigService.updateDatabaseConfig(id, request);
             return ResponseEntity.ok("Database config updated successfully");
         } catch (Exception e) {
             e.printStackTrace();
@@ -321,5 +320,26 @@ public class DatabaseConfigController {
         dto.setPurgeDuration(databaseConfig.getPurgeDuration());
         dto.setQueueListenerStatus(queueListenerStatus);
         return dto;
+    }
+
+    public long getPurgeDurationInMilliseconds(DatabaseConfig config) {
+        long durationInMilliseconds = 0;
+        switch (config.getPurgeUnit().toLowerCase()) {
+            case "weeks":
+                durationInMilliseconds = config.getPurgeUnitValue() * 7L * 24L * 60L * 60L * 1000L;
+                break;
+            case "days":
+                durationInMilliseconds = config.getPurgeUnitValue() * 24L * 60L * 60L * 1000L;
+                break;
+            case "months":
+                durationInMilliseconds = config.getPurgeUnitValue() * 30L * 24L * 60L * 60L * 1000L;
+                break;
+            case "years":
+                durationInMilliseconds = config.getPurgeUnitValue() * 365L * 24L * 60L * 60L * 1000L;
+                break;
+            default:
+                throw new IllegalArgumentException("Invalid purge unit: " + config.getPurgeUnit().toLowerCase());
+        }
+        return durationInMilliseconds;
     }
 }

@@ -129,7 +129,7 @@ const LicenseKeyPage = () => {
     queueListenerStatus: 0,
     defaultProfile: false,
     purgeEnabled: false,
-    purgeDuration: 0,
+    purgeUnitValue: 0,
     purgeUnit: "Weeks",
   });
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -379,7 +379,7 @@ const LicenseKeyPage = () => {
         queueListenerStatus: 0,
         defaultProfile: false,
         purgeEnabled: false,
-        purgeDuration: 0,
+        purgeUnitValue: 0,
         purgeUnit: "Weeks",
       });
       fetchData("/api/database-configs", setConfigs); // Refresh the data
@@ -1205,16 +1205,18 @@ const LicenseKeyPage = () => {
                 label="Enable Archive"
               />
               <TextField
-                label="purgeDuration"
+                label="purgeUnitValue"
                 variant="outlined"
-                name="purgeDuration"
+                name="purgeUnitValue"
                 type="number"
-                value={newConfig.purgeDuration}
+                value={newConfig.purgeUnitValue}
                 onChange={handleChange}
                 fullWidth
-                error={isSubmitted && validationResults.purgeDuration === false}
+                error={
+                  isSubmitted && validationResults.purgeUnitValue === false
+                }
                 helperText={
-                  isSubmitted && validationResults.purgeDuration === false
+                  isSubmitted && validationResults.purgeUnitValue === false
                     ? "Invalid Purge Duration"
                     : ""
                 }
@@ -1587,18 +1589,18 @@ const LicenseKeyPage = () => {
               />
 
               <TextField
-                label="purgeDuration"
+                label="purgeUnitValue"
                 variant="outlined"
-                name="purgeDuration"
+                name="purgeUnitValue"
                 type="number"
-                value={editConfig ? editConfig.purgeDuration : ""}
+                value={editConfig ? editConfig.purgeUnitValue : ""}
                 onChange={handleChange}
                 fullWidth
                 error={
-                  isSubmitted && editValidationResults.purgeDuration === false
+                  isSubmitted && editValidationResults.purgeUnitValue === false
                 }
                 helperText={
-                  isSubmitted && editValidationResults.purgeDuration === false
+                  isSubmitted && editValidationResults.purgeUnitValue === false
                     ? "Invalid Purge Duration"
                     : ""
                 }

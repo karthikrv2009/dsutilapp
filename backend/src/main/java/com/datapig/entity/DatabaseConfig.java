@@ -67,7 +67,6 @@ public class DatabaseConfig {
     @Column(name = "local_cdm_file_path", length = 300)
     private String localCdmFilePath;
 
-
     @Column(name = "max_threads")
     private int maxThreads;
 
@@ -81,10 +80,30 @@ public class DatabaseConfig {
     @Column(name = "purge_enabled")
     @ColumnDefault("false")
     private boolean purgeEnabled;
-    
+
     @Column(name = "purge_duration")
     @ColumnDefault("31622400000")
     private long purgeDuration;
+
+    private long purgeUnitValue;
+
+    private String purgeUnit;
+
+    public long getPurgeUnitValue() {
+        return purgeUnitValue;
+    }
+
+    public void setPurgeUnitValue(long purgeUnitValue) {
+        this.purgeUnitValue = purgeUnitValue;
+    }
+
+    public String getPurgeUnit() {
+        return purgeUnit;
+    }
+
+    public void setPurgeUnit(String purgeUnit) {
+        this.purgeUnit = purgeUnit;
+    }
 
     public void setEnableArchive(boolean enableArchive) {
         this.enableArchive = enableArchive;
@@ -106,7 +125,6 @@ public class DatabaseConfig {
         this.purgeEnabled = purgeEnabled;
     }
 
-        
     public boolean isEnableArchive() {
         return enableArchive;
     }
@@ -119,7 +137,7 @@ public class DatabaseConfig {
             this.enableArchive = enableArchive;
         }
     }
-    
+
     public String getQueueName() {
         return queueName;
     }
@@ -296,5 +314,5 @@ public class DatabaseConfig {
                 + getDriverClassName() + ", getMaxThreads()=" + getMaxThreads() + ", isDefaultProfile()="
                 + isDefaultProfile() + ", toString()=" + super.toString() + "]";
     }
-    
+
 }

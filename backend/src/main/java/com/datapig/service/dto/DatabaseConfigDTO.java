@@ -54,6 +54,8 @@ public class DatabaseConfigDTO {
 
     private String purgeUnit = "days"; // Initialize with a default value
 
+    private long purgeUnitValue;
+
     public Long getId() {
         return id;
     }
@@ -314,8 +316,6 @@ public class DatabaseConfigDTO {
         return entity;
     }
 
-    
-
     @Override
     public String toString() {
         return "DatabaseConfigDTO [id=" + id + ", dbIdentifier=" + dbIdentifier + ", url=" + url + ", username="
@@ -328,21 +328,8 @@ public class DatabaseConfigDTO {
                 + ", localCdmFilePath=" + localCdmFilePath + ", maxThreads=" + maxThreads + ", enableArchive="
                 + enableArchive + ", initialLoadStatus=" + initialLoadStatus + ", queueListenerStatus="
                 + queueListenerStatus + ", defaultProfile=" + defaultProfile + ", purgeEnabled=" + purgeEnabled
-                + ", purgeDuration=" + purgeDuration + ", purgeUnit=" + purgeUnit + ", getId()=" + getId()
-                + ", getDbIdentifier()=" + getDbIdentifier() + ", getUrl()=" + getUrl() + ", getUsername()="
-                + getUsername() + ", getPassword()=" + getPassword() + ", getDriverClassName()=" + getDriverClassName()
-                + ", getQueueName()=" + getQueueName() + ", getQueueSasToken()=" + getQueueSasToken() + ", getClass()="
-                + getClass() + ", getQueueEndpoint()=" + getQueueEndpoint() + ", getAdlsStorageAccountName()="
-                + getAdlsStorageAccountName() + ", getAdlsStorageAccountEndpoint()=" + getAdlsStorageAccountEndpoint()
-                + ", getAdlsStorageAccountSasKey()=" + getAdlsStorageAccountSasKey() + ", getAdlsContainerName()="
-                + getAdlsContainerName() + ", getAdlsFolderName()=" + getAdlsFolderName() + ", getAdlsCdmFileName()="
-                + getAdlsCdmFileName() + ", getAdlsCdmFilePath()=" + getAdlsCdmFilePath() + ", hashCode()=" + hashCode()
-                + ", getLocalCdmFilePath()=" + getLocalCdmFilePath() + ", getMaxThreads()=" + getMaxThreads()
-                + ", getInitialLoadStatus()=" + getInitialLoadStatus() + ", getQueueListenerStatus()="
-                + getQueueListenerStatus() + ", getPurgeDurationInMilliseconds()=" + getPurgeDurationInMilliseconds()
-                + ", toEntity()=" + toEntity() + ", isEnableArchive()=" + isEnableArchive() + ", isDefaultProfile()="
-                + isDefaultProfile() + ", isPurgeEnabled()=" + isPurgeEnabled() + ", getPurgeDuration()="
-                + getPurgeDuration() + ", getPurgeUnit()=" + getPurgeUnit() + ", toString()=" + super.toString() + "]";
+                + ", purgeDuration=" + purgeDuration + ", purgeUnit=" + purgeUnit + ", purgeUnitValue=" + purgeUnitValue
+                + "]";
     }
 
     public boolean isEnableArchive() {
@@ -383,6 +370,14 @@ public class DatabaseConfigDTO {
 
     public void setPurgeUnit(String purgeUnit) {
         this.purgeUnit = purgeUnit;
+    }
+
+    public long getPurgeUnitValue() {
+        return purgeUnitValue;
+    }
+
+    public void setPurgeUnitValue(long purgeUnitValue) {
+        this.purgeUnitValue = purgeUnitValue;
     }
 
 }
