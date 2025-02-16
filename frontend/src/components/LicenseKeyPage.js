@@ -1215,7 +1215,7 @@ const LicenseKeyPage = () => {
                 error={isSubmitted && validationResults.purgeDuration === false}
                 helperText={
                   isSubmitted && validationResults.purgeDuration === false
-                    ? "purgeDuration"
+                    ? "Invalid Purge Duration"
                     : ""
                 }
               />
@@ -1223,6 +1223,7 @@ const LicenseKeyPage = () => {
                 <InputLabel id="purge-unit-label">Purge Unit</InputLabel>
                 <Select
                   labelId="purge-unit-label"
+                  name="purgeUnit"
                   value={newConfig.purgeUnit}
                   onChange={handleChange}
                 >
@@ -1598,7 +1599,7 @@ const LicenseKeyPage = () => {
                 }
                 helperText={
                   isSubmitted && editValidationResults.purgeDuration === false
-                    ? "purgeDuration"
+                    ? "Invalid Purge Duration"
                     : ""
                 }
               />
@@ -1606,7 +1607,8 @@ const LicenseKeyPage = () => {
                 <InputLabel id="purge-unit-label">Purge Unit</InputLabel>
                 <Select
                   labelId="purge-unit-label"
-                  value={editConfig.purgeUnit}
+                  name="purgeUnit"
+                  value={editConfig ? editConfig.purgeUnit : ""}
                   onChange={handleChange}
                 >
                   <MenuItem value="Weeks">Weeks</MenuItem>
