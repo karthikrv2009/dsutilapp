@@ -6,19 +6,16 @@ function Footer() {
     <Box
       component="footer"
       sx={{
-        py: 3,
+        py: 2,
         px: 2,
         mt: "auto",
-        backgroundColor: (theme) =>
-          theme.palette.mode === "light"
-            ? theme.palette.grey[200]
-            : theme.palette.grey[800],
+        backgroundColor: "background.default",
       }}
     >
       <Container maxWidth="lg">
-        <Box mt={4} textAlign="center">
+        <Box mt={2} textAlign="center">
           <Typography variant="body2" color="textSecondary">
-            DataPig © 2025. All rights reserved.
+            DataPig LLC © 2025. All rights reserved.
           </Typography>
         </Box>
       </Container>
