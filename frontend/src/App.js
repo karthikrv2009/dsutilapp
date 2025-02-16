@@ -41,37 +41,6 @@ const theme = createTheme({
 });
 
 const App = () => {
-  const [selectedDbProfile, setSelectedDbProfile] = useState(null);
-  const [dbProfiles, setDbProfiles] = useState([]);
-
-  useEffect(() => {
-    const fetchProfiles = async () => {
-      try {
-        const response = await axios.get("/api/database-configs");
-        const profiles = response.data;
-
-        console.log("Fetched profiles in App:", profiles); // Debugging statement
-        // Filter profiles to include only those with defaultProfile set to true
-
-        setDbProfiles(profiles);
-        // Find the default profile
-        const defaultProfile = profiles.find(
-          (profile) => profile.defaultProfile
-        );
-
-        if (defaultProfile) {
-          setSelectedDbProfile(defaultProfile.dbIdentifier);
-        } else if (profiles.length > 0) {
-          setSelectedDbProfile(profiles[0].dbIdentifier); // Set the first profile as default
-        }
-      } catch (error) {
-        console.error("Error fetching profiles:", error);
-      }
-    };
-
-    fetchProfiles();
-  }, []);
-
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline enableColorScheme />
