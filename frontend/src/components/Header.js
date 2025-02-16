@@ -91,8 +91,8 @@ const Header = ({
     fetchDataAsync();
   }, [setDbProfiles, selectedDbProfile, setSelectedDbProfile]);
 
-  const handleDbProfileChange = (profile) => {
-    setSelectedDbProfile(profile.dbIdentifier);
+  const handleDbProfileChange = (event, value) => {
+    setSelectedDbProfile(value);
     handleCloseProfiles();
   };
 
@@ -146,7 +146,10 @@ const Header = ({
               dbProfiles.map((profile) => (
                 <MenuItem
                   key={profile.dbIdentifier}
-                  onClick={() => handleDbProfileChange(profile)}
+                  value={profile.dbIdentifier}
+                  onClick={() =>
+                    handleDbProfileChange(null, profile.dbIdentifier)
+                  }
                 >
                   {profile.dbIdentifier}
                 </MenuItem>
