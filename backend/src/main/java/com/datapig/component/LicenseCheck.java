@@ -1,4 +1,4 @@
-package com.datapig.schduler;
+package com.datapig.component;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -6,25 +6,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import com.datapig.component.LicenseCryptoUtil;
-import com.datapig.component.LicenseData;
 import com.datapig.entity.LicenseKey;
 import com.datapig.service.LicenseKeyService;
 
 import javax.crypto.SecretKey;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
-import java.time.temporal.ChronoUnit;
-import java.util.List;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Component;
-
-import javax.crypto.SecretKey;
-import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 
