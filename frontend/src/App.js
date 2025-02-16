@@ -49,10 +49,8 @@ const App = () => {
         const profiles = response.data;
 
         // Filter profiles to include only those with defaultProfile set to true
-        const profileident = profiles.filter(
-          (profile) => profile.defaultProfile
-        );
-        setDbProfiles(profileident);
+
+        setDbProfiles(profiles);
         // Find the default profile
         const defaultProfile = profiles.find(
           (profile) => profile.defaultProfile
