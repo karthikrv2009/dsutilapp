@@ -177,7 +177,7 @@ public class DatabaseConfigController {
         DatabaseConfig databaseConfig = request.toEntity();
         dynamicDataSourceManager.addDataSource(databaseConfig.getDbIdentifier(), databaseConfig.getUrl(),
                 databaseConfig.getUsername(), databaseConfig.getPassword());
-        
+
         IntialLoad intialLoad = intitalLoadRepository.findByDbIdentifier(databaseConfig.getDbIdentifier());
 
         DatabaseConfigDTO databaseConfigDTO = new DatabaseConfigDTO();
@@ -264,8 +264,11 @@ public class DatabaseConfigController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<String> updateDatabaseConfig(@PathVariable Long id, @RequestBody DatabaseConfig config) {
+    public ResponseEntity<String> updateDatabaseConfig(@PathVariable Long id, @RequestBody DatabaseConfigDTO request) {
         try {
+            System.out.println(request.toString());
+            DatabaseConfig config = request.toEntity();
+            System.out.println(config.toString());
             databaseConfigService.updateDatabaseConfig(id, config);
             return ResponseEntity.ok("Database config updated successfully");
         } catch (Exception e) {
