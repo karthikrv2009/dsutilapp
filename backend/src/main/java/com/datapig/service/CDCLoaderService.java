@@ -66,7 +66,7 @@ public class CDCLoaderService {
                 String path=null;
                 if(changeDataTrackingPointer.getFolderName().contains("/model.json")){
                     path=changeDataTrackingPointer.getFolderName();
-                  //  System.out.println(path);
+                    System.out.println("model cdc call ==>" + path);
                     boolean flag=archiveToHotRehydration.checkRehydrationStatusForBlob(containerName, path, databaseConfig);
                     if(flag){
                         changeDataTrackingPointer=updateRehydrationToStart(changeDataTrackingPointer);

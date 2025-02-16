@@ -1,9 +1,12 @@
+com\datapig\service\dto\DatabaseConfigDTO.class
 com\datapig\repository\FaultEntityRepository.class
 com\datapig\repository\HealthMetricsRepository.class
+com\datapig\utility\PurgeADLSFiles.class
 com\datapig\service\FolderSyncStatusService.class
 com\datapig\config\WebConfig$1.class
 com\datapig\entity\EnvironmentConfig.class
 com\datapig\service\dto\ModelAnnotation.class
+com\datapig\controller\DatabaseConfigController.class
 com\datapig\service\dto\DashboardData.class
 com\datapig\service\dto\ModelTraitArgument.class
 com\datapig\repository\LicenseKeyRepository.class
@@ -13,6 +16,7 @@ com\datapig\service\MetaDataPointerService.class
 com\datapig\service\dto\ModelTrait.class
 com\datapig\repository\ChangeDataTrackingPointerRepository.class
 com\datapig\service\ALDSMetaDataPointerLoadService.class
+com\datapig\component\LicenseCheck.class
 com\datapig\utility\ArchiveToHotRehydration.class
 com\datapig\service\dto\DBSnapshotWidget.class
 com\datapig\repository\MetaDataCatlogRepository.class
