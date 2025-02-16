@@ -17,6 +17,8 @@ import {
 import axios from "axios";
 
 import { createTheme, ThemeProvider } from "@mui/material/styles";
+import { ProfileProvider } from "./components/ProfileContext"; // Adjust the import path as needed
+
 import Layout from "./components/Layout"; // Adjust the import path as needed
 import Footer from "./components/Footer";
 import LicenseKeyPage from "./components/LicenseKeyPage";
@@ -75,38 +77,30 @@ const App = () => {
       <CssBaseline enableColorScheme />
       <Router>
         <Container style={{ minHeight: "80vh" }}>
-          <Routes>
-            <Route
-              element={
-                <Layout
-                  selectedDbProfile={selectedDbProfile}
-                  setSelectedDbProfile={setSelectedDbProfile}
-                  dbProfiles={dbProfiles}
-                  setDbProfiles={setDbProfiles}
-                />
-              }
-            ></Route>
-            <Route path="/" element={<Navigate to="/login" />} />{" "}
-            {/* Redirect to Login Page */}
-            <Route path="/login" element={<Login />} /> {/* Login Page */}
-            <Route path="/landing" element={<LandingPage />} />{" "}
-            <Route path="/dashboard" element={<DashboardPage />} />{" "}
-            {/* Landing Page */}
-            <Route path="/license" element={<LicenseKeyPage />} />{" "}
-            {/* License Key Page */}
-            <Route path="/changelog" element={<ChangeLog />} />{" "}
-            {/* License Key Page */}
-            <Route
-              path="/database-config"
-              element={<DatabaseConfigPage />}
-            />{" "}
-            {/* Database Config Page */}
-            <Route
-              path="/index.html"
-              element={<Navigate to="/landing" />}
-            />{" "}
-            {/* Handle redirect from auth */}
-          </Routes>
+          <ProfileProvider>
+            <Routes>
+              <Route path="/" element={<Navigate to="/login" />} />{" "}
+              {/* Redirect to Login Page */}
+              <Route path="/login" element={<Login />} /> {/* Login Page */}
+              <Route path="/landing" element={<LandingPage />} />{" "}
+              <Route path="/dashboard" element={<DashboardPage />} />{" "}
+              {/* Landing Page */}
+              <Route path="/license" element={<LicenseKeyPage />} />{" "}
+              {/* License Key Page */}
+              <Route path="/changelog" element={<ChangeLog />} />{" "}
+              {/* License Key Page */}
+              <Route
+                path="/database-config"
+                element={<DatabaseConfigPage />}
+              />{" "}
+              {/* Database Config Page */}
+              <Route
+                path="/index.html"
+                element={<Navigate to="/landing" />}
+              />{" "}
+              {/* Handle redirect from auth */}
+            </Routes>
+          </ProfileProvider>
         </Container>
         <Footer /> {/* The footer will be shown on every page */}
       </Router>

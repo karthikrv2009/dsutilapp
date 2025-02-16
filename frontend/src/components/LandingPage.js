@@ -1,5 +1,5 @@
 import RotateRightRoundedIcon from "@mui/icons-material/RotateRightRounded";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import axios from "axios";
 import {
   Table,
@@ -25,6 +25,7 @@ import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import Modal from "react-modal";
 import SyncProblemRoundedIcon from "@mui/icons-material/SyncProblemRounded";
+import { ProfileContext } from "./ProfileContext"; // Adjust the import path as needed
 
 axios.defaults.baseURL = "http://localhost:8080"; // Set the base URL for Axios
 
@@ -89,8 +90,8 @@ const LandingPage = () => {
   const [healthMetrics, setHealthMetrics] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState(0); // Set default tab to 0
-  const [selectedDbProfile, setSelectedDbProfile] = useState("");
-  const [dbProfiles, setDbProfiles] = useState([]);
+  const { selectedDbProfile } = useContext(ProfileContext);
+
   const [refreshInterval, setRefreshInterval] = useState(300000);
   const [selectedStatus, setSelectedStatus] = useState("all");
   const [showErrors, setShowErrors] = useState(true);
@@ -115,12 +116,6 @@ const LandingPage = () => {
   const getQuarantineStatus = (status) => {
     return status === 1 ? "True" : "False";
   };
-  useEffect(() => {
-    const fetchDataAsync = async () => {
-      fetchData("/api/database-configs", setDbProfiles);
-    };
-    fetchDataAsync();
-  }, []);
 
   useEffect(() => {
     if (selectedDbProfile) {
@@ -209,11 +204,6 @@ const LandingPage = () => {
     setActiveTab(newValue);
   };
 
-  const handleDbProfileChange = (event) => {
-    setSelectedDbProfile(event.target.value);
-    setPipelineData([]);
-  };
-
   const handleShowErrorsChange = (event) => {
     setShowErrors(event.target.checked);
   };
@@ -245,12 +235,7 @@ const LandingPage = () => {
 
   return (
     <div>
-      <Header
-        selectedDbProfile={selectedDbProfile}
-        setSelectedDbProfile={setSelectedDbProfile}
-        setDbProfiles={setDbProfiles}
-      />{" "}
-      {/* Include the Header component */}
+      <Header />
       <Container>
         <Tabs
           value={activeTab}

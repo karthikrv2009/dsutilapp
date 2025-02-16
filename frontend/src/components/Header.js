@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import axios from "axios";
 import {
   AppBar,
@@ -17,7 +17,7 @@ import SettingsRoundedIcon from "@mui/icons-material/SettingsRounded";
 import AccountCircle from "@mui/icons-material/AccountCircle"; // Import the AccountCircle icon
 import HomeRoundedIcon from "@mui/icons-material/HomeRounded";
 import QueryBuilderRoundedIcon from "@mui/icons-material/QueryBuilderRounded";
-
+import { ProfileContext } from "./ProfileContext"; // Adjust the import path as needed
 const useStyles = makeStyles((theme) => ({
   root: {
     flexGrow: 1,
@@ -62,8 +62,8 @@ const Header = () => {
   const navigate = useNavigate();
   const [anchorElProfiles, setAnchorElProfiles] = useState(null); // State for the profiles dropdown menu
   const [anchorElAccount, setAnchorElAccount] = useState(null); // State for the account dropdown menu
-  const [dbProfiles, setDbProfiles] = useState([]);
-  const [selectedDbProfile, setSelectedDbProfile] = useState(null);
+  const { selectedDbProfile, setSelectedDbProfile, dbProfiles, setDbProfiles } =
+    useContext(ProfileContext);
 
   useEffect(() => {
     const fetchProfiles = async () => {
@@ -89,7 +89,7 @@ const Header = () => {
     };
 
     fetchProfiles();
-  }, []);
+  }, [setDbProfiles, setSelectedDbProfile]);
 
   const handleDbProfileChange = (event, value) => {
     setSelectedDbProfile(value);
