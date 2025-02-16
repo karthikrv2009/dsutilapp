@@ -236,6 +236,25 @@ public class DatabaseConfigDTO {
         return durationInMilliseconds;
     }
 
+    // Method to convert milliseconds to purgeDuration and purgeUnit
+    public void setPurgeDurationFromMilliseconds(long milliseconds) {
+        if (milliseconds % (365L * 24L * 60L * 60L * 1000L) == 0) {
+            this.purgeUnit = "years";
+            this.purgeDuration = milliseconds / (365L * 24L * 60L * 60L * 1000L);
+        } else if (milliseconds % (30L * 24L * 60L * 60L * 1000L) == 0) {
+            this.purgeUnit = "months";
+            this.purgeDuration = milliseconds / (30L * 24L * 60L * 60L * 1000L);
+        } else if (milliseconds % (7L * 24L * 60L * 60L * 1000L) == 0) {
+            this.purgeUnit = "weeks";
+            this.purgeDuration = milliseconds / (7L * 24L * 60L * 60L * 1000L);
+        } else if (milliseconds % (24L * 60L * 60L * 1000L) == 0) {
+            this.purgeUnit = "days";
+            this.purgeDuration = milliseconds / (24L * 60L * 60L * 1000L);
+        } else {
+            throw new IllegalArgumentException("Invalid duration in milliseconds: " + milliseconds);
+        }
+    }
+
     // Method to convert DatabaseConfig to DatabaseConfigDTO
     public DatabaseConfigDTO fromEntity(DatabaseConfig databaseConfig, int initialLoadStatus,
             int queueListenerStatus) {
@@ -262,7 +281,8 @@ public class DatabaseConfigDTO {
         dto.setQueueListenerStatus(queueListenerStatus);
         dto.setEnableArchive(databaseConfig.isEnableArchive());
         dto.setPurgeEnabled(databaseConfig.isPurgeEnabled());
-        dto.setPurgeDuration(databaseConfig.getPurgeDuration());
+        this.setPurgeDurationFromMilliseconds(databaseConfig.getPurgeDuration()));
+        //dto.setPurgeDuration(databaseConfig.getPurgeDuration());
         dto.setDefaultProfile(databaseConfig.isDefaultProfile());
         return dto;
     }
