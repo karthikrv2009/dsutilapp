@@ -1207,7 +1207,7 @@ const LicenseKeyPage = () => {
               <TextField
                 label="purgeDuration"
                 variant="outlined"
-                name="maxThreads"
+                name="purgeDuration"
                 type="number"
                 value={newConfig.purgeDuration}
                 onChange={handleChange}
@@ -1588,7 +1588,7 @@ const LicenseKeyPage = () => {
               <TextField
                 label="purgeDuration"
                 variant="outlined"
-                name="maxThreads"
+                name="purgeDuration"
                 type="number"
                 value={editConfig.purgeDuration}
                 onChange={handleChange}
