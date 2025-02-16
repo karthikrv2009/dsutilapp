@@ -239,16 +239,16 @@ public class DatabaseConfigDTO {
     // Method to convert milliseconds to purgeDuration and purgeUnit
     public void setPurgeDurationFromMilliseconds(long milliseconds) {
         if (milliseconds % (365L * 24L * 60L * 60L * 1000L) == 0) {
-            this.purgeUnit = "years";
+            this.purgeUnit = "Years";
             this.purgeDuration = milliseconds / (365L * 24L * 60L * 60L * 1000L);
         } else if (milliseconds % (30L * 24L * 60L * 60L * 1000L) == 0) {
-            this.purgeUnit = "months";
+            this.purgeUnit = "Months";
             this.purgeDuration = milliseconds / (30L * 24L * 60L * 60L * 1000L);
         } else if (milliseconds % (7L * 24L * 60L * 60L * 1000L) == 0) {
-            this.purgeUnit = "weeks";
+            this.purgeUnit = "Weeks";
             this.purgeDuration = milliseconds / (7L * 24L * 60L * 60L * 1000L);
         } else if (milliseconds % (24L * 60L * 60L * 1000L) == 0) {
-            this.purgeUnit = "days";
+            this.purgeUnit = "Days";
             this.purgeDuration = milliseconds / (24L * 60L * 60L * 1000L);
         } else {
             throw new IllegalArgumentException("Invalid duration in milliseconds: " + milliseconds);
