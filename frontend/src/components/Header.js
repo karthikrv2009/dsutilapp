@@ -61,11 +61,14 @@ const useStyles = makeStyles((theme) => ({
 const Header = () => {
   const classes = useStyles();
   const navigate = useNavigate();
+  const { accounts } = useMsal();
+
   const [anchorElProfiles, setAnchorElProfiles] = useState(null); // State for the profiles dropdown menu
   const [anchorElAccount, setAnchorElAccount] = useState(null); // State for the account dropdown menu
   const { selectedDbProfile, setSelectedDbProfile, dbProfiles, setDbProfiles } =
     useContext(ProfileContext);
   const { instance } = useMsal();
+  const username = accounts.length > 0 ? accounts[0].username : "Guest";
 
   useEffect(() => {
     const fetchProfiles = async () => {
@@ -219,7 +222,7 @@ const Header = () => {
             sx={{ minWidth: 300 }} // Increase the width
           >
             <MenuItem disabled>
-              <Typography variant="body1">Hi Karthik!</Typography>
+              <Typography variant="body1">Hi Hi {username}!</Typography>
             </MenuItem>
             <MenuItem onClick={handleLogout}>Logout</MenuItem>
           </Menu>
