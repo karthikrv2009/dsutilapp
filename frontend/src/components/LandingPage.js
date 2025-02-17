@@ -26,6 +26,8 @@ import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import Modal from "react-modal";
 import SyncProblemRoundedIcon from "@mui/icons-material/SyncProblemRounded";
 import { ProfileContext } from "./ProfileContext"; // Adjust the import path as needed
+import { useNavigate } from "react-router-dom";
+import { useMsal } from "@azure/msal-react";
 
 axios.defaults.baseURL = "http://localhost:8080"; // Set the base URL for Axios
 
@@ -75,6 +77,8 @@ const fetchData = async (url, setData) => {
 };
 
 const LandingPage = () => {
+  const { accounts, instance } = useMsal();
+  const navigate = useNavigate();
   const classes = useStyles();
   const [dashboardData, setDashboardData] = useState([]);
   const [folderStatus, setFolderStatus] = useState([]);
@@ -116,6 +120,33 @@ const LandingPage = () => {
   const getQuarantineStatus = (status) => {
     return status === 1 ? "True" : "False";
   };
+
+  useEffect(() => {
+    if (accounts.length === 0) {
+      // If not authenticated, redirect to login page
+      console.log("LANDING NOT AUTHENTICATED acquired:", accounts);
+
+      navigate("/login");
+    } else {
+      // Acquire token silently
+      instance
+        .acquireTokenSilent({
+          scopes: ["openid", "profile", "email"],
+          account: accounts[0],
+        })
+        .then((response) => {
+          console.log("Token acquired:", response);
+          // Set the token in axios headers for subsequent requests
+          axios.defaults.headers.common[
+            "Authorization"
+          ] = `Bearer ${response.accessToken}`;
+        })
+        .catch((error) => {
+          console.error("Token acquisition failed:", error);
+          navigate("/login");
+        });
+    }
+  }, [accounts, instance, navigate]);
 
   useEffect(() => {
     if (selectedDbProfile) {
