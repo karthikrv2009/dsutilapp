@@ -1,11 +1,12 @@
 import { Button } from "@mui/material";
-import { useNavigate } from "react-router-dom";
+import { useMsal } from "@azure/msal-react";
 
 const LoginButton = () => {
-  const navigate = useNavigate();
+  const { instance } = useMsal();
 
   const handleLogin = () => {
-    navigate("/landing"); // Redirect to landing page after button click
+    console.log("User clicking login...");
+    instance.loginRedirect({ scopes: ["openid", "profile", "email"] });
   };
 
   return (

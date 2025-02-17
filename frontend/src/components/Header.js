@@ -18,6 +18,7 @@ import AccountCircle from "@mui/icons-material/AccountCircle"; // Import the Acc
 import HomeRoundedIcon from "@mui/icons-material/HomeRounded";
 import QueryBuilderRoundedIcon from "@mui/icons-material/QueryBuilderRounded";
 import { ProfileContext } from "./ProfileContext"; // Adjust the import path as needed
+import { useMsal } from "@azure/msal-react"; // Import the useMsal hook
 const useStyles = makeStyles((theme) => ({
   root: {
     flexGrow: 1,
@@ -64,6 +65,7 @@ const Header = () => {
   const [anchorElAccount, setAnchorElAccount] = useState(null); // State for the account dropdown menu
   const { selectedDbProfile, setSelectedDbProfile, dbProfiles, setDbProfiles } =
     useContext(ProfileContext);
+  const { instance } = useMsal();
 
   useEffect(() => {
     const fetchProfiles = async () => {
@@ -112,9 +114,31 @@ const Header = () => {
     setAnchorElAccount(null);
   };
 
-  const handleLogout = () => {
-    handleCloseAccount();
-    navigate("/"); // Redirect to home page after logout
+  const handleLogout = async () => {
+    try {
+      console.log("Logging out...");
+
+      // Prevent auto-login after logout
+      sessionStorage.setItem("logoutInProgress", "true");
+
+      // Get active MSAL account
+      const accounts = instance.getAllAccounts();
+      if (accounts.length > 0) {
+        await instance.logoutRedirect({
+          account: accounts[0], // Ensure correct user is logged out
+          postLogoutRedirectUri: "/", // Redirect user to home after logout
+        });
+      }
+
+      // Clear stored authentication data
+      sessionStorage.clear();
+      localStorage.clear();
+
+      console.log("Logout successful. Redirecting to home...");
+      navigate("/");
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
   };
 
   return (
