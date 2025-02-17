@@ -1,34 +1,36 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import {
   BrowserRouter as Router,
-  Routes,
   Route,
+  Routes,
   Navigate,
-  useNavigate,
 } from "react-router-dom";
+import { MsalProvider, MsalAuthenticationTemplate } from "@azure/msal-react";
+import msalInstance from "./components/msalConfig";
 import {
   Container,
   CssBaseline,
-  Stack,
-  Box,
-  Typography,
-  Card,
+  ThemeProvider,
+  createTheme,
 } from "@mui/material";
-import axios from "axios";
-
-import { createTheme, ThemeProvider } from "@mui/material/styles";
-import { ProfileProvider } from "./components/ProfileContext"; // Adjust the import path as needed
-
-import Layout from "./components/Layout"; // Adjust the import path as needed
+import { ProfileProvider } from "./components/ProfileContext";
+import Layout from "./components/Layout";
 import Footer from "./components/Footer";
 import LicenseKeyPage from "./components/LicenseKeyPage";
 import LandingPage from "./components/LandingPage";
 import LoginButton from "./components/LoginButton";
-import DatabaseConfigPage from "./components/DatabaseConfigPage"; // Import the DatabaseConfigPage component
-import DataPigBlackLogo from "./components/datapigblack.png"; // Adjust the path as needed
-import DatapigHome from "./components/DataPigHome.png"; // Adjust the path to your image
-import DashboardPage from "./components/DashboardPage"; // Import the DashboardPage component
-import ChangeLog from "./components/ChangeLog"; // Import the ChangeLog component
+import DatabaseConfigPage from "./components/DatabaseConfigPage";
+import DataPigBlackLogo from "./components/datapigblack.png";
+import DatapigHome from "./components/DataPigHome.png";
+import DashboardPage from "./components/DashboardPage";
+import ChangeLog from "./components/ChangeLog";
+import AuthHandler from "./components/AuthHandler";
+import { Box, Card, Stack, Typography } from "@mui/material";
+import { useNavigate } from "react-router-dom";
+import LogoutButton from "./components/LogoutButton";
+import { InteractionStatus } from "@azure/msal-browser";
+import { useMsal } from "@azure/msal-react";
+
 const theme = createTheme({
   palette: {
     primary: {
@@ -42,46 +44,72 @@ const theme = createTheme({
 
 const App = () => {
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline enableColorScheme />
-      <Router>
-        <Container style={{ minHeight: "80vh" }}>
-          <ProfileProvider>
-            <Routes>
-              <Route path="/" element={<Navigate to="/login" />} />{" "}
-              {/* Redirect to Login Page */}
-              <Route path="/login" element={<Login />} /> {/* Login Page */}
-              <Route path="/landing" element={<LandingPage />} />{" "}
-              <Route path="/dashboard" element={<DashboardPage />} />{" "}
-              {/* Landing Page */}
-              <Route path="/license" element={<LicenseKeyPage />} />{" "}
-              {/* License Key Page */}
-              <Route path="/changelog" element={<ChangeLog />} />{" "}
-              {/* License Key Page */}
-              <Route
-                path="/database-config"
-                element={<DatabaseConfigPage />}
-              />{" "}
-              {/* Database Config Page */}
-              <Route
-                path="/index.html"
-                element={<Navigate to="/landing" />}
-              />{" "}
-              {/* Handle redirect from auth */}
-            </Routes>
-          </ProfileProvider>
-        </Container>
-        <Footer /> {/* The footer will be shown on every page */}
-      </Router>
-    </ThemeProvider>
+    <MsalProvider instance={msalInstance}>
+      <ThemeProvider theme={theme}>
+        <CssBaseline enableColorScheme />
+        <Router>
+          <Container style={{ minHeight: "80vh" }}>
+            <AuthHandler /> {/* Handle authentication */}
+            <ProfileProvider>
+              <Routes>
+                <Route path="/" element={<Login />} />{" "}
+                {/* Show Login Page at / */}
+                <Route path="/login" element={<Login />} /> {/* Login Page */}
+                <Route path="/landing" element={<LandingPage />} />{" "}
+                {/* Landing Page */}
+                <Route path="/dashboard" element={<DashboardPage />} />{" "}
+                {/* Dashboard */}
+                <Route path="/license" element={<LicenseKeyPage />} />{" "}
+                {/* License Key Page */}
+                <Route path="/changelog" element={<ChangeLog />} />{" "}
+                {/* Change Log Page */}
+                <Route path="/logout" element={<LogoutButton />} />{" "}
+                {/* Logout Page */}
+                <Route
+                  path="/database-config"
+                  element={
+                    <MsalAuthenticationTemplate>
+                      <DatabaseConfigPage />
+                    </MsalAuthenticationTemplate>
+                  }
+                />
+                <Route
+                  path="/index.html"
+                  element={<Navigate to="/landing" />}
+                />{" "}
+                {/* Handle auth redirect */}
+              </Routes>
+            </ProfileProvider>
+          </Container>
+          <Footer /> {/* The footer will be shown on every page */}
+        </Router>
+      </ThemeProvider>
+    </MsalProvider>
   );
 };
 
 const Login = () => {
   const navigate = useNavigate();
+  const { instance, inProgress } = useMsal();
 
   const handleLogin = () => {
-    navigate("/landing");
+    if (inProgress === InteractionStatus.Started) {
+      console.warn(
+        "Login is already in progress. Skipping duplicate login attempt."
+      );
+      return;
+    }
+
+    console.log("Login button clicked, navigating to /landing");
+    instance
+      .loginPopup()
+      .then((response) => {
+        console.log("Login successful:", response);
+        navigate("/landing");
+      })
+      .catch((e) => {
+        console.error("Login failed:", e);
+      });
   };
 
   return (
