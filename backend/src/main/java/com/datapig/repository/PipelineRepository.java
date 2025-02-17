@@ -23,4 +23,7 @@ public interface PipelineRepository extends JpaRepository<Pipeline, Long> {
         List<Pipeline> findPipelinesWithinDateRangeByDbIdentifier(@Param("startDate") LocalDateTime startDate,
                         @Param("endDate") LocalDateTime endDate, @Param("dbIdentifier") String dbIdentifier);
 
+        @Query("SELECT COUNT(p) FROM Pipeline p WHERE p.dbIdentifier = :dbIdentifier AND p.status=1")
+        int countPipelineInProgress(@Param("dbIdentifier") String dbIdentifier);
+
 }

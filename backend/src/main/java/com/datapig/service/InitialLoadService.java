@@ -65,7 +65,7 @@ public class InitialLoadService {
          if (initialLoad.getStatus() == 2) {
             initialLoad.setQueueListenerStatus(1);
             intitalLoadRepository.save(initialLoad);
-          azureQueueListenerService.startQueueListener(databaseConfig.getDbIdentifier());
+            azureQueueListenerService.startQueueListener(databaseConfig.getDbIdentifier());
           }
          
     }

@@ -8,6 +8,7 @@ import com.datapig.repository.PipelineRepository;
 import java.time.LocalDateTime;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.repository.query.Param;
 
 @Service
 public class PipelineService {
@@ -33,4 +34,7 @@ public class PipelineService {
         return pipelineRepository.findPipelinesWithinDateRangeByDbIdentifier(startDate, endDate, dbIdentifier);
     }
 
+    public int countPipelineInProgress(@Param("dbIdentifier") String dbIdentifier){
+        return pipelineRepository.countPipelineInProgress(dbIdentifier);
+    }
 }

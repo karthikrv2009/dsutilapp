@@ -20,6 +20,7 @@ import com.datapig.entity.ChangeDataTrackingPointer;
 import com.datapig.entity.DatabaseConfig;
 import com.datapig.entity.FolderSyncStatus;
 import com.datapig.entity.HealthMetrics;
+import com.datapig.entity.IntialLoad;
 import com.datapig.entity.MetaDataCatlog;
 import com.datapig.entity.MetaDataPointer;
 import com.datapig.service.ArchivedFolderService;
@@ -30,8 +31,10 @@ import com.datapig.service.ChangeDataTrackingService;
 import com.datapig.service.DatabaseConfigService;
 import com.datapig.service.FolderSyncStatusService;
 import com.datapig.service.HealthMetricsService;
+import com.datapig.service.InitialLoadService;
 import com.datapig.service.MetaDataCatlogService;
 import com.datapig.service.MetaDataPointerService;
+import com.datapig.service.PipelineService;
 import com.datapig.utility.ArchiveToHotRehydration;
 import com.datapig.utility.JDBCTemplateUtiltiy;
 import com.datapig.utility.PurgeADLSFiles;
@@ -83,6 +86,12 @@ public class DatabaseConfigScheduler {
 
     @Autowired
     private PurgeADLSFiles purgeADLSFiles;
+
+    @Autowired
+    private InitialLoadService initialLoadService;
+
+    @Autowired
+    private PipelineService pipelineService;
 
     @Scheduled(fixedRate = 60000) // 300000 milliseconds = 5 minutes
     public void processDatabaseConfigs() {
@@ -419,9 +428,15 @@ public class DatabaseConfigScheduler {
     public void quarantineRetry() {
         List<DatabaseConfig> databaseConfigs = databaseConfigService.getAllDatabaseConfigs();
         for (DatabaseConfig databaseConfig : databaseConfigs) {
-            errorHandle(databaseConfig.getDbIdentifier());
+            IntialLoad intialLoad=initialLoadService.getIntialLoad(databaseConfig.getDbIdentifier());
+            if(intialLoad!=null){
+                if(intialLoad.getQueueListenerStatus()==1){
+                    if(pipelineService.countPipelineInProgress(databaseConfig.getDbIdentifier())==0){
+                        errorHandle(databaseConfig.getDbIdentifier());
+                    }
+                }
+            }
         }
-
     }
 
     private void errorHandle(String dbIdentifier) {
