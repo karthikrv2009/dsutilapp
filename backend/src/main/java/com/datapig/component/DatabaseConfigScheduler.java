@@ -295,7 +295,7 @@ public class DatabaseConfigScheduler {
                             flag = jdbcTemplateUtiltiy.stageCDCDataFromADLS(databaseConfig.getDbIdentifier(),
                                     databaseConfig.getAdlsContainerName(), changeDataTrackingPointer.getFolderName(),
                                     changeDataTrackingPointer.getCdcTableName(),
-                                    changeDataTrackingCatalog.getDataFrame(),
+                                    changeDataTrackingCatalog.getDataFrame(),changeDataTrackingCatalog.getSelectDataFrame(),
                                     changeDataTrackingCatalog.getSelectColumn(), changeDataTracking.getTableName());
                             if (flag) {
                                 changeDataTrackingPointer = updateStageStatusToComplete(changeDataTrackingPointer);

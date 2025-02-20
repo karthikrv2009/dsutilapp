@@ -26,6 +26,9 @@ public class MetaDataCatlog {
     @Column(name = "DataFrame", columnDefinition = "TEXT")
     private String dataFrame;
 
+    @Column(name = "select_data_frame", columnDefinition = "TEXT")
+    private String selectDataFrame;
+
     @Column(name = "column_names", columnDefinition = "TEXT")
     private String columnNames;
 
@@ -54,6 +57,22 @@ public class MetaDataCatlog {
 
     public String getTableName() {
         return tableName;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getSelectDataFrame() {
+        return selectDataFrame;
+    }
+
+    public void setSelectDataFrame(String selectDataFrame) {
+        this.selectDataFrame = selectDataFrame;
     }
 
     public void setTableName(String tableName) {

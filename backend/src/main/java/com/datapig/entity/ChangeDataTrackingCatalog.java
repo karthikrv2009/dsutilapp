@@ -31,6 +31,9 @@ public class ChangeDataTrackingCatalog {
     @Column(name = "column_names", columnDefinition = "TEXT")
     private String columnNames;
 
+    @Column(name = "select_data_frame", columnDefinition = "TEXT")
+    private String selectDataFrame;
+    
     public Long getId() {
         return id;
     }
@@ -47,6 +50,7 @@ public class ChangeDataTrackingCatalog {
         this.dbIdentifier = dbIdentifier;
     }
 
+    
     public String getCdcTableName() {
         return cdcTableName;
     }
@@ -77,6 +81,14 @@ public class ChangeDataTrackingCatalog {
 
     public void setColumnNames(String columnNames) {
         this.columnNames = columnNames;
+    }
+
+    public String getSelectDataFrame() {
+        return selectDataFrame;
+    }
+
+    public void setSelectDataFrame(String selectDataFrame) {
+        this.selectDataFrame = selectDataFrame;
     }
 
 }

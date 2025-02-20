@@ -55,6 +55,7 @@ public class PolybaseThreadService implements Runnable {
         String dataFrame = metaDataCatlog.getDataFrame();
         String selectColumn = metaDataCatlog.getSelectColumn();
         String columnNames = metaDataCatlog.getColumnNames();
+        String selectDataFrame=metaDataCatlog.getSelectDataFrame();
         String data_source = metaDataPointer.getStorageAccount();
         boolean flag = true;
         int errorFlag = 0;
@@ -62,7 +63,7 @@ public class PolybaseThreadService implements Runnable {
         while (flag) {
             createStagingTable(tableName, dataFrame);
             errorFlag = errorFlag + 1;
-            healthMetrics = stageDataFromADLS(data_source, folder, tableName, dataFrame, selectColumn);
+            healthMetrics = stageDataFromADLS(data_source, folder, tableName, dataFrame, selectColumn,selectDataFrame);
             if (healthMetrics != null) {
                 if ((healthMetrics.getStatus() == 1)
                         && (healthMetrics.getMethodname().equalsIgnoreCase("StageDataFromADLS"))) {
@@ -124,7 +125,7 @@ public class PolybaseThreadService implements Runnable {
     }
 
     private HealthMetrics stageDataFromADLS(String dataSource, String folder, String tableName, String dataFrame,
-            String selectColumn) {
+            String selectColumn,String selectDataFrame) {
         HealthMetrics healthMetrics = null;
         int rowcount = 0;
         long startTime = System.currentTimeMillis();
@@ -132,7 +133,7 @@ public class PolybaseThreadService implements Runnable {
                 " SELECT " + selectColumn +
                 " FROM OPENROWSET(BULK '/" + folder + "/" + tableName + "/*.csv', FORMAT = 'CSV', DATA_SOURCE = '"
                 + dataSource + "',CODEPAGE='65001') " +
-                "WITH (" + dataFrame + ") AS " + tableName;
+                "WITH (" + selectDataFrame + ") AS " + tableName;
         logger.info(query);
         try {
             rowcount = jdbcTemplate.update(query);
@@ -216,7 +217,7 @@ public class PolybaseThreadService implements Runnable {
                         "FROM dbo._staging_"+tableName+" t JOIN\r\n" + 
                         "(SELECT id,SinkModifiedon,versionnumber,\r\n" + 
                         "ROW_NUMBER() over (PARTITION BY id ORDER BY SinkModifiedon DESC,versionnumber DESC) AS RowNum\r\n" + 
-                        "FROM dbo._staging_"+tableName+" WHERE IsDelete NOT IN ('1','True')) as s\r\n" + 
+                        "FROM dbo._staging_"+tableName+" WHERE IsDelete <> 1 ) as s\r\n" + 
                         "ON s.Id=t.Id\r\n" + 
                         "AND s.versionnumber=t.versionnumber\r\n" + 
                         "AND s.SinkModifiedOn=t.SinkModifiedOn\r\n" + 
@@ -252,7 +253,7 @@ public class PolybaseThreadService implements Runnable {
                 "FROM " + tableName + " target\n" + //
                 "INNER JOIN _staging_" + tableName + " source \n" + //
                 "  ON source.id = target.id\n" + //
-                "WHERE source.IsDelete IN ('1', 'True');";
+                "WHERE source.IsDelete = 1;";
 
         try {
             rowcount = jdbcTemplate.update(query);
@@ -283,7 +284,7 @@ public class PolybaseThreadService implements Runnable {
 
         String query = "DELETE \n" + //
                 "FROM " + tableName + "\n" + //
-                "WHERE IsDelete IN ('1', 'True');";
+                "WHERE IsDelete = 1;";
 
         try {
             rowcount = jdbcTemplate.update(query);

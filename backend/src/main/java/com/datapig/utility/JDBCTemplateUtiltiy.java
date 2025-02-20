@@ -51,7 +51,7 @@ public class JDBCTemplateUtiltiy {
 	}
 
 	public boolean stageCDCDataFromADLS(String dbIdentifier, String dataSource, String folder, String tableName,
-			String dataFrame,
+			String dataFrame,String selectDataFrame,
 			String selectColumn,String actualTableName) {
 		jdbcTemplate = getJdbcTemplate(dbIdentifier);
 		boolean flag = false;
@@ -59,7 +59,7 @@ public class JDBCTemplateUtiltiy {
 				" SELECT " + selectColumn +
 				" FROM OPENROWSET(BULK '/" + folder + "/*.csv', FORMAT = 'CSV', DATA_SOURCE = '"
 				+ dataSource + "',CODEPAGE='65001') " +
-				"WITH (" + dataFrame + ") AS " + actualTableName;
+				"WITH (" + selectDataFrame + ") AS " + actualTableName;
 		System.out.println(query);
 		try {
 			jdbcTemplate.update(query);

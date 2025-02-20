@@ -7,6 +7,7 @@ import com.azure.storage.queue.QueueClient;
 import com.azure.storage.queue.QueueClientBuilder;
 import com.azure.storage.queue.models.QueueMessageItem;
 import com.datapig.entity.DatabaseConfig;
+import com.datapig.entity.IntialLoad;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -15,6 +16,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Service;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
+
 import jakarta.annotation.PreDestroy;
 import org.slf4j.Logger;
 
@@ -29,20 +32,33 @@ public class AzureQueueListenerService {
     @Autowired
     private DatabaseConfigService databaseConfigService;
 
-    private volatile boolean running = false;
+    @Lazy
+    @Autowired
+    private InitialLoadService initialLoadService;
+
+    private static boolean running = false;
 
     private Thread listenerThread;
 
     public void startQueueListener(String dbIdentifier) {
         DatabaseConfig databaseConfig=databaseConfigService.getDatabaseConfigByIdentifier(dbIdentifier);
-        String queueName = databaseConfig.getQueueName();
-        String queueSasToken = databaseConfig.getQueueSasToken();
-        String sasQueueUrl = databaseConfig.getQueueEndpoint();
-
-        running = true;
-        listenerThread = new Thread(() -> listen(queueName, queueSasToken, sasQueueUrl, databaseConfig));
-        listenerThread.start();
-        logger.info("Azure Queue Listener started.");
+        if(databaseConfig!=null){
+            IntialLoad intialLoad= initialLoadService.getIntialLoad(dbIdentifier);
+            if(intialLoad!=null){
+                if(intialLoad.getQueueListenerStatus()==0){
+                    intialLoad.setQueueListenerStatus(1);
+                    initialLoadService.save(intialLoad);
+                }
+            }
+            String queueName = databaseConfig.getQueueName();
+            String queueSasToken = databaseConfig.getQueueSasToken();
+            String sasQueueUrl = databaseConfig.getQueueEndpoint();
+    
+            running = true;
+            listenerThread = new Thread(() -> listen(queueName, queueSasToken, sasQueueUrl, databaseConfig));
+            listenerThread.start();
+            logger.info("Azure Queue Listener started.");
+        }
     }
 
     @PreDestroy
@@ -68,6 +84,9 @@ public class AzureQueueListenerService {
             if (message != null) {
                 processMessage(message , databaseConfig);
                 queueClient.deleteMessage(message.getMessageId(), message.getPopReceipt());
+            }
+            else{
+                System.out.println("No Message in the Queue");
             }
 
             try {
@@ -99,21 +118,19 @@ public class AzureQueueListenerService {
                 String initialURL = databaseConfig.getAdlsStorageAccountEndpoint() + "/"
                         + databaseConfig.getAdlsContainerName() + "/";
                 int startIndex = initialURL.length();
-                int endIndex = ("/model.json").length();
-                logger.info("Processing blob: ", blobUrl);
-                String folderName = blobUrl.substring(startIndex, blobUrl.length() - endIndex);
+                int endIndex = blobUrl.length() - ("/model.json").length();
+                logger.info("Processing blob: " + blobUrl);
+                String folderName = blobUrl.substring(startIndex, endIndex);
                 synapseLogParserService.startParse(folderName, databaseConfig);
                 // Add your processing logic here
             } else {
-                logger.info("Blob does not match expected pattern: ", blobUrl);
+                logger.info("Blob does not match expected pattern: " + blobUrl);
             }
         } catch (JsonMappingException e) {
-            // TODO Auto-generated catch block
             logger.warn(e.getMessage());
         } catch (JsonProcessingException e) {
-            // TODO Auto-generated catch block
             logger.warn(e.getMessage());
         }
     }
-
+    
 }

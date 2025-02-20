@@ -135,9 +135,10 @@ public class ParseModelJson {
                 String dataFrame = values.get("dataFrame");
                 String selectQuery = values.get("selectQuery");
                 String columnNames = values.get("columnNames");
+                String selectDataFrame=values.get("selectDataFrame");
                 boolean flag=jDBCTemplateUtiltiy.createTableIfNotExists(tablename, dataFrame, dbIdentifier);
                 if(flag){
-                    loadMetaDataCatlog(tablename, selectQuery, dataFrame, columnNames, dbIdentifier);
+                    loadMetaDataCatlog(tablename, selectQuery, dataFrame, columnNames, selectDataFrame,dbIdentifier);
                 }
             }
         }
@@ -244,9 +245,10 @@ public class ParseModelJson {
                 String dataFrame = values.get("dataFrame");
                 String selectQuery = values.get("selectQuery");
                 String columnNames = values.get("columnNames");
+                String selectDataFrame=values.get("selectDataFrame");
                 boolean flag=jDBCTemplateUtiltiy.createCdcTableIfNotExists(cdcTableName, dataFrame, dbIdentifier);
                 if(flag){
-                    loadChangeDataTrackingCatalog(cdcTableName, selectQuery, dataFrame, columnNames, dbIdentifier);
+                    loadChangeDataTrackingCatalog(cdcTableName, selectQuery, dataFrame, columnNames,selectDataFrame, dbIdentifier);
                 }
             }
         }
@@ -254,25 +256,28 @@ public class ParseModelJson {
     }
 
     private MetaDataCatlog loadMetaDataCatlog(String tablename, String selectQuery, String dataFrame,
-            String columnNames, String dbIdentifier) {
+            String columnNames, String selectDataFrame,String dbIdentifier) {
         MetaDataCatlog catalog = new MetaDataCatlog();
         catalog.setTableName(tablename);
         catalog.setColumnNames(columnNames);
         catalog.setDataFrame(dataFrame);
         catalog.setSelectColumn(selectQuery);
+        catalog.setSelectDataFrame(selectDataFrame);
         catalog.setDbIdentifier(dbIdentifier);
         catalog = metaDataCatlogService.save(catalog);
         return catalog;
     }
 
     private ChangeDataTrackingCatalog loadChangeDataTrackingCatalog(String tablename, String selectQuery, String dataFrame,
-            String columnNames, String dbIdentifier) {
+            String columnNames,String selectDataFrame, String dbIdentifier) {
         ChangeDataTrackingCatalog catalog = new ChangeDataTrackingCatalog();
         catalog.setCdcTableName(tablename);
         catalog.setColumnNames(columnNames);
         catalog.setDataFrame(dataFrame);
         catalog.setSelectColumn(selectQuery);
+        catalog.setSelectDataFrame(selectDataFrame);
         catalog.setDbIdentifier(dbIdentifier);
+
         catalog = changeDataTrackingCatalogService.save(catalog);
         return catalog;
     }
@@ -318,6 +323,7 @@ public class ParseModelJson {
             String columnNames = "";
             String dataFrame = "";
             String selectQuery = "";
+            String selectDataFrame="";
             columns = new HashMap<String, String>();
             for (ModelAttribute attribute : entity.getAttributes()) {
                 String selectSubString = "";
@@ -335,16 +341,19 @@ public class ParseModelJson {
 
                 if (sqlType != null) {
                     dataFrame = dataFrame + "[" + attribute.getName() + "] " + sqlType + ",";
+                    if(!sqlType.equalsIgnoreCase("BIT")){
+                        selectDataFrame = selectDataFrame + "[" + attribute.getName() + "] " + sqlType + ",";
+                    }
                     if (sqlType.startsWith("DATETIME2")) {
                         selectSubString = "ISNULL(" + entity.getName() + "." + "[" + attribute.getName()
                                 + "],'1900-01-01')";
                     } else if (sqlType.startsWith("NVARCHAR")) {
-                        if (attribute.getName().equalsIgnoreCase("IsDelete")) {
-                            selectSubString = "ISNULL(" + entity.getName() + "." + "[" + attribute.getName() + "],'0')";
-                        } else {
                             selectSubString = "ISNULL(" + entity.getName() + "." + "[" + attribute.getName() + "],'')";
-                        }
-                    } else {
+                    }else if(sqlType.startsWith("BIT")){
+                        selectSubString="CASE WHEN ((LOWER("+ entity.getName() + "." + "[" + attribute.getName() +"])='true') OR (LOWER("+ entity.getName() + "." + "[" + attribute.getName() +"])='1'))  THEN 1 ELSE 0 END";
+                        selectDataFrame = selectDataFrame + "[" + attribute.getName() + "] NVARCHAR(10),";
+                    } 
+                    else {
                         selectSubString = entity.getName() + "." + "[" + attribute.getName() + "]";
                     }
 
@@ -353,9 +362,11 @@ public class ParseModelJson {
                 }
             }
             dataFrame = dataFrame.substring(0, dataFrame.length() - 1);
+            selectDataFrame = selectDataFrame.substring(0, selectDataFrame.length() - 1);
             selectQuery = selectQuery.substring(0, selectQuery.length() - 1);
             columnNames = columnNames.substring(0, columnNames.length() - 1);
             columns.put("dataFrame", dataFrame);
+            columns.put("selectDataFrame", selectDataFrame);
             columns.put("selectQuery", selectQuery);
             columns.put("columnNames", columnNames);
             entities.put(entity.getName(), columns);
@@ -404,10 +415,7 @@ public class ParseModelJson {
                 }                
                 return "NVARCHAR(" + (len + offset) + ")";
             case "boolean":
-                if (attribute.getName().equals("IsDelete")) {
-                    return "NVARCHAR(10)";
-                }
-                return "NVARCHAR(10)";
+                return "BIT";
             default:
                 return null; // Unrecognized data type
         }
