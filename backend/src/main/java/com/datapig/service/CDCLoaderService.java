@@ -78,12 +78,12 @@ public class CDCLoaderService {
                 }
                 else{
                     
-                     path=changeDataTrackingPointer.getFolderName();
+                    path=changeDataTrackingPointer.getFolderName()+"/";
                     System.out.println("cdc loaded call===>"+path);
                     boolean flag=archiveToHotRehydration.rehydrateToHotTier(containerName, path,databaseConfig);
                     if(flag){
                     System.out.println("Starting rehydration===>"+path);
-                       changeDataTrackingPointer=updateRehydrationToStart(changeDataTrackingPointer);
+                    changeDataTrackingPointer=updateRehydrationToStart(changeDataTrackingPointer);
                     }
                 }
             }
