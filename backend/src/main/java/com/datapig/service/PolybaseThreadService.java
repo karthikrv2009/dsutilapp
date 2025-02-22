@@ -64,16 +64,11 @@ public class PolybaseThreadService implements Runnable {
             createStagingTable(tableName, dataFrame);
             errorFlag = errorFlag + 1;
             healthMetrics = stageDataFromADLS(data_source, folder, tableName, dataFrame, selectColumn,selectDataFrame);
-            if (healthMetrics != null) {
-                if ((healthMetrics.getStatus() == 1)
-                        && (healthMetrics.getMethodname().equalsIgnoreCase("StageDataFromADLS"))) {
-                    healthMetrics = cleanupSourceTableForLatest(tableName);
-                }
-            }
+
 
             if (healthMetrics != null) {
                 if ((healthMetrics.getStatus() == 1)
-                        && (healthMetrics.getMethodname().equalsIgnoreCase("CleanUpStageData"))) {
+                        && (healthMetrics.getMethodname().equalsIgnoreCase("StageDataFromADLS"))) {
                     healthMetrics = cleanupTargetTable(tableName);
                 }
             }
@@ -85,8 +80,15 @@ public class PolybaseThreadService implements Runnable {
             }
 
             if (healthMetrics != null) {
+                if ((healthMetrics.getStatus() == 1)
+                        && (healthMetrics.getMethodname().equalsIgnoreCase("DeleteRecordsOnSourceTableBasedOnChangeFeed"))) {
+                    healthMetrics = cleanupSourceTableForLatest(tableName);
+                }
+            }
+
+            if (healthMetrics != null) {
                 if ((healthMetrics.getStatus() == 1) && (healthMetrics.getMethodname()
-                        .equalsIgnoreCase("DeleteRecordsOnSourceTableBasedOnChangeFeed"))) {
+                        .equalsIgnoreCase("CleanUpStageData"))) {
                     healthMetrics = createMergeSql(tableName, columnNames);
                 }
             }
