@@ -79,28 +79,28 @@ public class LicenseCryptoUtil {
     }
 
     // Main method for testing
-    /*
-     * public static void main(String[] args) {
-     * LicenseCryptoUtil licenseCryptoUtil = new LicenseCryptoUtil();
-     * try {
-     * // licenseCryptoUtil.generateAndSaveSecretKey();
-     * licenseCryptoUtil.keyFilePath =
-     * "/Users/karthik/Documents/datapig/dsutilapp/backend/key/secret.key";
-     * SecretKey secretKey = licenseCryptoUtil.loadSecretKey();
-     * LicenseData originalData = new
-     * LicenseData("dataverse-datapigdemoe-unq3971a4f47cb9ef11b8e46045bd003",
-     * "PO123", 365, "Acme Inc.", "Enterprise");
-     * String encryptedData = licenseCryptoUtil.encrypt(originalData, secretKey);
-     * LicenseData decryptedData = licenseCryptoUtil.decrypt(encryptedData,
-     * secretKey);
-     * 
-     * System.out.println("Original Data: " + originalData);
-     * System.out.println("Encrypted Data: " + encryptedData);
-     * System.out.println("Decrypted Data: " + decryptedData);
-     * } catch (Exception e) {
-     * e.printStackTrace();
-     * }
-     * 
-     * }
-     */
+    
+      public static void main(String[] args) {
+      LicenseCryptoUtil licenseCryptoUtil = new LicenseCryptoUtil();
+      try {
+      // licenseCryptoUtil.generateAndSaveSecretKey();
+      licenseCryptoUtil.keyFilePath =
+      "D:\\DataPig\\dsutilapp\\backend\\key\\secret.key";
+      SecretKey secretKey = licenseCryptoUtil.loadSecretKey();
+      LicenseData originalData = new
+      LicenseData("dataverse-processtest-unq7191fc390b31405f92c74a0436b12",
+      "PO123", 365, "Lifetime Products Inc.", "Enterprise");
+      String encryptedData = licenseCryptoUtil.encrypt(originalData, secretKey);
+      LicenseData decryptedData = licenseCryptoUtil.decrypt(encryptedData,
+      secretKey);
+      
+      System.out.println("Original Data: " + originalData);
+      System.out.println("Encrypted Data: " + encryptedData);
+      System.out.println("Decrypted Data: " + decryptedData);
+      } catch (Exception e) {
+      e.printStackTrace();
+      }
+      
+      }
+     
 }
