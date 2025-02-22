@@ -69,6 +69,7 @@ const Header = () => {
     useContext(ProfileContext);
   const { instance } = useMsal();
   const username = accounts.length > 0 ? accounts[0].username : "Guest";
+  const name = accounts.length > 0 ? accounts[0].name : "Guest";
 
   useEffect(() => {
     const fetchProfiles = async () => {
@@ -222,7 +223,7 @@ const Header = () => {
             sx={{ minWidth: 300 }} // Increase the width
           >
             <MenuItem disabled>
-              <Typography variant="body1">Hi Hi {username}!</Typography>
+              <Typography variant="body1">{name}</Typography>
             </MenuItem>
             <MenuItem onClick={handleLogout}>Logout</MenuItem>
           </Menu>

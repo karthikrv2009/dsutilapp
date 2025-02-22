@@ -31,6 +31,8 @@ import { makeStyles } from "@mui/styles";
 import Header from "./Header"; // Import the Header component
 import PlayCircleOutlineIcon from "@mui/icons-material/PlayCircleOutline";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import { useMsal } from "@azure/msal-react";
+import { useNavigate } from "react-router-dom";
 
 axios.defaults.baseURL = "http://localhost:8080"; // Set the base URL for Axios
 
@@ -75,6 +77,9 @@ const fetchData = async (url, setData) => {
 };
 
 const LicenseKeyPage = () => {
+  const navigate = useNavigate();
+  const { accounts, instance } = useMsal();
+
   const classes = useStyles();
   const [licenseData, setLicenseData] = useState([]);
   const [environmentInfo, setEnvironmentInfo] = useState([]);
@@ -142,6 +147,33 @@ const LicenseKeyPage = () => {
   const [editEnvironment, setEditEnvironment] = useState(null);
   const [openEditEnvironmentDialog, setOpenEditEnvironmentDialog] =
     useState(false);
+
+  useEffect(() => {
+    if (accounts.length === 0) {
+      // If not authenticated, redirect to login page
+      console.log("LANDING NOT AUTHENTICATED acquired:", accounts);
+
+      navigate("/login");
+    } else {
+      // Acquire token silently
+      instance
+        .acquireTokenSilent({
+          scopes: ["openid", "profile", "email"],
+          account: accounts[0],
+        })
+        .then((response) => {
+          console.log("Token acquired:", response);
+          // Set the token in axios headers for subsequent requests
+          axios.defaults.headers.common[
+            "Authorization"
+          ] = `Bearer ${response.accessToken}`;
+        })
+        .catch((error) => {
+          console.error("Token acquisition failed:", error);
+          navigate("/login");
+        });
+    }
+  }, [accounts, instance, navigate]);
   useEffect(() => {
     const fetchDataAsync = async () => {
       fetchData("/api/license", setLicenseData);
