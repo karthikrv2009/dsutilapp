@@ -27,7 +27,8 @@ import Header from "./Header"; // Import the Header component
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import ErrorIcon from "@mui/icons-material/Error";
 import HourglassEmptyIcon from "@mui/icons-material/HourglassEmpty";
-
+import { useNavigate } from "react-router-dom";
+import { useMsal } from "@azure/msal-react";
 const useStyles = makeStyles((theme) => ({
   container: {
     marginTop: theme.spacing(4),
@@ -54,6 +55,8 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const ChangeLog = () => {
+  const { accounts, instance } = useMsal();
+  const navigate = useNavigate();
   const classes = useStyles();
   const [selectedDbProfile, setSelectedDbProfile] = useState("");
   const [dbProfiles, setDbProfiles] = useState([]);
@@ -62,6 +65,33 @@ const ChangeLog = () => {
   const [startTime, setStartTime] = useState(new Date());
   const [endTime, setEndTime] = useState(new Date());
   const [changeLogData, setChangeLogData] = useState([]);
+
+  useEffect(() => {
+    if (accounts.length === 0) {
+      // If not authenticated, redirect to login page
+      console.log("LANDING NOT AUTHENTICATED acquired:", accounts);
+
+      navigate("/login");
+    } else {
+      // Acquire token silently
+      instance
+        .acquireTokenSilent({
+          scopes: ["openid", "profile", "email"],
+          account: accounts[0],
+        })
+        .then((response) => {
+          console.log("Token acquired:", response);
+          // Set the token in axios headers for subsequent requests
+          axios.defaults.headers.common[
+            "Authorization"
+          ] = `Bearer ${response.accessToken}`;
+        })
+        .catch((error) => {
+          console.error("Token acquisition failed:", error);
+          navigate("/login");
+        });
+    }
+  }, [accounts, instance, navigate]);
 
   useEffect(() => {
     const fetchDbProfiles = async () => {
