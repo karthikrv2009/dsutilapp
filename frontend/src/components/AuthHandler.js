@@ -39,7 +39,8 @@ const AuthHandler = () => {
           console.log("User logged in:", allAccounts[0]);
 
           // Redirect only if the user is on the login page
-          if (location.pathname === "/login") {
+          if (location.pathname === "/" || location.pathname === "/login") {
+            console.log("Redirecting user to /landing...");
             navigate("/landing");
           }
         } else {
