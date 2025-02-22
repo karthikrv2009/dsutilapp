@@ -231,6 +231,7 @@ public class DatabaseConfigScheduler {
                             updateRehydrationToStart(changeDataTrackingPointer);
                         }
                     } else {
+                        path=path+"/";
                         System.out.println("scheduler call==>"+path);
                         boolean flag = archiveToHotRehydration.rehydrateToHotTier(databaseConfig.getAdlsContainerName(),
                                 path, databaseConfig);
@@ -245,7 +246,7 @@ public class DatabaseConfigScheduler {
                         .findByCdcTableNameAndDbIdentifierAndRehydrationStatus(changeDataTracking.getCdcTableName(),
                                 databaseConfig.getDbIdentifier(), rehydrationStatus);
                 for (ChangeDataTrackingPointer changeDataTrackingPointer : pointersStarted) {
-                    String path = changeDataTrackingPointer.getFolderName();
+                    String path = changeDataTrackingPointer.getFolderName()+"/";
                     if (changeDataTrackingPointer.getFolderName().contains("/model.json")) {
                         boolean flag = archiveToHotRehydration.checkRehydrationStatusForBlob(
                                 databaseConfig.getAdlsContainerName(), path, databaseConfig);
@@ -341,7 +342,9 @@ public class DatabaseConfigScheduler {
                         if (archive) {
                             ArchivedFolder archivedFolder = archivedFolderService.findByFolderNameAndDbIdentifier(
                                     folderName, changeDataTrackingPointer.getDbIdentifier());
-                            archivedFolderService.delete(archivedFolder);
+                            if(archivedFolder!=null){
+                                archivedFolderService.delete(archivedFolder);
+                            }
                             changeDataTrackingPointer.setStageStatus(2);
                             changeDataTrackingPointerService.save(changeDataTrackingPointer);
                         }

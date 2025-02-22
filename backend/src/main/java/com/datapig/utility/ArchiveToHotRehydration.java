@@ -89,6 +89,8 @@ public class ArchiveToHotRehydration {
             PagedIterable<BlobItem> blobs = containerClient.listBlobsByHierarchy(path);
             for (BlobItem blobItem : blobs) {
                 // Check if the item is not a directory
+                
+                System.out.println("Blob in Check==>"+blobItem.getName());
                 if (!blobItem.isPrefix() && blobItem.getName().startsWith(path)) {
                     // Send each blob individually to the child method for status check
                     flag = checkRehydrationStatusForBlob(containerName, blobItem.getName(), config) || flag;
