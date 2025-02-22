@@ -74,16 +74,16 @@ public class DatabaseConfig {
     private boolean enableArchive;
 
     @Column(name = "default_profile")
-    @ColumnDefault("false")
-    private boolean defaultProfile;
+    @ColumnDefault("0")
+    private boolean defaultProfile=false;
 
     @Column(name = "purge_enabled")
-    @ColumnDefault("false")
-    private boolean purgeEnabled;
+    @ColumnDefault("0")
+    private boolean purgeEnabled=false;
 
     @Column(name = "purge_duration")
     @ColumnDefault("31622400000")
-    private long purgeDuration;
+    private long purgeDuration = 31622400000L;
 
     @Column(name = "purge_unit_value")
     private long purgeUnitValue;

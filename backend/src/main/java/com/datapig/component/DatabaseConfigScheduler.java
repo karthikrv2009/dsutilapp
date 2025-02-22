@@ -93,7 +93,7 @@ public class DatabaseConfigScheduler {
     @Autowired
     private PipelineService pipelineService;
 
-    @Scheduled(fixedRate = 60000) // 300000 milliseconds = 5 minutes
+    @Scheduled(fixedRate = 600000) // 300000 milliseconds = 5 minutes
     public void processDatabaseConfigs() {
         List<DatabaseConfig> configs = databaseConfigService.getAllDatabaseConfigs();
         for (DatabaseConfig config : configs) {
@@ -427,7 +427,7 @@ public class DatabaseConfigScheduler {
         return changeDataTrackingPointer;
     }
 
-    @Scheduled(fixedRate = 60000) // 300000 milliseconds = 5 minutes
+    @Scheduled(fixedRate = 600000) // 300000 milliseconds = 5 minutes
     public void quarantineRetry() {
         List<DatabaseConfig> databaseConfigs = databaseConfigService.getAllDatabaseConfigs();
         for (DatabaseConfig databaseConfig : databaseConfigs) {
@@ -484,7 +484,7 @@ public class DatabaseConfigScheduler {
         return metaDataCatlog2;
     }
 
-    @Scheduled(fixedRate = 60000) // 300000 milliseconds = 5 minutes
+    @Scheduled(fixedRate = 600000) // 300000 milliseconds = 5 minutes
     public void purgeFiles() {
         List<DatabaseConfig> databaseConfigs = databaseConfigService.getAllDatabaseConfigs();
         for (DatabaseConfig databaseConfig : databaseConfigs) {
