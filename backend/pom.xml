@@ -147,16 +147,6 @@
     </dependencies>
 
    <build>
-   <resources>
-        <resource>
-            <directory>src/main/resources</directory>
-            <filtering>true</filtering>
-            <excludes>
-                <exclude>application.properties</exclude> <!-- Exclude from build -->
-            </excludes>
-        </resource>
-    </resources>
-
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
