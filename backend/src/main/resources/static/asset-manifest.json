@@ -1,15 +1,14 @@
 {
   "files": {
-    "main.css": "/static/css/main.334e031d.css",
-    "main.js": "/static/js/main.cabba134.js",
-    "static/js/453.d855a71b.chunk.js": "/static/js/453.d855a71b.chunk.js",
+    "main.css": "/static/css/main.17f3e61f.css",
+    "main.js": "/static/js/main.a0008bd8.js",
+    "static/media/DataPigHome.png": "/static/media/DataPigHome.c677fbb1009c910db7c4.png",
     "index.html": "/index.html",
-    "main.334e031d.css.map": "/static/css/main.334e031d.css.map",
-    "main.cabba134.js.map": "/static/js/main.cabba134.js.map",
-    "453.d855a71b.chunk.js.map": "/static/js/453.d855a71b.chunk.js.map"
+    "main.17f3e61f.css.map": "/static/css/main.17f3e61f.css.map",
+    "main.a0008bd8.js.map": "/static/js/main.a0008bd8.js.map"
   },
   "entrypoints": [
-    "static/css/main.334e031d.css",
-    "static/js/main.cabba134.js"
+    "static/css/main.17f3e61f.css",
+    "static/js/main.a0008bd8.js"
   ]
 }

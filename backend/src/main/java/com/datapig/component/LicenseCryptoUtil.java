@@ -5,13 +5,13 @@ import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import java.io.File;
-import java.io.FileInputStream;
+
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Base64;
 
 @Component
@@ -20,9 +20,7 @@ public class LicenseCryptoUtil {
     private static final String ALGORITHM = "AES";
     private static final String TRANSFORMATION = "AES";
     private static final String KEY_FILE = "secret.key";
-
-    @Value("${secret.key.path}")
-    private String keyFilePath;
+    private String keyFilePath="key/secret.key";
 
     public void generateAndSaveSecretKey() throws Exception {
         KeyGenerator keyGenerator = KeyGenerator.getInstance(ALGORITHM);
@@ -68,14 +66,21 @@ public class LicenseCryptoUtil {
 
     // Method to load the secret key from a file
     public SecretKey loadSecretKey() throws IOException {
-        System.out.println("Key file path: " + keyFilePath); // Add this line for debugging
-        File keyFile = new File(keyFilePath);
-        System.out.println("Decrypted string: " + keyFile); // Add this line for debugging
-        byte[] keyBytes = new byte[(int) keyFile.length()];
-        try (FileInputStream fis = new FileInputStream(keyFile)) {
-            fis.read(keyBytes);
+        System.out.println("Key file path: " + keyFilePath);  // Debugging: Path to the key file
+
+        // Get the key file as an InputStream from resources (from inside JAR or file system)
+        try (InputStream keyInputStream = getClass().getClassLoader().getResourceAsStream(keyFilePath)) {
+            if (keyInputStream == null) {
+                throw new FileNotFoundException("Key file not found in resources: " + keyFilePath);
+            }
+
+            // Read the bytes of the key from the InputStream
+            byte[] keyBytes = keyInputStream.readAllBytes();
+            System.out.println("Decrypted string (key bytes length): " + keyBytes.length);  // Debugging: Key byte length
+
+            // Return the SecretKey object from the byte array using the algorithm
+            return new SecretKeySpec(keyBytes, ALGORITHM);
         }
-        return new SecretKeySpec(keyBytes, ALGORITHM);
     }
 
     // Main method for testing
