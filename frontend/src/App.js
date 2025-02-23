@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   BrowserRouter as Router,
   Route,
@@ -6,7 +6,6 @@ import {
   Navigate,
 } from "react-router-dom";
 import { MsalProvider, MsalAuthenticationTemplate } from "@azure/msal-react";
-import msalInstance from "./components/msalConfig";
 import {
   Container,
   CssBaseline,
@@ -30,6 +29,7 @@ import { useNavigate } from "react-router-dom";
 import LogoutButton from "./components/LogoutButton";
 import { InteractionStatus } from "@azure/msal-browser";
 import { useMsal } from "@azure/msal-react";
+import { loadMsalConfig, msalInstance } from "./components/msalConfig";
 
 const theme = createTheme({
   palette: {
@@ -43,6 +43,22 @@ const theme = createTheme({
 });
 
 const App = () => {
+  const [msalInstanceLoaded, setMsalInstanceLoaded] = useState(false);
+
+  useEffect(() => {
+    const initializeMsal = async () => {
+      const instance = await loadMsalConfig();
+      if (instance) {
+        setMsalInstanceLoaded(true);
+      }
+    };
+
+    initializeMsal();
+  }, []);
+
+  if (!msalInstanceLoaded) {
+    return <div>Loading...</div>;
+  }
   return (
     <MsalProvider instance={msalInstance}>
       <ThemeProvider theme={theme}>

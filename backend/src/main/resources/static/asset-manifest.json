@@ -1,14 +1,14 @@
 {
   "files": {
     "main.css": "/static/css/main.17f3e61f.css",
-    "main.js": "/static/js/main.a0008bd8.js",
+    "main.js": "/static/js/main.dbe2f71e.js",
     "static/media/DataPigHome.png": "/static/media/DataPigHome.c677fbb1009c910db7c4.png",
     "index.html": "/index.html",
     "main.17f3e61f.css.map": "/static/css/main.17f3e61f.css.map",
-    "main.a0008bd8.js.map": "/static/js/main.a0008bd8.js.map"
+    "main.dbe2f71e.js.map": "/static/js/main.dbe2f71e.js.map"
   },
   "entrypoints": [
     "static/css/main.17f3e61f.css",
-    "static/js/main.a0008bd8.js"
+    "static/js/main.dbe2f71e.js"
   ]
 }
