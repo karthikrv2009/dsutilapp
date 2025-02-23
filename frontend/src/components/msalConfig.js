@@ -1,19 +1,33 @@
-// msalConfig.js
 import { PublicClientApplication } from "@azure/msal-browser";
 
-const msalConfig = {
-  auth: {
-    clientId: "b8a9f967-bb83-44ba-b84a-03e421447356", // Replace with your actual client ID
-    authority:
-      "https://login.microsoftonline.com/8430a178-f249-4330-9b09-bef1a52311cc", // Replace with your actual tenant ID
-    redirectUri: "http://localhost:3000", // Replace with your actual redirect URI
-  },
-  cache: {
-    cacheLocation: "sessionStorage", // Change to "localStorage" if needed
-    storeAuthStateInCookie: true,
-  },
-};
+let msalInstance = null;
 
-const msalInstance = new PublicClientApplication(msalConfig);
+async function loadMsalConfig() {
+  try {
+    const response = await fetch("http://localhost:8080/api/msal-config"); // Ensure this URL matches your backend
+    if (!response.ok) {
+      throw new Error("Failed to fetch MSAL config");
+    }
+    const config = await response.json();
 
-export default msalInstance;
+    const msalConfig = {
+      auth: {
+        clientId: config.clientId,
+        authority: config.authority,
+        redirectUri: config.redirectUri,
+      },
+      cache: {
+        cacheLocation: "sessionStorage",
+        storeAuthStateInCookie: true,
+      },
+    };
+
+    msalInstance = new PublicClientApplication(msalConfig);
+    return msalInstance;
+  } catch (error) {
+    console.error("Error loading MSAL config:", error);
+    return null;
+  }
+}
+
+export { loadMsalConfig, msalInstance };
