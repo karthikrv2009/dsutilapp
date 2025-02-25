@@ -224,7 +224,13 @@ const LicenseKeyPage = () => {
   const handleLicenseSave = async () => {
     try {
       await axios.post("/api/license", newLicense);
-      setLicenseData((prevData) => [...prevData, newLicense]);
+      setLicenseData((prevData) => {
+        if (Array.isArray(prevData)) {
+          return [...prevData, newLicense];
+        } else {
+          return [newLicense];
+        }
+      });
       handleLicenseDialogClose();
       // Re-fetch the license data to refresh the table
       await fetchData("/api/license", setLicenseData);
