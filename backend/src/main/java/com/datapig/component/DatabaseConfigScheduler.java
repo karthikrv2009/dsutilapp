@@ -107,7 +107,7 @@ public class DatabaseConfigScheduler {
                         .findByStageStatusAndDbIdentifier(0, config.getDbIdentifier());
                 for (ArchivedFolder archivedFolder : archivedFoldersNotArchived) {
                     MetaDataPointer metaDataPointer = metaDataPointerService.getMetaDataPointerBydbIdentifierAndFolder(
-                            archivedFolder.getFolderName(), config.getDbIdentifier());
+                             config.getDbIdentifier(),archivedFolder.getFolderName());
                     Short copyStatus = 1;
                     List<FolderSyncStatus> lstFolderSync = folderSyncStatusService
                             .findByDbIdentifierAndFolderAndCopyStatusAndArcarchived(config.getDbIdentifier(),
