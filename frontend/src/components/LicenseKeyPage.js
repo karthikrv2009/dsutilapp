@@ -118,8 +118,8 @@ const LicenseKeyPage = () => {
     adlsStorageAccountName: "",
     adlsStorageAccountEndpoint: "",
     adlsStorageAccountSasKey: "",
-    adlsContainerName: "",
-    adlsFolderName: "",
+    adlsContainerName: licenseData.environment,
+    adlsFolderName: licenseData.environment,
     adlsCdmFileName: "",
     adlsCdmFilePath: "",
     localCdmFilePath: "",
@@ -1072,7 +1072,7 @@ const LicenseKeyPage = () => {
                 label="ADLS Container Name"
                 variant="outlined"
                 name="adlsContainerName"
-                value={licenseData.adlsContainerName}
+                value={newConfig.adlsContainerName}
                 onChange={handleChange}
                 fullWidth
                 error={
@@ -1091,7 +1091,7 @@ const LicenseKeyPage = () => {
                 label="ADLS Folder Name"
                 variant="outlined"
                 name="adlsFolderName"
-                value={licenseData.adlsFolderName}
+                value={newConfig.adlsFolderName}
                 onChange={handleChange}
                 fullWidth
                 error={
