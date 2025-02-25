@@ -118,8 +118,8 @@ const LicenseKeyPage = () => {
     adlsStorageAccountName: "",
     adlsStorageAccountEndpoint: "",
     adlsStorageAccountSasKey: "",
-    adlsContainerName: licenseData.environment,
-    adlsFolderName: licenseData.environment,
+    adlsContainerName: "",
+    adlsFolderName: "",
     adlsCdmFileName: "",
     adlsCdmFilePath: "",
     localCdmFilePath: "",
@@ -156,6 +156,16 @@ const LicenseKeyPage = () => {
       setNewEnvironment(environmentInfo);
     }
   }, [environmentInfo]);
+
+  useEffect(() => {
+    if (licenseData.environment) {
+      setNewConfig((prevConfig) => ({
+        ...prevConfig,
+        adlsContainerName: licenseData.environment,
+        adlsFolderName: licenseData.environment,
+      }));
+    }
+  }, [licenseData]);
 
   const handleTabChange = (event, newValue) => {
     setActiveTab(newValue);
@@ -368,8 +378,8 @@ const LicenseKeyPage = () => {
         adlsStorageAccountName: "",
         adlsStorageAccountEndpoint: "",
         adlsStorageAccountSasKey: "",
-        adlsContainerName: licenseData.environment,
-        adlsFolderName: licenseData.environment,
+        adlsContainerName: "",
+        adlsFolderName: "",
         adlsCdmFileName: "",
         adlsCdmFilePath: "",
         localCdmFilePath: "",
@@ -1072,7 +1082,7 @@ const LicenseKeyPage = () => {
                 label="ADLS Container Name"
                 variant="outlined"
                 name="adlsContainerName"
-                value={licenseData.environment}
+                value={newConfig.adlsContainerName}
                 onChange={handleChange}
                 fullWidth
                 error={
@@ -1091,7 +1101,7 @@ const LicenseKeyPage = () => {
                 label="ADLS Folder Name"
                 variant="outlined"
                 name="adlsFolderName"
-                value={licenseData.environment}
+                value={newConfig.adlsFolderName}
                 onChange={handleChange}
                 fullWidth
                 error={
