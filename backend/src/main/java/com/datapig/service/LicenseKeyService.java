@@ -45,6 +45,10 @@ public class LicenseKeyService {
         return licenseKeyRepository.save(licenseKey);
     }
 
+    public void deleteLicense() {
+        licenseKeyRepository.deleteAll();
+    }
+
     public LicenseKey getLicenseKeyById(Long id) {
         return licenseKeyRepository.findById(id).orElse(null);
     }

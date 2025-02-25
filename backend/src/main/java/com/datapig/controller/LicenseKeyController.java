@@ -13,7 +13,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-
 @RestController
 @RequestMapping("/api/license")
 public class LicenseKeyController {
@@ -37,6 +36,8 @@ public class LicenseKeyController {
     // POST method for /api/license
     @PostMapping
     public ResponseEntity<LicenseKey> createLicenseKey(@RequestBody LicenseKey licenseKey) {
+
+        licenseKeyService.deleteLicense();
 
         LicenseKey savedLicenseKey = licenseKeyService.saveLicenseKey(licenseKey);
 
