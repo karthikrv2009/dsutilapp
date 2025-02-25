@@ -1072,7 +1072,7 @@ const LicenseKeyPage = () => {
                 label="ADLS Container Name"
                 variant="outlined"
                 name="adlsContainerName"
-                value={newConfig.adlsContainerName}
+                value={licenseData.environment}
                 onChange={handleChange}
                 fullWidth
                 error={
@@ -1091,7 +1091,7 @@ const LicenseKeyPage = () => {
                 label="ADLS Folder Name"
                 variant="outlined"
                 name="adlsFolderName"
-                value={newConfig.adlsFolderName}
+                value={licenseData.environment}
                 onChange={handleChange}
                 fullWidth
                 error={
