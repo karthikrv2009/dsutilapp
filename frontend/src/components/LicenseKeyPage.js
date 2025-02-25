@@ -251,7 +251,13 @@ const LicenseKeyPage = () => {
 
     try {
       await axios.post("/api/license/environment/save", newEnvironment);
-      setEnvironmentInfo((prevInfo) => [...prevInfo, newEnvironment]);
+      setEnvironmentInfo((prevInfo) => {
+        if (Array.isArray(prevInfo)) {
+          return [...prevInfo, newEnvironment];
+        } else {
+          return [newEnvironment];
+        }
+      });
       handleEnvironmentDialogClose();
     } catch (error) {
       console.error("Error saving environment info:", error);
