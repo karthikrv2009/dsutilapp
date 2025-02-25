@@ -226,6 +226,8 @@ const LicenseKeyPage = () => {
       await axios.post("/api/license", newLicense);
       setLicenseData((prevData) => [...prevData, newLicense]);
       handleLicenseDialogClose();
+      // Re-fetch the license data to refresh the table
+      await fetchData("/api/license", setLicenseData);
     } catch (error) {
       console.error("Error saving license info:", error);
     }
@@ -1000,6 +1002,7 @@ const LicenseKeyPage = () => {
                 label="Queue SAS Token"
                 variant="outlined"
                 name="queueSasToken"
+                type="password"
                 value={newConfig.queueSasToken}
                 onChange={handleChange}
                 fullWidth
@@ -1064,6 +1067,7 @@ const LicenseKeyPage = () => {
                 label="ADLS Storage Account SAS Key"
                 variant="outlined"
                 name="adlsStorageAccountSasKey"
+                type="password"
                 value={newConfig.adlsStorageAccountSasKey}
                 onChange={handleChange}
                 fullWidth
@@ -1370,6 +1374,7 @@ const LicenseKeyPage = () => {
                 label="Queue SAS Token"
                 variant="outlined"
                 name="queueSasToken"
+                type="password"
                 value={editConfig ? editConfig.queueSasToken : ""}
                 onChange={handleChange}
                 fullWidth
@@ -1442,6 +1447,7 @@ const LicenseKeyPage = () => {
                 label="ADLS Storage Account SAS Key"
                 variant="outlined"
                 name="adlsStorageAccountSasKey"
+                type="password"
                 value={editConfig ? editConfig.adlsStorageAccountSasKey : ""}
                 onChange={handleChange}
                 fullWidth
@@ -1599,7 +1605,7 @@ const LicenseKeyPage = () => {
               />
 
               <TextField
-                label="purgeUnitValue"
+                label="Purge Unit Value"
                 variant="outlined"
                 name="purgeUnitValue"
                 type="number"
