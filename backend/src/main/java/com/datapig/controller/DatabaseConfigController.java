@@ -94,6 +94,7 @@ public class DatabaseConfigController {
 
         // Perform null/empty validation checks for fields (before calling the
         // validation methods)
+        System.out.println(config.toString());
         validationResults.put("url", config.getUrl() != null && !config.getUrl().isEmpty());
         validationResults.put("username", config.getUsername() != null && !config.getUsername().isEmpty());
         validationResults.put("password", config.getPassword() != null && !config.getPassword().isEmpty());
@@ -123,6 +124,7 @@ public class DatabaseConfigController {
                 config.getLocalCdmFilePath() != null && !config.getLocalCdmFilePath().isEmpty());
         validationResults.put("maxThreads", config.getMaxThreads() > 0);
 
+       
         // Validate DB connection
         boolean dbConnectionValid = dataPigValidator.checkDBConnection(config.getUrl(), config.getUsername(),
                 config.getPassword(), config.getDriverClassName());
@@ -151,6 +153,7 @@ public class DatabaseConfigController {
         boolean modelJsonExistenceValid = dataPigValidator.checkModelJsonExistence(
                 config.getAdlsStorageAccountEndpoint(), config.getAdlsContainerName(),
                 config.getAdlsStorageAccountSasKey());
+        
         if (!modelJsonExistenceValid) {
             validationResults.put("adlsContainerName", false);
             validationResults.put("adlsStorageAccountSasKey", false);
