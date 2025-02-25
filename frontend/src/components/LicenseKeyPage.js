@@ -265,7 +265,7 @@ const LicenseKeyPage = () => {
         }
       });
       handleEnvironmentDialogClose();
-      await fetchData("/api/license", setLicenseData);
+      await fetchData("/api/license/environment", setEnvironmentInfo);
     } catch (error) {
       console.error("Error saving environment info:", error);
     }
