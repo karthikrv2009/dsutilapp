@@ -1,7 +1,13 @@
 package com.datapig.service;
 
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Base64;
+import java.util.List;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import com.azure.storage.queue.QueueClient;
 import com.azure.storage.queue.QueueClientBuilder;
@@ -9,7 +15,6 @@ import com.azure.storage.queue.models.QueueMessageItem;
 import com.datapig.entity.DatabaseConfig;
 import com.datapig.entity.IntialLoad;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -18,13 +23,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 
-import jakarta.annotation.PreDestroy;
 import org.slf4j.Logger;
 
 @Service
 public class AzureQueueListenerService {
 
     private static final Logger logger = LoggerFactory.getLogger(AzureQueueListenerService.class);
+
+    private static String queueDbIdentifier; // Db Identifier for the current profile
 
     @Autowired
     private SynapseLogParserService synapseLogParserService;
@@ -36,42 +42,81 @@ public class AzureQueueListenerService {
     @Autowired
     private InitialLoadService initialLoadService;
 
+    @Autowired
+    private PipelineService pipelineService; 
+
     private static boolean running = false;
 
-    private Thread listenerThread;
+    private ExecutorService executorService;  // ExecutorService to manage multiple listeners
+    private List<Future<?>> listenerFutures;  // List to track all listener tasks
+
+    // Checks pipeline status, returns true if no pipelines are running
+    private boolean pipelineStatus(String dbIdentifier) {
+        int count = pipelineService.countPipelineInProgress(dbIdentifier);
+        return count == 0;
+    }
 
     public void startQueueListener(String dbIdentifier) {
-        DatabaseConfig databaseConfig=databaseConfigService.getDatabaseConfigByIdentifier(dbIdentifier);
-        if(databaseConfig!=null){
-            IntialLoad intialLoad= initialLoadService.getIntialLoad(dbIdentifier);
-            if(intialLoad!=null){
-                if(intialLoad.getQueueListenerStatus()==0){
-                    intialLoad.setQueueListenerStatus(1);
-                    initialLoadService.save(intialLoad);
+        DatabaseConfig databaseConfig = databaseConfigService.getDatabaseConfigByIdentifier(dbIdentifier);
+        if (databaseConfig != null) {
+            queueDbIdentifier = dbIdentifier;  // Store current db identifier
+            IntialLoad initialLoad = initialLoadService.getIntialLoad(dbIdentifier);
+            if (initialLoad != null) {
+                if (initialLoad.getQueueListenerStatus() == 0) {
+                    initialLoad.setQueueListenerStatus(1);
+                    initialLoadService.save(initialLoad); // Mark listener as active
                 }
             }
-            String queueName = databaseConfig.getQueueName();
-            String queueSasToken = databaseConfig.getQueueSasToken();
-            String sasQueueUrl = databaseConfig.getQueueEndpoint();
-    
-            running = true;
-            listenerThread = new Thread(() -> listen(queueName, queueSasToken, sasQueueUrl, databaseConfig));
-            listenerThread.start();
-            logger.info("Azure Queue Listener started.");
+
+            if (executorService == null || executorService.isShutdown()) {
+                executorService = Executors.newCachedThreadPool();  // Create new thread pool
+                listenerFutures = new ArrayList<>();
+            }
+
+            // Submit the task to listen to the Azure queue in parallel
+            listenerFutures.add(executorService.submit(() -> listen(databaseConfig)));
+            logger.info("Azure Queue Listener started for DB: " + dbIdentifier);
         }
     }
 
-    @PreDestroy
-    public void stopQueueListener() {
-        running = false;
-        if (listenerThread != null) {
-            listenerThread.interrupt();
+public void stopQueueListener() {
+    running = false;  // Flag to indicate the listener should stop
+
+    // Wait for the pipeline to complete before stopping
+    while (!pipelineStatus(queueDbIdentifier)) {
+        try {
+            Thread.sleep(10000); // Wait until the pipeline is finished
+        } catch (InterruptedException ex) {
+            Thread.currentThread().interrupt();  // Restore interrupt flag
+            break;
         }
-        logger.info("Azure Queue Listener stopped.");
     }
 
-    private void listen(String queueName, String queueSasToken, String sasQueueUrl, 
-            DatabaseConfig databaseConfig) {
+    // Stop listener threads gracefully
+    if (executorService != null) {
+        for (Future<?> future : listenerFutures) {
+            try {
+                if (!future.isDone() && !future.isCancelled()) {
+                    future.get();  // Block until the task finishes
+                }
+            } catch (CancellationException e) {
+                // Task was cancelled, log this scenario
+                logger.warn("Listener task was cancelled.");
+            } catch (Exception e) {
+                logger.error("Error waiting for listener thread to finish: ", e);
+            }
+        }
+
+        executorService.shutdown();  // Shutdown executor service gracefully
+    }
+
+    logger.info("Azure Queue Listener stopped.");
+}
+
+    private void listen(DatabaseConfig databaseConfig) {
+        String queueName = databaseConfig.getQueueName();
+        String queueSasToken = databaseConfig.getQueueSasToken();
+        String sasQueueUrl = databaseConfig.getQueueEndpoint();
 
         QueueClient queueClient = new QueueClientBuilder()
                 .endpoint(sasQueueUrl)
@@ -79,40 +124,38 @@ public class AzureQueueListenerService {
                 .sasToken(queueSasToken)
                 .buildClient();
 
+        running = true;
         while (running) {
             QueueMessageItem message = queueClient.receiveMessage();
             if (message != null) {
-                processMessage(message , databaseConfig);
+                processMessage(message, databaseConfig);
                 queueClient.deleteMessage(message.getMessageId(), message.getPopReceipt());
-            }
-            else{
-                System.out.println("No Message in the Queue");
+            } else {
+                logger.info("No Message in the Queue for DB: " + databaseConfig.getDbIdentifier());
             }
 
             try {
-                Thread.sleep(10000); // Sleep for 10 seconds
+                Thread.sleep(10000); // Sleep for 10 seconds before checking the queue again
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
-                break;
+                break;  // Exit the loop and end the thread
             }
         }
     }
 
     private void processMessage(QueueMessageItem message, DatabaseConfig databaseConfig) {
-
         // Decode the binary message to a string
-        message.getBody().toString();
-        // Base64 decode the message
-        byte[] messageBytes = Base64.getDecoder().decode(message.getBody().toBytes());
-        String decodedMessage = new String(messageBytes, StandardCharsets.UTF_8);
+        String decodedMessage = new String(Base64.getDecoder().decode(message.getBody().toBytes()), StandardCharsets.UTF_8);
         logger.info(decodedMessage);
+
         // Parse the JSON message
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode jsonNode;
         try {
             jsonNode = objectMapper.readTree(decodedMessage);
             String rootModelJsonPath = databaseConfig.getAdlsCdmFilePath();
-            // Extract the blob URL
+
+            // Extract the blob URL from the JSON
             String blobUrl = jsonNode.path("data").path("blobUrl").asText();
             if (!blobUrl.equalsIgnoreCase(rootModelJsonPath)) {
                 String initialURL = databaseConfig.getAdlsStorageAccountEndpoint() + "/"
@@ -122,15 +165,11 @@ public class AzureQueueListenerService {
                 logger.info("Processing blob: " + blobUrl);
                 String folderName = blobUrl.substring(startIndex, endIndex);
                 synapseLogParserService.startParse(folderName, databaseConfig);
-                // Add your processing logic here
             } else {
                 logger.info("Blob does not match expected pattern: " + blobUrl);
             }
-        } catch (JsonMappingException e) {
-            logger.warn(e.getMessage());
         } catch (JsonProcessingException e) {
-            logger.warn(e.getMessage());
+            logger.warn("Error processing message: " + e.getMessage());
         }
     }
-    
 }
