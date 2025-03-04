@@ -85,6 +85,8 @@ const LicenseKeyPage = () => {
 
   const [activeTab, setActiveTab] = useState(0); // Set default tab to 0
   const [openLicenseDialog, setOpenLicenseDialog] = useState(false);
+  const [openAddLicenseDialog, setOpenAddLicenseDialog] = useState(false);
+
   const [openEnvironmentDialog, setOpenEnvironmentDialog] = useState(false);
   const [newLicense, setNewLicense] = useState({
     environment: "",
@@ -140,6 +142,7 @@ const LicenseKeyPage = () => {
   const [isEnvSubmitted, setIsEnvSubmitted] = useState(false);
   const [envValidationResults, setEnvValidationResults] = useState({});
   const [editEnvironment, setEditEnvironment] = useState(null);
+
   const [openEditEnvironmentDialog, setOpenEditEnvironmentDialog] =
     useState(false);
   useEffect(() => {
@@ -211,6 +214,23 @@ const LicenseKeyPage = () => {
       ...prevLicense,
       [name]: value,
     }));
+  };
+
+  const handleAgree = () => {
+    // Handle agree action
+    console.log("User agreed to the license");
+    setOpenLicenseDialog(false);
+    setOpenAddLicenseDialog(true);
+  };
+
+  const handleReject = () => {
+    // Handle reject action
+    console.log("User rejected the license");
+    setOpenLicenseDialog(false);
+  };
+
+  const handleAddLicenseDialogClose = () => {
+    setOpenAddLicenseDialog(false);
   };
 
   const handleEnvironmentChange = (e) => {
@@ -678,6 +698,62 @@ const LicenseKeyPage = () => {
         )}
 
         <Dialog open={openLicenseDialog} onClose={handleLicenseDialogClose}>
+          <DialogTitle>License Agreement</DialogTitle>
+          <DialogContent>
+            <DialogContentText>
+              <Typography variant="body1">
+                <strong>License Agreement</strong>
+                <br />
+                <br />
+                This License Agreement ("Agreement") is made between the user
+                ("You") and the company ("Company").
+                <br />
+                <br />
+                <strong>1. Grant of License</strong>
+                <br />
+                The Company grants You a non-exclusive, non-transferable license
+                to use the software.
+                <br />
+                <br />
+                <strong>2. Restrictions</strong>
+                <br />
+                You may not modify, distribute, or reverse engineer the
+                software.
+                <br />
+                <br />
+                <strong>3. Termination</strong>
+                <br />
+                This Agreement is effective until terminated. You may terminate
+                it at any time by destroying the software.
+                <br />
+                <br />
+                <strong>4. Disclaimer of Warranty</strong>
+                <br />
+                The software is provided "as is" without warranty of any kind.
+                <br />
+                <br />
+                <strong>5. Limitation of Liability</strong>
+                <br />
+                In no event shall the Company be liable for any damages arising
+                out of the use of the software.
+                <br />
+                <br />
+                By clicking "Agree", you accept the terms of this License
+                Agreement.
+              </Typography>
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleReject} color="secondary">
+              Reject
+            </Button>
+            <Button onClick={handleAgree} color="primary">
+              Agree
+            </Button>
+          </DialogActions>
+        </Dialog>
+
+        <Dialog open={openAddLicenseDialog} onClose={handleLicenseDialogClose}>
           <DialogTitle>Add New License Information</DialogTitle>
           <DialogContent>
             <DialogContentText>
@@ -695,7 +771,7 @@ const LicenseKeyPage = () => {
             </form>
           </DialogContent>
           <DialogActions>
-            <Button onClick={handleLicenseDialogClose} color="primary">
+            <Button onClick={handleAddLicenseDialogClose} color="primary">
               Cancel
             </Button>
             <Button onClick={handleLicenseSave} color="primary">
