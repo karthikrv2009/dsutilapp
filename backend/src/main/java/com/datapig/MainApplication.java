@@ -8,6 +8,9 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.context.annotation.ComponentScan;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import jakarta.annotation.PreDestroy;
 
 import com.datapig.service.ALDSMetaDataPointerLoadService;
 import com.datapig.service.AzureQueueListenerService;
@@ -23,52 +26,67 @@ import java.util.List;
 @ComponentScan({ "com.datapig.*" })
 public class MainApplication implements CommandLineRunner, Daemon {
 
+    private static final Logger logger = LoggerFactory.getLogger(MainApplication.class);
+
+    @Autowired
+    private DatabaseConfigService databaseConfigService;
+
+    @Autowired
+    private AzureQueueListenerService azureQueueListenerService;
+
+    @Autowired
+    private InitialLoadService initialLoadService;
+
+    @Autowired
+    private ALDSMetaDataPointerLoadService aldsMetaDataPointerLoadService;
+
+    // Used to hold the Spring application thread reference
     private Thread appThread;
-
-    @Autowired
-    DatabaseConfigService databaseConfigService;
-
-    @Autowired
-    AzureQueueListenerService azureQueueListenerService;
-
-    @Autowired
-    InitialLoadService initialLoadService;
-
-    @Autowired
-    ALDSMetaDataPointerLoadService aldsMetaDataPointerLoadService;
 
     @Override
     public void init(DaemonContext context) throws Exception {
-        System.out.println("Initializing daemon...");
+        logger.info("Initializing daemon...");
     }
 
     @Override
     public void start() throws Exception {
         appThread = new Thread(() -> {
-            System.out.println("Starting the application...");
+            logger.info("Starting the application...");
             SpringApplication.run(MainApplication.class);
         });
         appThread.start();
+        
+        // Wait for the application to start (this ensures prunsrv doesn't return early)
+        while (!appThread.isAlive()) {
+            Thread.sleep(100); // Sleep for a bit and then check again
+        }
     }
-
+    
+    @PreDestroy
     @Override
     public void stop() throws Exception {
-        System.out.println("Stopping the application...");
+        logger.info("Stopping the application...");
     
         // Gracefully stop the queue listeners before shutdown
         if (azureQueueListenerService != null) {
-            azureQueueListenerService.stopQueueListener();  // Stop queue listeners and wait for completion
+            logger.info("Stopping Azure queue listener...");
+            azureQueueListenerService.stopQueueListener(); // Ensure it stops gracefully
         }
     
         // Optionally, join the application thread to ensure all listeners are done
         if (appThread != null && appThread.isAlive()) {
-            appThread.join();  // Wait for the app thread to complete
+            logger.info("Interrupting the application thread...");
+            appThread.interrupt();  // Interrupt the thread to stop gracefully
+            appThread.join(10000);  // Allow 10 seconds for the app thread to finish
+            logger.info("Application thread stopped.");
         }
+    
+        logger.info("Application stopped.");
     }
     
     @Override
     public void destroy() {
-        System.out.println("Destroying daemon...");
+        logger.info("Destroying daemon...");
     }
 
     @Override
@@ -79,8 +97,10 @@ public class MainApplication implements CommandLineRunner, Daemon {
             if (initialLoad != null) {
                 if (initialLoad.getQueueListenerStatus() == 1) {
                     azureQueueListenerService.startQueueListener(databaseConfig.getDbIdentifier());
+                    logger.info("Started queue listener for DB: {}", databaseConfig.getDbIdentifier());
                 } else {
                     aldsMetaDataPointerLoadService.load(initialLoad.getDbIdentifier());
+                    logger.info("Loaded metadata pointer for DB: {}", initialLoad.getDbIdentifier());
                 }
             }
         }
