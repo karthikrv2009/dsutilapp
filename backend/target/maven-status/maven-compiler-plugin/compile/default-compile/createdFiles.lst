@@ -23,6 +23,7 @@ com\datapig\service\dto\ConfigurationRequest.class
 com\datapig\config\SecurityConfig.class
 com\datapig\service\HealthMetricsService.class
 com\datapig\service\ChangeDataTrackingPointerService.class
+com\datapig\controller\MsalConfigController.class
 com\datapig\service\LicenseKeyService.class
 com\datapig\service\dto\ModelEntity.class
 com\datapig\entity\Pipeline.class
