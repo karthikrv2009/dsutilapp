@@ -1,13 +1,12 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useMsal } from "@azure/msal-react";
 import { InteractionStatus } from "@azure/msal-browser";
 
-const AuthHandler = () => {
+const AuthHandler = ({ setIsAuthChecked }) => {
   const { instance, inProgress } = useMsal();
   const navigate = useNavigate();
   const location = useLocation();
-  const [isAuthChecked, setIsAuthChecked] = useState(false);
 
   useEffect(() => {
     const checkAuthentication = async () => {
@@ -16,10 +15,8 @@ const AuthHandler = () => {
       console.log("MSAL Interaction Status:", inProgress);
 
       try {
-        // Ensure redirect promise is handled first
         await instance.handleRedirectPromise();
 
-        // Prevent login attempts if an interaction is already in progress
         if (inProgress === InteractionStatus.Started) {
           console.warn("Authentication already in progress. Skipping...");
           return;
@@ -28,7 +25,6 @@ const AuthHandler = () => {
         const allAccounts = instance.getAllAccounts();
         console.log("Accounts after handling redirect:", allAccounts);
 
-        // Prevent auto-login after logout
         if (sessionStorage.getItem("logoutInProgress") === "true") {
           console.warn("Logout detected. Skipping auto-login.");
           sessionStorage.removeItem("logoutInProgress");
@@ -38,15 +34,13 @@ const AuthHandler = () => {
         if (allAccounts.length > 0) {
           console.log("User logged in:", allAccounts[0]);
 
-          // Redirect only if the user is on the login page
           if (location.pathname === "/" || location.pathname === "/login") {
             console.log("Redirecting user to /landing...");
-            navigate("/landing");
+            navigate("/landing", { replace: true });
           }
         } else {
           console.warn("No accounts detected. Not redirecting.");
 
-          // 🚨 FIX: Only trigger loginRedirect() if user is on the login page AND no interaction is in progress
           if (
             location.pathname === "/login" &&
             inProgress === InteractionStatus.None
@@ -58,18 +52,14 @@ const AuthHandler = () => {
       } catch (error) {
         console.error("Authentication error:", error);
       } finally {
-        setIsAuthChecked(true);
+        setIsAuthChecked(true); // ✅ Prop, not state
       }
     };
 
     checkAuthentication();
-  }, [instance, location.pathname, navigate, inProgress]);
+  }, [instance, location.pathname, navigate, inProgress, setIsAuthChecked]);
 
-  if (!isAuthChecked) {
-    return null; // Prevents flashing before authentication check is complete
-  }
-
-  return null;
+  return null; // No UI component
 };
 
 export default AuthHandler;
