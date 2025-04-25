@@ -25,11 +25,12 @@ import DashboardPage from "./components/DashboardPage";
 import ChangeLog from "./components/ChangeLog";
 import AuthHandler from "./components/AuthHandler";
 import { Box, Card, Stack, Typography } from "@mui/material";
+import PublicRoute from "./components/PublicRoute"; // Import PublicRoute
 import { useNavigate } from "react-router-dom";
 import LogoutButton from "./components/LogoutButton";
 import { InteractionStatus } from "@azure/msal-browser";
 import { useMsal } from "@azure/msal-react";
-import { loadMsalConfig, msalInstance } from "./components/msalConfig";
+import { loadMsalConfig } from "./components/msalConfig";
 
 const theme = createTheme({
   palette: {
@@ -44,60 +45,79 @@ const theme = createTheme({
 
 const App = () => {
   const [msalInstanceLoaded, setMsalInstanceLoaded] = useState(false);
+  const [isAuthChecked, setIsAuthChecked] = useState(false);
+  const [msalInstance, setMsalInstance] = useState(null);
 
   useEffect(() => {
     const initializeMsal = async () => {
       const instance = await loadMsalConfig();
       if (instance) {
+        setMsalInstance(instance);
         setMsalInstanceLoaded(true);
       }
     };
-
     initializeMsal();
   }, []);
 
-  if (!msalInstanceLoaded) {
-    return <div>Loading...</div>;
+  if (!msalInstance) {
+    return <div>Loading MSAL...</div>; // ✅ Ensure provider never mounts with null
   }
+
   return (
     <MsalProvider instance={msalInstance}>
       <ThemeProvider theme={theme}>
         <CssBaseline enableColorScheme />
         <Router>
-          <Container style={{ minHeight: "80vh" }}>
-            <AuthHandler /> {/* Handle authentication */}
-            <ProfileProvider>
-              <Routes>
-                <Route path="/" element={<Login />} />{" "}
-                {/* Show Login Page at / */}
-                <Route path="/login" element={<Login />} /> {/* Login Page */}
-                <Route path="/landing" element={<LandingPage />} />{" "}
-                {/* Landing Page */}
-                <Route path="/dashboard" element={<DashboardPage />} />{" "}
-                {/* Dashboard */}
-                <Route path="/license" element={<LicenseKeyPage />} />{" "}
-                {/* License Key Page */}
-                <Route path="/changelog" element={<ChangeLog />} />{" "}
-                {/* Change Log Page */}
-                <Route path="/logout" element={<LogoutButton />} />{" "}
-                {/* Logout Page */}
-                <Route
-                  path="/database-config"
-                  element={
-                    <MsalAuthenticationTemplate>
-                      <DatabaseConfigPage />
-                    </MsalAuthenticationTemplate>
-                  }
-                />
-                <Route
-                  path="/index.html"
-                  element={<Navigate to="/landing" />}
-                />{" "}
-                {/* Handle auth redirect */}
-              </Routes>
-            </ProfileProvider>
-          </Container>
-          <Footer /> {/* The footer will be shown on every page */}
+          {!isAuthChecked ? (
+            <>
+              <AuthHandler setIsAuthChecked={setIsAuthChecked} />
+              <div>Loading...</div>
+            </>
+          ) : (
+            <>
+              <AuthHandler setIsAuthChecked={setIsAuthChecked} />
+              <Container style={{ minHeight: "80vh" }}>
+                <ProfileProvider>
+                  <Routes>
+                    <Route
+                      path="/"
+                      element={
+                        <PublicRoute>
+                          <Login />
+                        </PublicRoute>
+                      }
+                    />
+                    <Route
+                      path="/login"
+                      element={
+                        <PublicRoute>
+                          <Login />
+                        </PublicRoute>
+                      }
+                    />
+                    <Route path="/landing" element={<LandingPage />} />
+                    <Route path="/dashboard" element={<DashboardPage />} />
+                    <Route path="/license" element={<LicenseKeyPage />} />
+                    <Route path="/changelog" element={<ChangeLog />} />
+                    <Route path="/logout" element={<LogoutButton />} />
+                    <Route
+                      path="/database-config"
+                      element={
+                        <MsalAuthenticationTemplate>
+                          <DatabaseConfigPage />
+                        </MsalAuthenticationTemplate>
+                      }
+                    />
+                    <Route
+                      path="/index.html"
+                      element={<Navigate to="/landing" />}
+                    />
+                  </Routes>
+                </ProfileProvider>
+              </Container>
+              <Footer />
+            </>
+          )}
         </Router>
       </ThemeProvider>
     </MsalProvider>
