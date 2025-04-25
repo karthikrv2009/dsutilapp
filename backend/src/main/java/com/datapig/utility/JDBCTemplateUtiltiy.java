@@ -119,7 +119,7 @@ public class JDBCTemplateUtiltiy {
 
 			// String sql = "SELECT table_name FROM information_schema.tables WHERE
 			// table_schema = ?";
-			logger.debug("Executing SQL query: {}", sql);
+			//logger.debug("Executing SQL query: {}", sql);
 			tableNames = jdbcTemplate.query(sql, (rs, rowNum) -> rs.getString("tablename"));
 
 			logger.info("Tables retrieved for folder {}: {}", folderName, tables);
