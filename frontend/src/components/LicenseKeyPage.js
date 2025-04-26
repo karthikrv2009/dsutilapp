@@ -229,7 +229,7 @@ const LicenseKeyPage = () => {
   };
 
   const handleLicenseDialogClose = () => {
-    setOpenLicenseDialog(false);
+    setOpenAddLicenseDialog(false);
   };
 
   const handleEnvironmentDialogOpen = () => {
@@ -431,6 +431,12 @@ const LicenseKeyPage = () => {
     }
     try {
       await axios.post("/api/database-configs/save", newConfig);
+      // Update the table data with the new profile
+      setConfigs((prevConfigs) => [...prevConfigs, newConfig]);
+
+      // Optionally, re-fetch the data from the server to ensure it's up-to-date
+      await fetchData("/api/database-configs", setConfigs);
+
       setOpenAdd(false);
       setNewConfig({
         id: null,
