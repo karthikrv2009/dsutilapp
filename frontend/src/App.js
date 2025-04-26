@@ -60,7 +60,42 @@ const App = () => {
   }, []);
 
   if (!msalInstance) {
-    return <div>Loading MSAL...</div>; // ✅ Ensure provider never mounts with null
+    return (
+      <div
+        style={{
+          height: "100vh",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          backgroundColor: "#ffffff", // or your app background
+        }}
+      >
+        <img
+          src={DataPigBlackLogo}
+          alt="Data Pig Logo"
+          style={{
+            width: "150px",
+            height: "150px",
+            animation: "bounce 1s infinite",
+          }}
+        />
+        <style>
+          {`
+          @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+              transform: translateY(0);
+            }
+            40% {
+              transform: translateY(-30px);
+            }
+            60% {
+              transform: translateY(-15px);
+            }
+          }
+        `}
+        </style>
+      </div>
+    );
   }
 
   return (
@@ -71,7 +106,41 @@ const App = () => {
           {!isAuthChecked ? (
             <>
               <AuthHandler setIsAuthChecked={setIsAuthChecked} />
-              <div>Loading...</div>
+              <div
+                style={{
+                  height: "100vh",
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  backgroundColor: "#ffffff", // or your app background
+                  flexDirection: "column",
+                }}
+              >
+                <img
+                  src={DataPigBlackLogo}
+                  alt="Data Pig Logo"
+                  style={{
+                    width: "200px", // ✅ only width
+                    height: "auto", // ✅ maintain natural aspect ratio
+                    animation: "bounce 1.5s infinite",
+                  }}
+                />
+                <style>
+                  {`
+          @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+              transform: translateY(0);
+            }
+            40% {
+              transform: translateY(-25px);
+            }
+            60% {
+              transform: translateY(-15px);
+            }
+          }
+        `}
+                </style>
+              </div>
             </>
           ) : (
             <>
