@@ -98,7 +98,12 @@ public class MainApplication implements CommandLineRunner, Daemon {
                 if (initialLoad.getQueueListenerStatus() == 1) {
                     azureQueueListenerService.startQueueListener(databaseConfig.getDbIdentifier());
                     logger.info("Started queue listener for DB: {}", databaseConfig.getDbIdentifier());
-                } else {
+                } else if((initialLoad.getStatus()==2) && initialLoad.getQueueListenerStatus() == 0){
+                    initialLoad.setQueueListenerStatus(1);
+                    initialLoadService.save(initialLoad);
+                    azureQueueListenerService.startQueueListener(databaseConfig.getDbIdentifier());
+                }
+                else{
                     aldsMetaDataPointerLoadService.load(initialLoad.getDbIdentifier());
                     logger.info("Loaded metadata pointer for DB: {}", initialLoad.getDbIdentifier());
                 }
