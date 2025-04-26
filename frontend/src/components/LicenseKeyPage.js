@@ -147,6 +147,7 @@ const LicenseKeyPage = () => {
   const [isEnvSubmitted, setIsEnvSubmitted] = useState(false);
   const [envValidationResults, setEnvValidationResults] = useState({});
   const [editEnvironment, setEditEnvironment] = useState(null);
+  const [triggerEffect, setTriggerEffect] = useState(false);
 
   const [openEditEnvironmentDialog, setOpenEditEnvironmentDialog] =
     useState(false);
@@ -200,7 +201,7 @@ const LicenseKeyPage = () => {
         adlsFolderName: licenseData.environment,
       }));
     }
-  }, [licenseData]);
+  }, [licenseData.environment]);
 
   const handleTabChange = (event, newValue) => {
     setActiveTab(newValue);
@@ -212,6 +213,16 @@ const LicenseKeyPage = () => {
   };
 
   const handleAddClick = () => {
+    // Populate newConfig with licenseData.environment values
+    setNewConfig((prevConfig) => ({
+      ...prevConfig,
+      adlsContainerName: licenseData.environment || "",
+      adlsFolderName: licenseData.environment || "",
+    }));
+
+    // Open the "Add New Profile" dialog
+    setOpenAdd(true);
+
     setOpenAdd(true);
   };
 
