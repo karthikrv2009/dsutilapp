@@ -201,11 +201,14 @@ public class ALDSMetaDataPointerLoadService {
             
         }
         else{
+            if (pendingTablesInFolder.isEmpty()) {
                 intialLoad.setEndtimestamp(LocalDateTime.now());
                 intialLoad.setStatus(2);
                 intialLoad.setQueueListenerStatus(1);
                 initialLoadService.save(intialLoad);
                 flag=false;
+            }
+            
         }
     }
 
